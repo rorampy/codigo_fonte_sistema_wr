@@ -1,0 +1,245 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">PROJETO</div>
+          <h2 class="page-title">{{ projeto.nome_projeto }}</h2>
+        </div>
+        <div class="col-12 col-md-auto ms-auto d-print-none">
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('projetos_listar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar para Listagem
+            </a>
+            <a href="{{ url_for('projeto_editar', id=projeto.id) }}" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                <path d="M16 5l3 3"></path>
+              </svg>
+              Editar Projeto
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <!-- Status e Informações Principais -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="h1 m-0">SITUAÇÃO</div>
+              {% if projeto.andamento.nome == 'Não iniciado' %}
+              <span class="badge badge-xl bg-gray text-white">{{ projeto.andamento.nome }}</span>
+              {% elif projeto.andamento.nome == 'Em execução' %}
+              <span class="badge badge-xl bg-blue text-white">{{ projeto.andamento.nome }}</span>
+              {% elif projeto.andamento.nome == 'Paralisado' %}
+              <span class="badge badge-xl bg-orange text-white">{{ projeto.andamento.nome }}</span>
+              {% elif projeto.andamento.nome == 'Concluído' %}
+              <span class="badge badge-xl bg-green text-white">{{ projeto.andamento.nome }}</span>
+              {% endif %}
+              <div class="mt-2 text-secondary">Status Atual</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="h1 m-0">{{ projeto.usuarios_envolvidos | length + 1 }}</div>
+              <div class="mt-2 text-secondary">Pessoas na Equipe</div>
+              <small class="text-muted">Incluindo responsável técnico</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+              {% if projeto.data_fim %}
+              {% set duracao_dias = (projeto.data_fim - projeto.data_inicio).days %}
+              <div class="h1 m-0">{{ duracao_dias }}</div>
+              <div class="mt-2 text-secondary">Dias de Duração</div>
+              <small class="text-green">✅ Concluído</small>
+              {% else %}
+              {% set duracao_dias = (data_hoje - projeto.data_inicio).days %}
+              <div class="h1 m-0">{{ duracao_dias }}</div>
+              <div class="mt-2 text-secondary">Dias em Andamento</div>
+              <small class="text-blue">🔄 Em progresso</small>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informações do Projeto -->
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Informações do Projeto</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label class="form-label">Nome do Projeto</label>
+                    <input type="text" class="form-control" value="{{ projeto.nome_projeto }}" disabled>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Data de Início</label>
+                    <input type="text" class="form-control" 
+                      value="{{ projeto.data_inicio | formatar_data_para_brl }}" disabled>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Data de Fim</label>
+                    <input type="text" class="form-control" 
+                      value="{% if projeto.data_fim %}{{ projeto.data_fim | formatar_data_para_brl }}{% else %}Em andamento{% endif %}" disabled>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label class="form-label">Responsável Técnico</label>
+                    <input type="text" class="form-control" 
+                      value="{{ projeto.responsavel_tecnico.nome }} {{ projeto.responsavel_tecnico.sobrenome }}" disabled>
+                  </div>
+                </div>
+              </div>
+
+              {% if projeto.observacoes %}
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label class="form-label">Observações</label>
+                    <textarea class="form-control" rows="3" disabled>{{ projeto.observacoes }}</textarea>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Equipe do Projeto -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Equipe do Projeto</h3>
+            </div>
+            <div class="card-body">
+              <!-- Responsável Técnico -->
+              <div class="mb-3">
+                <h4 class="text-primary mb-2">Responsável Técnico</h4>
+                <div class="d-flex align-items-center mb-2">
+                  {% if projeto.responsavel_tecnico.foto_perfil %}
+                  <span class="avatar avatar-sm me-2"
+                    style="background-image: url({{ url_for('diretorio_uploads_usuarios', filename=projeto.responsavel_tecnico.foto_perfil.nome) }})">
+                  </span>
+                  {% else %}
+                  <span class="avatar avatar-sm me-2"
+                    style="background-image: url({{ url_for('diretorio_uploads_usuarios', filename='usuario_sem_foto.png') }})">
+                  </span>
+                  {% endif %}
+                  <div>
+                    <div class="font-weight-medium">{{ projeto.responsavel_tecnico.nome }} {{ projeto.responsavel_tecnico.sobrenome }}</div>
+                    <div class="text-secondary small">{{ projeto.responsavel_tecnico.role.cargo }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Usuários Envolvidos -->
+              {% if projeto.usuarios_envolvidos %}
+              <div class="mb-3">
+                <h4 class="text-primary mb-2">Equipe ({{ projeto.usuarios_envolvidos | length }})</h4>
+                {% for usuario in projeto.usuarios_envolvidos %}
+                <div class="d-flex align-items-center mb-2">
+                  {% if usuario.foto_perfil %}
+                  <span class="avatar avatar-sm me-2"
+                    style="background-image: url({{ url_for('diretorio_uploads_usuarios', filename=usuario.foto_perfil.nome) }})">
+                  </span>
+                  {% else %}
+                  <span class="avatar avatar-sm me-2"
+                    style="background-image: url({{ url_for('diretorio_uploads_usuarios', filename='usuario_sem_foto.png') }})">
+                  </span>
+                  {% endif %}
+                  <div>
+                    <div class="font-weight-medium">{{ usuario.nome }} {{ usuario.sobrenome }}</div>
+                    <div class="text-secondary small">{{ usuario.role.cargo }}</div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="mb-3">
+                <h4 class="text-primary mb-2">Equipe</h4>
+                <p class="text-secondary">Apenas o responsável técnico está envolvido neste projeto.</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Informações do Sistema -->
+          <div class="card mt-3">
+            <div class="card-header">
+              <h3 class="card-title">Informações do Sistema</h3>
+            </div>
+            <div class="card-body">
+              <div class="mb-2">
+                <strong>Data de criação:</strong><br>
+                <span class="text-secondary">{{ projeto.data_cadastro | formatar_data_hora_para_brl }}</span>
+              </div>
+              {% if projeto.data_alteracao != projeto.data_cadastro %}
+              <div class="mb-2">
+                <strong>Última atualização:</strong><br>
+                <span class="text-secondary">{{ projeto.data_alteracao | formatar_data_hora_para_brl }}</span>
+              </div>
+              {% endif %}
+              <div class="mb-2">
+                <strong>Status do registro:</strong><br>
+                {% if projeto.ativo %}
+                <span class="badge bg-green text-white">Ativo</span>
+                {% else %}
+                <span class="badge bg-red text-white">Inativo</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+{% endblock conteudo %}

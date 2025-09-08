@@ -1,0 +1,364 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">LANÇAMENTO DE HORAS</div>
+          <h2 class="page-title">
+            {% if atividade_selecionada %}
+              Cadastrar - {{ atividade_selecionada.titulo }}
+            {% else %}
+              Cadastrar
+            {% endif %}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <!-- Informações da atividade selecionada -->
+      {% if atividade_selecionada %}
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card border-primary">
+            <div class="card-header bg-primary-lt">
+              <h3 class="card-title">Atividade Selecionada</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <dl class="row">
+                    <dt class="col-sm-4">Projeto:</dt>
+                    <dd class="col-sm-8">{{ atividade_selecionada.projeto.nome_projeto }}</dd>
+                    
+                    <dt class="col-sm-4">Atividade:</dt>
+                    <dd class="col-sm-8">{{ atividade_selecionada.titulo }}</dd>
+                    
+                    <dt class="col-sm-4">Responsável:</dt>
+                    <dd class="col-sm-8">
+                      {% if atividade_selecionada.usuario_execucao %}
+                        {{ atividade_selecionada.usuario_execucao.nome }}
+                      {% else %}
+                        <span class="text-muted">Não atribuído</span>
+                      {% endif %}
+                    </dd>
+                  </dl>
+                </div>
+                <div class="col-md-6">
+                  <dl class="row">
+                    <dt class="col-sm-4">Horas Estimadas:</dt>
+                    <dd class="col-sm-8">{{ "%.1f"|format(atividade_selecionada.horas_necessarias) }}h</dd>
+                    
+                    <dt class="col-sm-4">Horas Utilizadas:</dt>
+                    <dd class="col-sm-8">{{ "%.1f"|format(atividade_selecionada.horas_utilizadas) }}h</dd>
+                    
+                    <dt class="col-sm-4">Progresso:</dt>
+                    <dd class="col-sm-8">
+                      <div class="progress">
+                        <div class="progress-bar {% if atividade_selecionada.percentual_horas > 100 %}bg-danger{% elif atividade_selecionada.percentual_horas > 80 %}bg-warning{% else %}bg-primary{% endif %}" 
+                             style="width: {{ atividade_selecionada.percentual_horas if atividade_selecionada.percentual_horas <= 100 else 100 }}%">
+                          {{ "%.1f"|format(atividade_selecionada.percentual_horas) }}%
+                        </div>
+                      </div>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('lancamento_horas_cadastrar', atividade_id=atividade_id_url) }}" method="POST">
+          <div class="card-body">
+            
+            <!-- Informações Básicas -->
+            <h3 class="text-primary mb-3">Informações do Lançamento</h3>
+            <div class="row">
+              {% if not atividade_selecionada %}
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Projeto</label>
+                  <select name="projetoId" id="projeto-select"
+                    class="form-select">
+                    <option value="">Selecione um projeto</option>
+                    {% for projeto in projetos %}
+                    <option value="{{ projeto.id }}" 
+                      {% if dados_corretos.get('projetoId')|string == projeto.id|string %}selected{% endif %}>
+                      {{ projeto.nome_projeto }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              {% endif %}
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Atividade</label>
+                  <select name="atividadeId" id="atividade-select"
+                    class="form-select {% if 'atividadeId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    {% if atividade_selecionada %}
+                    <option value="{{ atividade_selecionada.id }}" selected>{{ atividade_selecionada.titulo }}</option>
+                    {% else %}
+                    <option value="">Selecione uma atividade</option>
+                    {% for atividade in atividades %}
+                    <option value="{{ atividade.id }}" 
+                      {% if dados_corretos.get('atividadeId')|string == atividade.id|string %}selected{% endif %}>
+                      {{ atividade.titulo }}
+                    </option>
+                    {% endfor %}
+                    {% endif %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('atividadeId') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Usuário</label>
+                  <select name="usuarioId"
+                    class="form-select {% if 'usuarioId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione o usuário</option>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" 
+                      {% if dados_corretos.get('usuarioId')|string == usuario.id|string %}selected{% endif %}>
+                      {{ usuario.nome }} {{ usuario.sobrenome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('usuarioId') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Data do Lançamento</label>
+                  <input type="date" name="dataLancamento"
+                    value="{{ dados_corretos.get('dataLancamento', '') }}"
+                    class="form-control {% if 'dataLancamento' in campos_obrigatorios or 'dataLancamento' in campos_erros %}is-invalid{% endif %}">
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('dataLancamento') or campos_erros.get('dataLancamento') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Horas Gastas</label>
+                  <input type="text" name="horasGastas"
+                    value="{{ dados_corretos.get('horasGastas', '') }}"
+                    class="form-control {% if 'horasGastas' in campos_obrigatorios or 'horasGastas' in campos_erros %}is-invalid{% endif %} campo-float"
+                    placeholder="0,00">
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('horasGastas') or campos_erros.get('horasGastas') }}
+                  </div>
+                  <small class="form-hint">Exemplo: 2,5 ou 2.5</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Descrição -->
+            <h3 class="text-primary mb-3 mt-4">Descrição do Trabalho</h3>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label required">Descrição</label>
+                  <textarea name="descricao" rows="4" 
+                    class="form-control {% if 'descricao' in campos_obrigatorios %}is-invalid{% endif %}"
+                    placeholder="Descreva detalhadamente o trabalho realizado...">{{ dados_corretos.get('descricao', '') }}</textarea>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('descricao') }}
+                  </div>
+                  <small class="form-hint">Seja específico sobre as tarefas realizadas, problemas resolvidos, etc.</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Informações Adicionais -->
+            <div class="row mt-3">
+              <div class="col-md-12">
+                <div class="alert alert-info border-0 shadow-sm">
+                  <div class="d-flex">
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" 
+                        width="24" height="24" viewBox="0 0 24 24" 
+                        stroke-width="2" stroke="currentColor" fill="none" 
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                        <path d="M12 9h.01" />
+                        <path d="M11 12h1v4h1" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="alert-title">Dicas para lançamento de horas:</h4>
+                      <div class="text-secondary">
+                        • <strong>Seja preciso:</strong> Registre as horas exatas gastas na atividade<br>
+                        • <strong>Descrição detalhada:</strong> Inclua o que foi feito, problemas encontrados e soluções aplicadas<br>
+                        • <strong>Data correta:</strong> Use a data em que o trabalho foi realmente realizado<br>
+                        • <strong>Limite diário:</strong> Máximo de 24 horas por dia podem ser lançadas<br>
+                        • <strong>Atualizações automáticas:</strong> As horas utilizadas da atividade serão atualizadas automaticamente
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-footer text-center text-md-end">
+            <a href="{% if atividade_id_url %}{{ url_for('atividade_visualizar', atividade_id=atividade_id_url) }}{% else %}{{ url_for('lancamento_horas_listar') }}{% endif %}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar
+            </a>
+            <button type="submit" class="btn btn-success">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M12 5l0 14"></path>
+                <path d="M5 12l14 0"></path>
+              </svg>
+              Cadastrar Lançamento
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Preencher data atual como padrão
+    if (!$('input[name="dataLancamento"]').val()) {
+        const hoje = new Date().toISOString().split('T')[0];
+        $('input[name="dataLancamento"]').val(hoje);
+    }
+    
+    // Se houver usuário logado, selecionar automaticamente
+    {% if current_user.is_authenticated %}
+    if (!$('select[name="usuarioId"]').val()) {
+        $('select[name="usuarioId"]').val('{{ current_user.id }}');
+    }
+    {% endif %}
+    
+    // Converter vírgula para ponto em campos de horas
+    $('.campo-float').on('blur', function() {
+        var valor = $(this).val().replace(',', '.');
+        $(this).val(valor);
+    });
+    
+    // Filtro dinâmico de atividades baseado no projeto (se não há atividade pré-selecionada)
+    {% if not atividade_selecionada %}
+    $('#projeto-select').on('change', function() {
+        const projetoId = $(this).val();
+        const atividadeSelect = $('#atividade-select');
+        
+        if (projetoId) {
+            $.get(`/api/atividades-por-projeto/${projetoId}`)
+                .done(function(data) {
+                    if (data.success) {
+                        atividadeSelect.empty();
+                        atividadeSelect.append('<option value="">Selecione uma atividade</option>');
+                        
+                        data.atividades.forEach(function(atividade) {
+                            atividadeSelect.append(
+                                `<option value="${atividade.id}">${atividade.titulo}</option>`
+                            );
+                        });
+                    }
+                })
+                .fail(function() {
+                    console.error('Erro ao carregar atividades');
+                    alert('Erro ao carregar atividades. Tente novamente.');
+                });
+        } else {
+            atividadeSelect.empty();
+            atividadeSelect.append('<option value="">Selecione um projeto primeiro</option>');
+        }
+    });
+    
+    // Se já houver um projeto selecionado, carregar suas atividades
+    const projetoSelecionado = $('#projeto-select').val();
+    if (projetoSelecionado) {
+        $('#projeto-select').trigger('change');
+    }
+    {% endif %}
+    
+    // Validação em tempo real das horas
+    $('input[name="horasGastas"]').on('input', function() {
+        const valor = parseFloat($(this).val().replace(',', '.'));
+        const feedback = $(this).siblings('.invalid-feedback');
+        
+        if (isNaN(valor)) {
+            return;
+        }
+        
+        if (valor <= 0) {
+            $(this).addClass('is-invalid');
+            feedback.text('Horas devem ser maior que zero');
+        } else if (valor > 24) {
+            $(this).addClass('is-invalid');
+            feedback.text('Máximo de 24 horas por dia');
+        } else {
+            $(this).removeClass('is-invalid');
+            feedback.text('');
+        }
+    });
+    
+    // Validação da data
+    $('input[name="dataLancamento"]').on('change', function() {
+        const dataLancamento = new Date($(this).val());
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        
+        const feedback = $(this).siblings('.invalid-feedback');
+        
+        if (dataLancamento > hoje) {
+            $(this).addClass('is-invalid');
+            feedback.text('Data não pode ser futura');
+        } else {
+            $(this).removeClass('is-invalid');
+            feedback.text('');
+        }
+    });
+    
+    // Preview de informações da atividade selecionada
+    $('#atividade-select').on('change', function() {
+        const atividadeId = $(this).val();
+        if (atividadeId) {
+            // Aqui poderia carregar mais informações da atividade via AJAX
+            // Por exemplo, mostrar progresso atual, horas restantes, etc.
+        }
+    });
+});
+</script>
+{% endblock conteudo %}

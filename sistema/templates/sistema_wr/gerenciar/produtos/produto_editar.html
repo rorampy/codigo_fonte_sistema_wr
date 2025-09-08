@@ -1,0 +1,143 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <!-- Page pre-title -->
+          <div class="page-pretitle">
+            PRODUTO
+          </div>
+          <h2 class="page-title">
+            Editar
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('editar_produto', id=produto.id) }}" method="POST">
+          <input type="hidden" name="produto_id" value="{{ produto.id }}">
+
+          <div class="card-body">
+
+            <div class="row">
+              <div class="col-sm-8 col-md-8">
+                <div class="mb-3">
+                  <label class="form-label required">Descrição do Produto</label>
+                  <input type="text" name="descricao" value="{{ dados_corretos['descricao'] or produto.descricao }}"
+                    placeholder="Digite a descrição do produto" class="form-control {% if 'descricao' in campos_obrigatorios or 'descricao' in campos_erros %}
+                      is-invalid
+                    {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'descricao' in campos_obrigatorios %}
+                    {{ campos_obrigatorios['descricao'] }}
+                    {% elif 'descricao' in campos_erros %}
+                    {{ campos_erros['descricao'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Valor</label>
+                  <div class="input-group">
+                    <input type="text" name="valor" value="{{ dados_corretos['valor'] or produto.valor }}" class="form-control campo-moeda-brl {% if 'valor' in campos_obrigatorios or 'valor' in campos_erros %}
+                        is-invalid
+                      {% endif %}">
+                    <div class="invalid-feedback">
+                      {% if 'valor' in campos_obrigatorios %}
+                      {{ campos_obrigatorios['valor'] }}
+                      {% elif 'valor' in campos_erros %}
+                      {{ campos_erros['valor'] }}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Período de Cobrança</label>
+                  <select name="periodo" class="form-select {% if 'periodo' in campos_obrigatorios or 'periodo' in campos_erros %}
+                    is-invalid
+                  {% endif %}">
+                    <option value="">Selecione o período</option>
+                    <option value="0" {% if (dados_corretos['0'] or produto.periodo)==0 %}selected{% endif %}>
+                      Mensal
+                    </option>
+                    <option value="1" {% if (dados_corretos['1'] or produto.periodo)==1 %}selected{% endif %}>
+                      Anual
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">
+                    {% if 'periodo' in campos_obrigatorios %}
+                    {{ campos_obrigatorios['periodo'] }}
+                    {% elif 'periodo' in campos_erros %}
+                    {{ campos_erros['periodo'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Produto Ativo?</label>
+                  <label class="form-check mt-2 form-switch form-switch-3">
+                    <input class="form-check-input" name="ativo" value="1" type="checkbox" {% if
+                      (dados_corretos['ativo'] or produto.ativo)=='1' or (dados_corretos['ativo'] or produto.ativo)==1
+                      or (dados_corretos['ativo'] or produto.ativo)==True %}checked{% endif %}>
+                    <span class="form-check-label">Sim, produto disponível para venda</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="card-footer text-center text-md-end">
+            <a href="{{ url_for('listar_produtos') }}" class="btn btn-outline-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path>
+                <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                <path d="M14 4l0 4l-6 0l0 -4"></path>
+              </svg>
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+
+</div>
+
+{% endblock conteudo %}

@@ -1,0 +1,284 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/financeiro/contrato/contrato_cadastrar.css')}}">
+
+<div class="page-wrapper">
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">CONTRATO</div>
+          <h2 class="page-title">Editar</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div id="produto-info-section" style="display: block;">
+        <div class="card mb-3">
+          <div class="card-status-top bg-blue"></div>
+          <div class="card-body">
+            <div class="area-descricao-produto">
+              <div class="descricao-produto">
+                <div class="text-muted">Produto selecionado</div>
+                <div class="h4 m-0" id="produto-descricao">{{ contrato_produto.produto.descricao if
+                  contrato_produto.produto else '-' }}</div>
+              </div>
+              <div class="descricao-produto">
+                <div class="text-muted">Valor Padrão</div>
+                <div class="h4 m-0" id="produto-valor">{{ 'R$
+                  {:,.2f}'.format(contrato_produto.produto.valor/100).replace(',', 'X').replace('.', ',').replace('X',
+                  '.') if contrato_produto.produto else '-' }}</div>
+              </div>
+              <div class="descricao-produto">
+                <div class="text-muted">Período</div>
+                <div class="h4 m-0" id="produto-periodo">{{ 'Mensal' if contrato_produto.produto.periodo == 0 else
+                  (contrato_produto.produto.periodo|string + ' Anual') if contrato_produto.produto else '-' }}</div>
+              </div>
+              <div class="descricao-produto">
+                <div class="text-muted">Situação</div>
+                <span
+                  class="badge badge-outline {% if contrato_produto.produto.ativo %}text-green{% else %}text-red{% endif %}"
+                  id="produto-status">
+                  {{ 'Ativo' if contrato_produto.produto.ativo else 'Inativo' if contrato_produto.produto else '-' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <form action="{{ url_for('contrato_editar', contrato_id=contrato.id) }}" method="POST">
+          <div class="card-body">
+
+            <h3 class="card-title text-primary">Informações Básicas</h3>
+            <div class="row">
+              <div class="col-sm-12 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Cliente</label>
+                  <select name="cliente_id"
+                    class="form-select {% if 'cliente_id' in campos_obrigatorios or 'cliente_id' in campos_erros %}is-invalid{% endif %}"
+                    disabled>
+                    <option value="">Selecione o cliente</option>
+                    {% for cliente in clientes %}
+                    <option value="{{ cliente.id }}" {% if contrato.cliente_id==cliente.id %}selected{% endif %}>{{
+                      cliente.identificacao }}</option>
+                    {% endfor %}
+                  </select>
+                  <!-- Campo hidden para enviar o valor -->
+                  <input type="hidden" name="cliente_id" value="{{ contrato.cliente_id }}">
+                  <div class="invalid-feedback">
+                    {% if 'cliente_id' in campos_obrigatorios %}{{ campos_obrigatorios['cliente_id'] }}{% elif
+                    'cliente_id' in campos_erros %}{{ campos_erros['cliente_id'] }}{% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Produto</label>
+                  <select name="produto_id"
+                    class="form-select {% if 'produto_id' in campos_obrigatorios or 'produto_id' in campos_erros %}is-invalid{% endif %}"
+                    disabled>
+                    <option value="">Selecione o produto</option>
+                    {% for produto in produtos %}
+                    <option value="{{ produto.id }}" {% if contrato_produto.produto_id==produto.id %}selected{% endif
+                      %}>{{ produto.descricao }}</option>
+                    {% endfor %}
+                  </select>
+                  <!-- Campo hidden para enviar o valor -->
+                  <input type="hidden" name="produto_id" value="{{ contrato_produto.produto_id }}">
+                  <div class="invalid-feedback">
+                    {% if 'produto_id' in campos_obrigatorios %}{{ campos_obrigatorios['produto_id'] }}{% elif
+                    'produto_id' in campos_erros %}{{ campos_erros['produto_id'] }}{% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Modelo de Contrato</label>
+                  <select name="tipo_contrato"
+                    class="form-select {% if 'tipo_contrato' in campos_obrigatorios or 'tipo_contrato' in campos_erros %}is-invalid{% endif %}">
+                    <option value="">Selecione o tipo</option>
+                    {% for modelo in modelo_contrato %}
+                    <option value="{{ modelo.id }}" {% if contrato.modelo_contrato_id==modelo.id %}selected{% endif %}>
+                      {{ modelo.nome_modelo }}</option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {% if 'tipo_contrato' in campos_obrigatorios %}{{ campos_obrigatorios['tipo_contrato'] }}{% elif
+                    'tipo_contrato' in campos_erros %}{{ campos_erros['tipo_contrato'] }}{% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <h3 class="card-title text-primary">Vigência e Status</h3>
+            <div class="row">
+              <div class="col-sm-12 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Vigência Início</label>
+                  <input type="date" name="vigencia_inicio" value="{{ contrato_produto.vigencia_inicio }}"
+                    class="form-control {% if 'vigencia_inicio' in campos_obrigatorios or 'vigencia_inicio' in campos_erros %}is-invalid{% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'vigencia_inicio' in campos_obrigatorios %}{{ campos_obrigatorios['vigencia_inicio'] }}{% elif
+                    'vigencia_inicio' in campos_erros %}{{ campos_erros['vigencia_inicio'] }}{% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Vigência Fim</label>
+                  <input type="date" name="vigencia_fim" value="{{ contrato_produto.vigencia_fim }}"
+                    class="form-control">
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Status</label>
+                  <select name="status_contrato"
+                    class="form-select {% if 'status_contrato' in campos_obrigatorios or 'status_contrato' in campos_erros %}is-invalid{% endif %}"
+                    id="status_contrato">
+                    <option value="">Selecione o status</option>
+                    <option value="1" {% if contrato.status_contrato==1 %}selected{% endif %}>Ativo</option>
+                    <option value="2" {% if contrato.status_contrato==2 %}selected{% endif %}>Inativo</option>
+                    <option value="3" {% if contrato.status_contrato==3 %}selected{% endif %}>Cancelado</option>
+                  </select>
+                  <div class="invalid-feedback">
+                    {% if 'status_contrato' in campos_obrigatorios %}{{ campos_obrigatorios['status_contrato'] }}{% elif
+                    'status_contrato' in campos_erros %}{{ campos_erros['status_contrato'] }}{% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <h3 class="card-title text-primary">Valor e Pagamento</h3>
+            <div class="row">
+              <div class="col-sm-12 col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Valor Negociado</label>
+                  <input type="text" name="valor_negociado" value="{{ contrato_produto.valor_negociado|default('') }}"
+                    class="form-control campo-moeda-brl">
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Forma de Pagamento</label>
+                  <select name="forma_pagamento" class="form-select" id="forma_pagamento">
+                    <option value="">Selecione</option>
+                    {%for forma in forma_pagamento%}
+                    <option value="{{ forma.id }}" {% if contrato.forma_pagamento_id==forma.id %}selected{% endif %}>{{
+                      forma.descricao }}</option>
+                    {%endfor%}
+                  </select>
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-3" id="campo_parcelamento"
+                style="display: {% if contrato.forma_pagamento_id == 2 %}block{% else %}none{% endif %};">
+                <div class="mb-3">
+                  <label class="form-label required">Número de Parcelas</label>
+                  <select name="numero_parcelas"
+                    class="form-select {% if 'numero_parcelas' in campos_obrigatorios or 'numero_parcelas' in campos_erros %}is-invalid{% endif %}"
+                    id="numero_parcelas">
+                    <option value="">Selecione</option>
+                    <option value="1" {% if contrato_produto.nmro_parcelas==1 %}selected{% endif %}>1x</option>
+                    <option value="2" {% if contrato_produto.nmro_parcelas==2 %}selected{% endif %}>2x</option>
+                    <option value="3" {% if contrato_produto.nmro_parcelas==3 %}selected{% endif %}>3x</option>
+                    <option value="4" {% if contrato_produto.nmro_parcelas==4 %}selected{% endif %}>4x</option>
+                    <option value="5" {% if contrato_produto.nmro_parcelas==5 %}selected{% endif %}>5x</option>
+                    <option value="6" {% if contrato_produto.nmro_parcelas==6 %}selected{% endif %}>6x</option>
+                    <option value="7" {% if contrato_produto.nmro_parcelas==7 %}selected{% endif %}>7x</option>
+                    <option value="8" {% if contrato_produto.nmro_parcelas==8 %}selected{% endif %}>8x</option>
+                    <option value="9" {% if contrato_produto.nmro_parcelas==9 %}selected{% endif %}>9x</option>
+                    <option value="10" {% if contrato_produto.nmro_parcelas==10 %}selected{% endif %}>10x</option>
+                    <option value="11" {% if contrato_produto.nmro_parcelas==11 %}selected{% endif %}>11x</option>
+                    <option value="12" {% if contrato_produto.nmro_parcelas==12 %}selected{% endif %}>12x</option>
+                  </select>
+                  <div class="invalid-feedback">
+                    {% if 'numero_parcelas' in campos_obrigatorios %}{{ campos_obrigatorios['numero_parcelas'] }}{% elif
+                    'numero_parcelas' in campos_erros %}{{ campos_erros['numero_parcelas'] }}{% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <h3 class="card-title text-primary">Observações</h3>
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="mb-3">
+                  <textarea name="observacoes" class="form-control"
+                    rows="4">{{ contrato_produto.observacoes|default('') }}</textarea>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="card-footer text-end">
+            <a href="{{ url_for('contrato_listar') }}" class="btn btn me-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M16 3l4 4l-11 11h-4v-4z"></path>
+                <path d="M13 6l4 4"></path>
+              </svg>
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Elementos para controle de parcelamento
+      const formaPagamentoSelect = document.getElementById('forma_pagamento');
+      const campoParcelamento = document.getElementById('campo_parcelamento');
+      const numeroParcelasSelect = document.getElementById('numero_parcelas');
+
+      // Função para controlar exibição do campo de parcelamento
+      function controlarCampoParcelamento() {
+        if (formaPagamentoSelect.value === '2') {
+          campoParcelamento.style.display = 'block';
+          // Definir 1x como padrão quando cartão de crédito for selecionado
+          if (!numeroParcelasSelect.value) {
+            numeroParcelasSelect.value = '1';
+          }
+        } else {
+          campoParcelamento.style.display = 'none';
+          numeroParcelasSelect.value = '';
+        }
+      }
+
+      // Event listener para mudança na forma de pagamento
+      formaPagamentoSelect.addEventListener('change', controlarCampoParcelamento);
+
+      // Verificar estado inicial do campo de parcelamento
+      controlarCampoParcelamento();
+    });
+  </script>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+{% endblock conteudo %}

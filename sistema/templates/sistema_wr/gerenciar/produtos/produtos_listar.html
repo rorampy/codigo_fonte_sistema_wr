@@ -1,0 +1,180 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+<div class="page-wrapper">
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">
+            PRODUTOS
+          </div>
+          <h2 class="page-title">
+            Listagem
+          </h2>
+        </div>
+
+        <div class="col-12 col-md-auto ms-auto d-print-none">
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('cadastrar_produto') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Cadastrar Produto
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <div class="card">
+          {%if produtos%}
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+              <thead>
+                <tr>
+                  <th style="text-align: center;">Descrição</th>
+                  <th style="text-align: center;">Valor</th>
+                  <th style="text-align: center;">Período</th>
+                  <th style="text-align: center;">Ativo</th>
+                  <th class="w-1" style="text-align: center;">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in produtos %}
+                <tr>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ p.descricao[:50] }}
+                    {% if p.descricao | length > 50 %}
+                    ...
+                    {% endif %}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ p.valor | formatar_float_para_brl }}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {% if p.periodo == 0 %}
+                    <span class="badge bg-blue text-white">Mensal</span>
+                    {% else %}
+                    <span class="badge bg-green text-white">Anual</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {%if p.ativo == 1 or p.ativo == True%}<span
+                      class="badge badge-outline text-green">Sim</span>{%else%}<span
+                      class="badge badge-outline text-danger">Não</span>{%endif%}
+                  </td>
+                  <td>
+                    <div class="btn-list flex-nowrap">
+                      <a href="{{ url_for('editar_produto', id=p.id) }}" class="btn btn-icon btn-outline-warning"
+                        data-bs-toggle="tooltip" data-bs-placement="top" title="Editar produto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="24"
+                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+                          <path d="M13.5 6.5l4 4" />
+                        </svg>
+                      </a>
+                      {% if p.ativo == 1 or p.ativo == True %}
+                      <a href="#" class="btn btn-icon btn-outline-danger desativar" data-bs-toggle="modal"
+                        data-bs-target="#modal-desativar-{{ p.id }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M18 6l-12 12" />
+                          <path d="M6 6l12 12" />
+                        </svg>
+                      </a>
+
+                      <div class="modal modal-blur fade" id="modal-desativar-{{p.id}}" tabindex="-1" role="dialog"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                          <div class="modal-content">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal-status bg-danger"></div>
+                            <div class="modal-body text-center py-4">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                                <path d="M12 9v4" />
+                                <path
+                                  d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                                <path d="M12 16h.01" />
+                              </svg>
+                              <div class="text-secondary">
+                                Você realmente deseja desativar este produto?
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <div class="w-100">
+                                <div class="row">
+                                  <div class="col">
+                                    <a href="#" class="btn btn-3 w-100" data-bs-dismiss="modal">
+                                      Fechar
+                                    </a>
+                                  </div>
+                                  <div class="col">
+                                    <a href="{{url_for('desativar_produto', id=p.id)}}"
+                                      class="btn btn-danger btn-4 w-100">
+                                      Desativar
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {%else%}
+                      <a href="{{ url_for('ativar_produto', id=p.id) }}" class="btn btn-icon btn-outline-success ativar"
+                        data-bs-toggle="tooltip" data-bs-placement="top" title="Ativar produto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24"
+                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M5 12l5 5l10 -10" />
+                        </svg>
+                      </a>
+                      {%endif%}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {%else%}
+          <div class="area-info-card" style="padding: 30px; border-radius: 10px; text-align: center;
+                          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+                          background-color: white;">
+            <div class="icon-extrato" style="font-size: 70px; color: #fc7801; margin-bottom: 15px">📦
+            </div>
+            <h2 style="font-size: 22px; margin-bottom: 10px; color: #555;">
+              Nenhum produto cadastrado.
+            </h2>
+            <p style="color: #777;">
+              No momento não há produtos para serem exibidos.
+            </p>
+          </div>
+          {%endif%}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+
+{% endblock conteudo %}

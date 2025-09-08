@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contrato de Locação</title>
+  <style>
+    /* Reset e configurações básicas para PDF */
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #000000;
+      background: white;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Cabeçalho */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 3px solid #FF8E44;
+      padding-bottom: 15px;
+    }
+
+    .contract-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #FF8E44;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .company-info {
+      font-size: 11px;
+      color: #666;
+    }
+
+    /* Seções do contrato */
+    .section {
+      margin-bottom: 25px;
+      page-break-inside: avoid;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #FF8E44;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      border-left: 4px solid #FF8E44;
+      padding-left: 10px;
+    }
+
+    /* Informações das partes - estilos para tabela */
+    .party-title {
+      font-weight: bold;
+      color: #FF8E44;
+      font-size: 13px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      border-bottom: 2px solid #FF8E44;
+      padding-bottom: 5px;
+    }
+
+    .party-details p {
+      margin-bottom: 8px;
+      font-size: 11px;
+    }
+
+    .party-details strong {
+      color: #FF8E44;
+      font-weight: bold;
+    }
+
+    /* Cláusulas */
+    .clause {
+      margin-bottom: 15px;
+    }
+
+    .clause-number {
+      font-weight: bold;
+      color: #FF8E44;
+      margin-bottom: 5px;
+    }
+
+    .clause-content {
+      text-align: justify;
+      margin-left: 10px;
+    }
+
+    /* Tabela de valores */
+    .values-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+
+    .values-table th {
+      background-color: #FF8E44;
+      color: white;
+      padding: 10px;
+      text-align: left;
+      font-weight: bold;
+      font-size: 11px;
+    }
+
+    .values-table td {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      font-size: 11px;
+    }
+
+    .values-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .total-row {
+      font-weight: bold;
+      background-color: #fff3e6 !important;
+    }
+
+    .total-row td {
+      border-top: 2px solid #FF8E44;
+    }
+
+    /* Assinaturas - estilos para tabela */
+    .signature-line {
+      border-bottom: 2px solid #FF8E44;
+      width: 200px;
+      margin: 0 auto 10px;
+      height: 50px;
+    }
+
+    .signature-name {
+      font-weight: bold;
+      font-size: 11px;
+      color: #FF8E44;
+    }
+
+    .signature-role {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    /* Rodapé */
+    .footer {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+    }
+
+    /* Observações */
+    .observations {
+      background-color: #fff3e6;
+      border-left: 4px solid #FF8E44;
+      padding: 15px;
+      margin: 20px 0;
+      font-size: 11px;
+    }
+
+    /* Responsivo para impressão */
+    @media print {
+      body {
+        padding: 10px;
+      }
+    }
+
+    /* Para telas muito pequenas, empilhar verticalmente */
+    @media (max-width: 480px) {
+      table tr td {
+        display: block !important;
+        width: 100% !important;
+        padding: 10px 0 !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Cabeçalho -->
+  <div class="header">
+    <div class="contract-title">Contrato de {{contrato.modelo_contrato.nome_modelo or 'venda'}}</div>
+    <div class="company-info">
+      Hash BR - Desenvolvimento de Sistemas
+    </div>
+  </div>
+
+  <!-- Identificação das Partes -->
+  <div class="section">
+    <div class="section-title">Identificação das Partes</div>
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+      <tr>
+        <td style="width: 50%; vertical-align: top; padding-right: 15px; border: none;">
+          <div style="font-weight: bold; color: #FF8E44; font-size: 13px; margin-bottom: 8px; text-transform: uppercase; border-bottom: 2px solid #FF8E44; padding-bottom: 5px;">CONTRATANTE</div>
+          <div>
+            <p style="margin-bottom: 8px; font-size: 11px;"><span style="color: #FF8E44; font-weight: bold;">Nome:</span> {{contrato.cliente.identificacao}}</p>
+            <p style="margin-bottom: 8px; font-size: 11px;"><span style="color: #FF8E44; font-weight: bold;">CPF/CNPJ:</span> {{contrato.cliente.numero_documento}}</p>
+          </div>
+        </td>
+        <td style="width: 50%; vertical-align: top; padding-left: 15px; border: none;">
+          <div style="font-weight: bold; color: #FF8E44; font-size: 13px; margin-bottom: 8px; text-transform: uppercase; border-bottom: 2px solid #FF8E44; padding-bottom: 5px;">CONTRATADA</div>
+          <div>
+            <p style="margin-bottom: 8px; font-size: 11px;"><span style="color: #FF8E44; font-weight: bold;">Nome do Sistema:</span> {{variaveis_sistema.nome_projeto}}</p>
+            <p style="margin-bottom: 8px; font-size: 11px;"><span style="color: #FF8E44; font-weight: bold;">CNPJ da Empresa:</span> {{variaveis_sistema.cnpj}}</p>
+            <p style="margin-bottom: 8px; font-size: 11px;"><span style="color: #FF8E44; font-weight: bold;">Representante:</span> {{current_user.nome}}</p>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Cláusulas Contratuais -->
+  <div class="section">
+    <div class="section-title">Das Cláusulas Contratuais</div>
+    <div class="clause-content">
+      {{ conteudo_contrato | default('— Sem conteúdo disponível —') | safe }}
+    </div>
+  </div>
+
+  <!-- Observações -->
+  <div class="observations">
+    <strong>Observações:</strong> E por estarem justos e contratados, assinam o presente instrumento em 2 (duas) vias de
+    igual teor e forma. Este contrato foi gerado pelo Hash BR e possui validade legal conforme a
+    legislação vigente.
+  </div>
+
+  <!-- Assinaturas -->
+  <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 40px;">
+    <tr>
+      <td style="width: 50%; text-align: center; vertical-align: top; padding: 0 20px; border: none;">
+        <div style="border-bottom: 2px solid #FF8E44; width: 200px; margin: 0 auto 10px; height: 50px;"></div>
+        <div style="font-weight: bold; font-size: 11px; color: #FF8E44;"></div>
+        <div style="font-size: 11px; color: #666; text-transform: uppercase; font-weight: bold;">LOCADOR</div>
+      </td>
+      <td style="width: 50%; text-align: center; vertical-align: top; padding: 0 20px; border: none;">
+        <div style="border-bottom: 2px solid #FF8E44; width: 200px; margin: 0 auto 10px; height: 50px;"></div>
+        <div style="font-weight: bold; font-size: 11px; color: #FF8E44;"></div>
+        <div style="font-size: 11px; color: #666; text-transform: uppercase; font-weight: bold;">LOCATÁRIO</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Rodapé -->
+  <div class="footer">
+    <p><strong>Hash BR © 2025</strong> - Todos os direitos reservados</p>
+  </div>
+</body>
+
+</html>

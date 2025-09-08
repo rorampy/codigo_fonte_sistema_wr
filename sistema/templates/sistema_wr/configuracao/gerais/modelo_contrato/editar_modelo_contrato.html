@@ -1,0 +1,199 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <!-- Page pre-title -->
+          <div class="page-pretitle">
+            EDITAR MODELO CONTRATO
+          </div>
+          <h2 class="page-title">
+            Editar Modelo de Contrato
+          </h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="d-flex gap-2">
+            <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-report">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-code">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M7 8l-4 4l4 4" />
+                <path d="M17 8l4 4l-4 4" />
+                <path d="M14 4l-4 16" />
+              </svg>
+              Visualizar Variáveis </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <form class="card" action="{{url_for('editar_modelo_contrato', modelo_id=modelo.id)}}" method="POST">
+          <div class="card-body">
+            <div class="row row-cards">
+
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Nome modelo</label>
+                  <input type="text" name="nomeModelo"
+                    value="{{ dados_corretos['nomeModelo'] if dados_corretos else modelo.nome_modelo }}"
+                    class="form-control {% if 'nomeModelo' in campos_obrigatorios %}is-invalid{% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'nomeModelo' in campos_obrigatorios %}
+                    {{ campos_obrigatorios['nomeModelo'] }}
+                    {% elif 'nomeModelo' in campos_erros %}
+                    {{ campos_erros['nomeModelo'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-12 col-md-12">
+                <div class="mb-3">
+                  <label class="form-label required">Modelo de Contrato</label>
+                  <div id="editor-container"
+                    class="{% if 'conteudo' in campos_obrigatorios %}border border-danger{% endif %}">
+                  </div>
+                  <input type="hidden" name="conteudo" id="conteudo-input">
+                  <div class="invalid-feedback {% if 'conteudo' in campos_obrigatorios %}d-block{% endif %}">
+                    {% if 'conteudo' in campos_obrigatorios %}
+                    {{ campos_obrigatorios['conteudo'] }}
+                    {% elif 'conteudo' in campos_erros %}
+                    {{ campos_erros['conteudo'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Campo oculto para o ID do modelo -->
+              <input type="hidden" name="modelo_id" value="{{ modelo.id }}">
+
+            </div>
+          </div>
+          <div class="card-footer text-center text-md-end">
+            <a href="{{ url_for('listar_modelos_contratos') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+              </svg>
+              Editar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Variáveis Disponíveis</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table table-vcenter">
+              <thead>
+                <tr>
+                  <th>Variável</th>
+                  <th>Descrição</th>
+                  <th>Situação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if variaveis_modelo %}
+                {% for variavel in variaveis_modelo %}
+                <tr>
+                  <td><code>{{ variavel.chave }}</code></td>
+                  <td>{{ variavel.descricao }}</td>
+                  <td>
+                    <span class="badge badge-outline text-{% if variavel.ativo %}green{% else %}red{% endif %}">
+                      {% if variavel.ativo %}Ativo{% else %}Inativo{% endif %}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td colspan="2" class="text-center text-muted">Nenhuma variável cadastrada</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configs Quill -->
+  <script>
+    var CustomOptions = {
+      modules: {
+        toolbar: [
+          [{ 'size': ['small', false, 'large', 'huge'] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'align': [] }],
+          [{ 'color': [] }, { 'background': [] }],
+          ['link']
+          // Adicionar mais botões personalizados aqui
+        ]
+      },
+      theme: 'snow'
+    };
+
+    // Obtem o elemento do editor
+    var editor = new Quill('#editor-container', CustomOptions);
+
+    // Sincroniza o conteúdo do editor com o input escondido
+    editor.on('text-change', function () {
+      var content = editor.root.innerHTML;
+      document.querySelector('#conteudo-input').value = content;
+    });
+
+    // Define o conteúdo do editor a partir dos dados corretos ou do modelo existente
+    var descricao = {% if dados_corretos and dados_corretos['conteudo'] %}'{{ dados_corretos['conteudo']|safe }}'{% else %} '{{ modelo.conteudo|safe }}'{% endif %};
+
+    // Aguarda o editor carregar completamente antes de inserir o conteúdo
+    setTimeout(function () {
+      editor.clipboard.dangerouslyPasteHTML(descricao);
+      // Sincroniza o valor inicial com o input hidden
+      document.querySelector('#conteudo-input').value = editor.root.innerHTML;
+    }, 100);
+  </script>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+
+</div>
+
+{% endblock conteudo %}

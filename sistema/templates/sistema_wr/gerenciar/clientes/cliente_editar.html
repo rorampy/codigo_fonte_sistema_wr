@@ -1,0 +1,405 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+<div class="page-wrapper">
+
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+
+          <div class="page-pretitle">
+            CLIENTE
+          </div>
+          <h2 class="page-title">
+            Editar
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="page-body">
+    <div class="container-xl">
+
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('editar_cliente', id=cliente.id) }}" method="POST">
+          <input type="hidden" name="cliente_id" value="{{ cliente.id }}">
+
+          <div class="card-body">
+            <div class="row">
+              <div class="col-sm-6 col-md-6">
+                <div class="mb-3">
+                  <div class="form-label">Tipo de
+                    Cadastro</div>
+                  <div>
+                    <label class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="tipoCadastro" value="cpf" {% if (dados_corretos
+                        and dados_corretos['tipoCadastro']=='cpf' ) or (cliente.fatura_via_cpf==1) %}checked{% endif %}>
+                      <span class="form-check-label">Por
+                        CPF</span>
+                    </label>
+                    <label class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="tipoCadastro" value="cnpj" {% if
+                        (dados_corretos and dados_corretos['tipoCadastro']=='cnpj' ) or (cliente.fatura_via_cpf==0)
+                        %}checked{% endif %}>
+                      <span class="form-check-label">Por
+                        CNPJ</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-6 col-md-6 grupoCPF">
+                <div class="mb-3">
+                  <label class="form-label required">Nome
+                    Completo</label>
+                  <input type="text" name="nomeCompleto"
+                    value="{{ dados_corretos['nomeCompleto'] if dados_corretos and dados_corretos['nomeCompleto'] else (cliente.identificacao if cliente.fatura_via_cpf == 1 else '') }}"
+                    class="form-control {% if 'nomeCompleto' in campos_obrigatorios or 'nomeCompleto' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'nomeCompleto' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['nomeCompleto']
+                    }}
+                    {% elif 'nomeCompleto' in campos_erros
+                    %}
+                    {{ campos_erros['nomeCompleto'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-md-6 grupoCNPJ">
+                <div class="mb-3">
+                  <label class="form-label required">Razão
+                    Social</label>
+                  <input type="text" name="razaoSocial"
+                    value="{{ dados_corretos['razaoSocial'] if dados_corretos and dados_corretos['razaoSocial'] else (cliente.identificacao if cliente.fatura_via_cpf == 0 else '') }}"
+                    class="form-control {% if 'razaoSocial' in campos_obrigatorios or 'razaoSocial' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'razaoSocial' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['razaoSocial'] }}
+                    {% elif 'razaoSocial' in campos_erros %}
+                    {{ campos_erros['razaoSocial'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-2 col-md-2 grupoCPF">
+                <div class="mb-3">
+                  <label class="form-label required">CPF</label>
+                  <input type="text" name="cpf"
+                    value="{{ dados_corretos['cpf'] if dados_corretos and dados_corretos['cpf'] else (cliente.numero_documento if cliente.fatura_via_cpf == 1 else '') }}"
+                    data-mask="000.000.000-00" placeholder="xxx.xxx.xxx-xx" data-mask-visible="true" autocomplete="off"
+                    class="form-control {% if 'cpf' in campos_obrigatorios or 'cpf' in campos_erros %}
+                          is-invalid
+                        {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'cpf' in campos_obrigatorios %}
+                    {{ campos_obrigatorios['cpf'] }}
+                    {% elif 'cpf' in campos_erros %}
+                    {{ campos_erros['cpf'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-2 col-md-2 grupoCNPJ">
+                <div class="mb-3">
+                  <label class="form-label required">CNPJ</label>
+                  <input type="text" name="cnpj"
+                    value="{{ dados_corretos['cnpj'] if dados_corretos and dados_corretos['cnpj'] else (cliente.numero_documento if cliente.fatura_via_cpf == 0 else '') }}"
+                    data-mask="00.000.000/0000-00" placeholder="xx.xxx.xxx/xxxx-xx" data-mask-visible="true"
+                    autocomplete="off" class="form-control {% if 'cnpj' in campos_obrigatorios or 'cnpj' in campos_erros %}
+                          is-invalid
+                        {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'cnpj' in campos_obrigatorios %}
+                    {{ campos_obrigatorios['cnpj'] }}
+                    {% elif 'cnpj' in campos_erros %}
+                    {{ campos_erros['cnpj'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-2 col-md-2">
+                <div class="mb-3">
+                  <label class="form-label required">Telefone</label>
+                  <input type="text" name="telefone"
+                    value="{{ dados_corretos['telefone'] if dados_corretos and dados_corretos['telefone'] else (cliente.telefone) }}"
+                    data-mask="(00) 0 0000-0000" placeholder="(xx) x xxxx-xxxx" data-mask-visible="true"
+                    autocomplete="off"
+                    class="form-control {% if 'telefone' in campos_obrigatorios or 'telefone' in campos_erros %}is-invalid{% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'telefone' in campos_obrigatorios
+                    %}
+                    {{ campos_obrigatorios['telefone'] }}
+                    {% elif 'telefone' in campos_erros %}
+                    {{ campos_erros['telefone'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-2 col-md-2">
+                <div class="mb-3">
+                  <label for="form-label required">Possui Whatsapp?</label>
+                  <label class="form-check mt-2 form-switch form-switch-3">
+                    <input class="form-check-input" name="telefoneWhats" value="1" type="checkbox" {% if (dados_corretos
+                      and dados_corretos.get('telefoneWhats')=='1' ) or (not dados_corretos and cliente.possui_whats)
+                      %}checked{% endif %}>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Email</label>
+                  <input type="email" name="emailCliente"
+                    value="{{ dados_corretos['emailCliente'] if dados_corretos and dados_corretos['emailCliente'] else cliente.email }}"
+                    class="form-control {% if 'emailCliente' in campos_obrigatorios or 'emailCliente' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'emailCliente' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['emailCliente']
+                    }}
+                    {% elif 'emailCliente' in campos_erros
+                    %}
+                    {{ campos_erros['emailCliente'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <h3 class="text-primary">Informações complementares</h3>
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Rua</label>
+                  <input type="text" name="ruaEndereco"
+                    value="{{ dados_corretos['ruaEndereco'] if dados_corretos and dados_corretos['ruaEndereco'] else cliente.endereco_rua }}"
+                    class="form-control {% if 'ruaEndereco' in campos_obrigatorios or 'ruaEndereco' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'ruaEndereco' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['ruaEndereco']
+                    }}
+                    {% elif 'ruaEndereco' in campos_erros
+                    %}
+                    {{ campos_erros['ruaEndereco'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-2 col-md-2">
+                <div class="mb-3">
+                  <label class="form-label">Número</label>
+                  <input type="text" name="numeroEndereco"
+                    value="{{ dados_corretos['numeroEndereco'] if dados_corretos and dados_corretos['numeroEndereco'] else cliente.endereco_numero }}"
+                    class="form-control {% if 'numeroEndereco' in campos_obrigatorios or 'numeroEndereco' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'numeroEndereco' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['numeroEndereco']
+                    }}
+                    {% elif 'numeroEndereco' in campos_erros
+                    %}
+                    {{ campos_erros['numeroEndereco'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Bairro</label>
+                  <input type="text" name="bairroEndereco"
+                    value="{{ dados_corretos['bairroEndereco'] if dados_corretos and dados_corretos['bairroEndereco'] else cliente.endereco_bairro }}"
+                    class="form-control {% if 'bairroEndereco' in campos_obrigatorios or 'bairroEndereco' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'bairroEndereco' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['bairroEndereco']
+                    }}
+                    {% elif 'bairroEndereco' in campos_erros
+                    %}
+                    {{ campos_erros['bairroEndereco'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-2 col-md-2">
+                <div class="mb-3">
+                  <label class="form-label">CEP</label>
+                  <input type="text" name="cepEndereco"
+                    value="{{ dados_corretos['cepEndereco'] if dados_corretos and dados_corretos['cepEndereco'] else cliente.endereco_cep }}"
+                    class="form-control {% if 'cepEndereco' in campos_obrigatorios or 'cepEndereco' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'cepEndereco' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['cepEndereco']
+                    }}
+                    {% elif 'cepEndereco' in campos_erros
+                    %}
+                    {{ campos_erros['cepEndereco'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Cidade</label>
+                  <input type="text" name="cidadeEndereco"
+                    value="{{ dados_corretos['cidadeEndereco'] if dados_corretos and dados_corretos['cidadeEndereco'] else cliente.endereco_cidade }}"
+                    class="form-control {% if 'cidadeEndereco' in campos_obrigatorios or 'cidadeEndereco' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'cidadeEndereco' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['cidadeEndereco']
+                    }}
+                    {% elif 'cidadeEndereco' in campos_erros
+                    %}
+                    {{ campos_erros['cidadeEndereco'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Estado</label>
+                  <input type="text" name="estadoEndereco"
+                    value="{{ dados_corretos['estadoEndereco'] if dados_corretos and dados_corretos['estadoEndereco'] else cliente.endereco_estado }}"
+                    class="form-control {% if 'estadoEndereco' in campos_obrigatorios or 'estadoEndereco' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'estadoEndereco' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['estadoEndereco']
+                    }}
+                    {% elif 'estadoEndereco' in campos_erros
+                    %}
+                    {{ campos_erros['estadoEndereco'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">País</label>
+                  <input type="text" name="paisEndereco"
+                    value="{{ dados_corretos['paisEndereco'] if dados_corretos and dados_corretos['paisEndereco'] else cliente.endereco_estado }}"
+                    class="form-control {% if 'paisEndereco' in campos_obrigatorios or 'paisEndereco' in campos_erros %}
+                            is-invalid
+                          {% endif %}">
+                  <div class="invalid-feedback">
+                    {% if 'paisEndereco' in
+                    campos_obrigatorios %}
+                    {{ campos_obrigatorios['paisEndereco']
+                    }}
+                    {% elif 'paisEndereco' in campos_erros
+                    %}
+                    {{ campos_erros['paisEndereco'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="card-footer text-center text-md-end">
+            <a href="{{ url_for('listar_clientes') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+              </svg>
+              Editar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function limparCampos(grupoClasse) {
+        document.querySelectorAll('.' + grupoClasse + ' input[type="text"]').forEach(function (input) {
+          input.value = '';
+        });
+      }
+
+      function alternarCampos() {
+        var radioCPF = document.querySelector('input[name="tipoCadastro"][value="cpf"]');
+
+        var grupoCPF = document.querySelectorAll('.grupoCPF');
+        var grupoCNPJ = document.querySelectorAll('.grupoCNPJ');
+
+        if (radioCPF.checked) {
+          grupoCPF.forEach(el => el.style.display = 'block');
+          grupoCNPJ.forEach(el => el.style.display = 'none');
+          limparCampos('grupoCNPJ'); // Limpa campos do grupo CNPJ
+        } else {
+          grupoCPF.forEach(el => el.style.display = 'none');
+          grupoCNPJ.forEach(el => el.style.display = 'block');
+          limparCampos('grupoCPF'); // Limpa campos do grupo CPF
+        }
+      }
+
+      document.querySelectorAll('input[name="tipoCadastro"]').forEach(radio => {
+        radio.addEventListener('change', alternarCampos);
+      });
+
+      alternarCampos(); // Configura o estado inicial dos campos
+    });
+  </script>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+
+</div>
+
+{% endblock conteudo %}

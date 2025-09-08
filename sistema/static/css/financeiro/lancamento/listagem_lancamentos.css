@@ -1,0 +1,213 @@
+  /* === TABELA MODERNA === */
+
+  .table-header {
+    background: #fafbfc;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f3f4;
+  }
+
+  .table-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .table-responsive {
+    border-radius: 0;
+  }
+
+  .table-modern {
+    margin: 0;
+    border: none;
+  }
+
+  .table-modern thead th {
+    background: #fafbfc;
+    border: none;
+    border-bottom: 1px solid #f1f3f4;
+    padding: 16px 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .table-modern tbody td {
+    border: none;
+    border-bottom: 1px solid #f8fafc;
+    padding: 20px;
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+
+  .table-modern tbody tr:hover {
+    background: #f8fafc;
+  }
+
+  .table-modern tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* === ESTILOS ESPECÍFICOS PARA LANÇAMENTOS === */
+  .lancamentos-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f3f4;
+  }
+
+  .lancamentos-list {
+    padding: 0;
+  }
+
+  .lancamento-item {
+    display: flex;
+    align-items: center;
+    padding: 20px 28px;
+    border-bottom: 1px solid #f8f9fa;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .lancamento-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 12px 12px;
+  }
+
+  .lancamento-item:hover {
+    background: #fafbfc;
+  }
+
+  .lancamento-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+
+  .lancamento-icon.receita {
+    background: #f0fdf4;
+    color: #22c55e;
+  }
+
+  .lancamento-icon.despesa {
+    background: #fef2f2;
+    color: #ef4444;
+  }
+
+  .lancamento-details {
+    flex: 1;
+    margin-right: 16px;
+    min-width: 0;
+  }
+
+  .lancamento-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lancamento-subtitle {
+    font-size: 0.8rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .lancamento-category {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .lancamento-amount {
+    text-align: right;
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+
+  .amount-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .amount-value.positive {
+    color: #22c55e;
+  }
+
+  .amount-value.negative {
+    color: #ef4444;
+  }
+
+  .amount-date {
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+
+  /* === RESPONSIVIDADE === */
+  @media (max-width: 768px) {
+    .lancamento-item {
+      padding: 16px 24px;
+      flex-wrap: wrap;
+    }
+
+    .lancamento-details {
+      margin-right: 12px;
+      flex: 1 1 100%;
+      margin-bottom: 12px;
+    }
+
+    .lancamento-amount {
+      margin-right: 12px;
+      text-align: left;
+    }
+
+    .lancamento-actions {
+      display: none;
+    }
+
+    .actions-dropdown {
+      display: block;
+    }
+
+    .lancamento-title {
+      font-size: 0.85rem;
+    }
+
+    .amount-value {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .lancamento-item {
+      padding: 16px 20px;
+    }
+
+    .lancamento-icon {
+      width: 36px;
+      height: 36px;
+      margin-right: 12px;
+    }
+  }

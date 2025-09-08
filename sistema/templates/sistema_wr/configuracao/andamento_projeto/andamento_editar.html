@@ -1,0 +1,109 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">ANDAMENTO DE PROJETO</div>
+          <h2 class="page-title">Editar</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('andamento_editar', id=andamento.id) }}" method="POST">
+          <div class="card-body">
+            <h3 class="text-primary mb-3">Informações do Andamento</h3>
+            <div class="row">
+              <div class="col-md-8">
+                <div class="mb-3">
+                  <label class="form-label required">Nome do Andamento</label>
+                  <input type="text" name="nomeAndamento"
+                    value="{{ dados_corretos.get('nomeAndamento', '') }}"
+                    class="form-control {% if 'nomeAndamento' in campos_obrigatorios or 'nomeAndamento' in campos_erros %}is-invalid{% endif %}"
+                    placeholder="Ex: Não iniciado, Em execução, Paralisado, Concluído">
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('nomeAndamento') or campos_erros.get('nomeAndamento') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <input type="text" class="form-control" value="{{ 'Ativo' if andamento.ativo else 'Inativo' }}" disabled>
+                  <small class="form-hint">Você pode ativar ou desativar depois pela listagem.</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="alert alert-info border-0 shadow-sm">
+                  <div class="d-flex">
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" 
+                        width="24" height="24" viewBox="0 0 24 24" 
+                        stroke-width="2" stroke="currentColor" fill="none" 
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                        <path d="M12 9h.01" />
+                        <path d="M11 12h1v4h1" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="alert-title">Exemplos de andamentos comuns:</h4>
+                      <div class="text-secondary">
+                        • <strong>Não iniciado</strong> - Para projetos que ainda não começaram<br>
+                        • <strong>Em execução</strong> - Para projetos que estão sendo desenvolvidos<br>
+                        • <strong>Paralisado</strong> - Para projetos temporariamente parados<br>
+                        • <strong>Concluído</strong> - Para projetos finalizados<br>
+                        • <strong>Em análise</strong> - Para projetos em fase de avaliação<br>
+                        • <strong>Aguardando aprovação</strong> - Para projetos esperando validação
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-footer text-center text-md-end">
+            <a href="{{ url_for('andamentos_listar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar
+            </a>
+            <button type="submit" class="btn btn-success">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l5 5l10 -10"></path>
+              </svg>
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+{% endblock conteudo %}

@@ -1,0 +1,335 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <!-- Page pre-title -->
+          <div class="page-pretitle">
+            PROJETOS
+          </div>
+          <h2 class="page-title">
+            Listagem
+          </h2>
+        </div>
+        <div class="col-12 col-md-auto ms-auto d-print-none">
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('projeto_cadastrar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Cadastrar Projeto
+            </a>
+            <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-report">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-filter">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+              </svg>
+              Filtrar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        {% if projetos %}
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table" style="margin-bottom: 0 !important;">
+              <thead>
+                <tr>
+                  <th style="text-align: center;">PROJETO</th>
+                  <th style="text-align: center;">RESPONSÁVEL</th>
+                  <th style="text-align: center;">DATA INÍCIO</th>
+                  <th style="text-align: center;">DATA FIM</th>
+                  <th style="text-align: center;">EQUIPE</th>
+                  <th style="text-align: center;">ANDAMENTO</th>
+                  <th style="text-align: center;">STATUS</th>
+                  <th style="text-align: center;">AÇÕES</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for projeto in projetos %}
+                <tr>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ projeto.nome_projeto[:30] }}
+                    {% if projeto.nome_projeto | length > 30 %}...{% endif %}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ projeto.responsavel_tecnico.nome }} {{ projeto.responsavel_tecnico.sobrenome[0] }}.
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ projeto.data_inicio | formatar_data_para_brl }}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {% if projeto.data_fim %}
+                    {{ projeto.data_fim | formatar_data_para_brl }}
+                    {% else %}
+                    Em andamento
+                    {% endif %}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ projeto.usuarios_envolvidos | length }} envolvido(s)
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {% if projeto.andamento.nome == 'Não iniciado' %}
+                    <span class="badge badge-outline text-gray">{{ projeto.andamento.nome }}</span>
+                    {% elif projeto.andamento.nome == 'Em execução' %}
+                    <span class="badge badge-outline text-blue">{{ projeto.andamento.nome }}</span>
+                    {% elif projeto.andamento.nome == 'Paralisado' %}
+                    <span class="badge badge-outline text-orange">{{ projeto.andamento.nome }}</span>
+                    {% elif projeto.andamento.nome == 'Concluído' %}
+                    <span class="badge badge-outline text-green">{{ projeto.andamento.nome }}</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {% if projeto.ativo == 1 %}
+                      <span class="badge badge-outline text-green">ATIVO</span>
+                    {% else %}
+                      <span class="badge badge-outline text-red">INATIVO</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="btn-list flex-nowrap" style="justify-content: center; gap: 8px;">
+                      <!-- Botão Detalhes (sempre ativo) -->
+                      <a href="{{ url_for('projeto_detalhes', id=projeto.id) }}"
+                        class="btn btn-icon btn-outline-secondary" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="Ver Detalhes">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+                          <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
+                        </svg>
+                      </a>
+
+                      <!-- Botão Editar -->
+                      {% if projeto.andamento_id == 4 %}
+                      <span class="btn btn-icon btn-outline-secondary disabled" title="Projeto concluído - não é possível editar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                          <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                          <path d="M16 5l3 3"></path>
+                        </svg>
+                      </span>
+                      {% else %}
+                      <a href="{{ url_for('projeto_editar', id=projeto.id) }}"
+                        class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="Editar Projeto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                          <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                          <path d="M16 5l3 3"></path>
+                        </svg>
+                      </a>
+                      {% endif %}
+
+                      <!-- Botões de Ativar/Desativar -->
+                      {% if projeto.andamento_id == 4 %}
+                        <!-- Projeto Concluído - Botões Desabilitados -->
+                        {% if projeto.ativo %}
+                        <span class="btn btn-icon btn-outline-secondary disabled" title="Projeto concluído - não é possível desativar">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M18 6l-12 12"></path>
+                            <path d="M6 6l12 12"></path>
+                          </svg>
+                        </span>
+                        {% else %}
+                        <span class="btn btn-icon btn-outline-secondary disabled" title="Projeto concluído - não é possível ativar">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M5 12l5 5l10 -10"></path>
+                          </svg>
+                        </span>
+                        {% endif %}
+                      {% else %}
+                        <!-- Projeto Ativo - Botões Funcionais -->
+                        {% if projeto.ativo %}
+                        <!-- Botão Desativar -->
+                        <a href="#" class="btn btn-icon btn-outline-danger"
+                          data-bs-toggle="modal" data-bs-target="#modal-desativar-{{ projeto.id }}"
+                          title="Desativar Projeto">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M18 6l-12 12"></path>
+                            <path d="M6 6l12 12"></path>
+                          </svg>
+                        </a>
+
+                        <!-- Modal de Confirmação -->
+                        <div class="modal modal-blur fade" id="modal-desativar-{{ projeto.id }}"
+                          tabindex="-1" role="dialog" aria-hidden="true">
+                          <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                              <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                              <div class="modal-status bg-danger"></div>
+                              <div class="modal-body text-center py-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg"
+                                  width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                                  stroke="currentColor" fill="none" stroke-linecap="round"
+                                  stroke-linejoin="round">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                  <path d="M12 9v4"></path>
+                                  <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                                  <path d="M12 16h.01"></path>
+                                </svg>
+                                <div class="text-secondary">
+                                  Você realmente deseja desativar este projeto?
+                                </div>
+                              </div>
+                              <div class="modal-footer">
+                                <div class="w-100">
+                                  <div class="row">
+                                    <div class="col">
+                                      <a href="#" class="btn btn-outline-secondary w-100"
+                                        data-bs-dismiss="modal">
+                                        Cancelar
+                                      </a>
+                                    </div>
+                                    <div class="col">
+                                      <a href="{{ url_for('projeto_desativar', id=projeto.id) }}"
+                                        class="btn btn-danger w-100">
+                                        Desativar
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {% else %}
+                        <!-- Botão Ativar -->
+                        <a href="{{ url_for('projeto_ativar', id=projeto.id) }}"
+                          class="btn btn-icon btn-outline-success" title="Ativar Projeto">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M5 12l5 5l10 -10"></path>
+                          </svg>
+                        </a>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% else %}
+        <div class="area-info-card" style="
+          padding: 30px;
+          border-radius: 10px;
+          text-align: center;
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+          background-color: white;
+        ">
+          <div class="icon-extrato" style="font-size: 70px; color: #fc7801; margin-bottom: 15px">
+            📋
+          </div>
+          <h2 style="font-size: 22px; margin-bottom: 10px; color: #555;">
+            Nenhum projeto encontrado
+          </h2>
+          <p style="color: #777;">
+            Não há projetos cadastrados ou que atendam aos filtros aplicados.
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Filtro -->
+  <div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <form action="{{ url_for('projetos_listar') }}" method="POST">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Filtrar projetos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Nome do Projeto</label>
+                <input type="text" name="nomeProjeto" class="form-control"
+                  value="{{ dados_corretos.get('nomeProjeto', '') }}"
+                  placeholder="Nome do projeto">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Responsável Técnico</label>
+                <input type="text" name="responsavelTecnico" class="form-control"
+                  value="{{ dados_corretos.get('responsavelTecnico', '') }}"
+                  placeholder="Nome do responsável">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Andamento</label>
+                <select class="form-select" name="andamentoProjeto">
+                  <option value="">Todos</option>
+                  {% for andamento in andamentos %}
+                  <option value="{{ andamento.id }}" {% if dados_corretos.get('andamentoProjeto') == andamento.id|string %}selected{% endif %}>
+                    {{ andamento.nome }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <a href="{{ url_for('projetos_listar') }}" class="btn btn-link link-secondary">
+              Limpar Filtros
+            </a>
+            <button type="submit" class="btn btn-primary ms-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="icon">
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Filtrar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+{% endblock conteudo %}

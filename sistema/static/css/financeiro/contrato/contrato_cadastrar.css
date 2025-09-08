@@ -1,0 +1,16 @@
+.area-descricao-produto {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+@media (max-width: 768px) {
+    .area-descricao-produto {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .area-descricao-produto .descricao-produto {
+        margin: 10px 0;
+    }
+}

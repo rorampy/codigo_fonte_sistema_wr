@@ -1,0 +1,294 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <!-- Page pre-title -->
+          <div class="page-pretitle">
+            ANDAMENTOS DE PROJETO
+          </div>
+          <h2 class="page-title">
+            Listagem
+          </h2>
+        </div>
+        <div class="col-12 col-md-auto ms-auto d-print-none">
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('andamento_cadastrar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Cadastrar Andamento
+            </a>
+            <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-report">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-filter">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+              </svg>
+              Filtrar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        {% if andamentos %}
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table" style="margin-bottom: 0 !important;">
+              <thead>
+                <tr>
+                  <th style="text-align: center;">NOME DO ANDAMENTO</th>
+                  <th style="text-align: center;">STATUS</th>
+                  <th style="text-align: center;">AÇÕES</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for andamento in andamentos %}
+                <tr>
+                  <td class="text-secondary" style="text-align: center;">
+                    <strong>{{ andamento.nome }}</strong>
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {% if andamento.ativo %}
+                    <span class="badge badge-outline text-green">Ativo</span>
+                    {% else %}
+                    <span class="badge badge-outline text-red">Inativo</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="btn-list flex-nowrap" style="justify-content: center; gap: 8px;">
+                      <!-- Botão Editar -->
+                      <a href="{{ url_for('andamento_editar', id=andamento.id) }}"
+                        class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="Editar Andamento">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                          <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                          <path d="M16 5l3 3"></path>
+                        </svg>
+                      </a>
+
+                      {% if andamento.ativo %}
+                      <!-- Botão Desativar -->
+                      <a href="#" class="btn btn-icon btn-outline-danger"
+                        data-bs-toggle="modal" data-bs-target="#modal-desativar-{{ andamento.id }}"
+                        title="Desativar Andamento">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M18 6l-12 12"></path>
+                          <path d="M6 6l12 12"></path>
+                        </svg>
+                      </a>
+
+                      <!-- Modal de Confirmação Desativar -->
+                      <div class="modal modal-blur fade" id="modal-desativar-{{ andamento.id }}"
+                        tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                          <div class="modal-content">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                              aria-label="Close"></button>
+                            <div class="modal-status bg-danger"></div>
+                            <div class="modal-body text-center py-4">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg"
+                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" fill="none" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M12 9v4"></path>
+                                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                                <path d="M12 16h.01"></path>
+                              </svg>
+                              <div class="text-secondary">
+                                Você realmente deseja desativar este andamento?
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <div class="w-100">
+                                <div class="row">
+                                  <div class="col">
+                                    <a href="#" class="btn btn-outline-secondary w-100"
+                                      data-bs-dismiss="modal">
+                                      Cancelar
+                                    </a>
+                                  </div>
+                                  <div class="col">
+                                    <a href="{{ url_for('andamento_desativar', id=andamento.id) }}"
+                                      class="btn btn-danger w-100">
+                                      Desativar
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {% else %}
+                      <!-- Botão Ativar -->
+                      <a href="{{ url_for('andamento_ativar', id=andamento.id) }}"
+                        class="btn btn-icon btn-outline-success" title="Ativar Andamento">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M5 12l5 5l10 -10"></path>
+                        </svg>
+                      </a>
+                      {% endif %}
+
+                      <!-- Botão Excluir -->
+                      <a href="#" class="btn btn-icon btn-outline-red"
+                        data-bs-toggle="modal" data-bs-target="#modal-excluir-{{ andamento.id }}"
+                        title="Excluir Andamento">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M4 7l16 0"></path>
+                          <path d="M10 11l0 6"></path>
+                          <path d="M14 11l0 6"></path>
+                          <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                          <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                        </svg>
+                      </a>
+
+                      <!-- Modal de Confirmação Excluir -->
+                      <div class="modal modal-blur fade" id="modal-excluir-{{ andamento.id }}"
+                        tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                          <div class="modal-content">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                              aria-label="Close"></button>
+                            <div class="modal-status bg-red"></div>
+                            <div class="modal-body text-center py-4">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-red icon-lg"
+                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" fill="none" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M12 9v4"></path>
+                                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                                <path d="M12 16h.01"></path>
+                              </svg>
+                              <div class="text-secondary">
+                                Você realmente deseja excluir este andamento?<br>
+                                <strong>Esta ação não pode ser desfeita!</strong>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <div class="w-100">
+                                <div class="row">
+                                  <div class="col">
+                                    <a href="#" class="btn btn-outline-secondary w-100"
+                                      data-bs-dismiss="modal">
+                                      Cancelar
+                                    </a>
+                                  </div>
+                                  <div class="col">
+                                    <a href="{{ url_for('andamento_excluir', id=andamento.id) }}"
+                                      class="btn btn-red w-100">
+                                      Excluir
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% else %}
+        <div class="area-info-card" style="
+          padding: 30px;
+          border-radius: 10px;
+          text-align: center;
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+          background-color: white;
+        ">
+          <div class="icon-extrato" style="font-size: 70px; color: #fc7801; margin-bottom: 15px">
+            📋
+          </div>
+          <h2 style="font-size: 22px; margin-bottom: 10px; color: #555;">
+            Nenhum andamento encontrado
+          </h2>
+          <p style="color: #777;">
+            Não há andamentos cadastrados ou que atendam aos filtros aplicados.
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Filtro -->
+  <div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <form action="{{ url_for('andamentos_listar') }}" method="POST">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Filtrar andamentos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label class="form-label">Nome do Andamento</label>
+                <input type="text" name="nomeAndamento" class="form-control"
+                  value="{{ dados_corretos.get('nomeAndamento', '') }}"
+                  placeholder="Nome do andamento">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <a href="{{ url_for('andamentos_listar') }}" class="btn btn-link link-secondary">
+              Limpar Filtros
+            </a>
+            <button type="submit" class="btn btn-primary ms-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="icon">
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Filtrar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+{% endblock conteudo %}

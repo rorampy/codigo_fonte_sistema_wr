@@ -1,0 +1,385 @@
+<aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+      aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-brand navbar-brand-autodark">
+      <a href="{{ url_for('principal') }}">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" width="110" height="32" alt="Logomarca"
+          class="navbar-brand-image">
+      </a>
+    </div>
+    <div class="navbar-nav flex-row d-lg-none">
+      <div class="nav-item d-none d-lg-flex me-3">
+        <div class="btn-list">
+          <a href="#" class="btn disabled" target="_blank" rel="noreferrer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message-chatbot" width="24"
+              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4"></path>
+              <path d="M9.5 9h.01"></path>
+              <path d="M14.5 9h.01"></path>
+              <path d="M9.5 13a3.5 3.5 0 0 0 5 0"></path>
+            </svg>
+            Suporte Técnico
+          </a>
+        </div>
+      </div>
+      <div class="d-none d-lg-flex">
+        <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="Apagar as Luzes" data-bs-toggle="tooltip"
+          data-bs-placement="bottom">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+          </svg>
+        </a>
+        <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="Acender as Luzes" data-bs-toggle="tooltip"
+          data-bs-placement="bottom">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+            <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+          </svg>
+        </a>
+      </div>
+      <div class="nav-item dropdown">
+        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Expandir">
+          <span class="avatar avatar-sm"
+            style="background-image: url({{ url_for('diretorio_uploads_usuarios', filename=current_user.foto_perfil.nome) }})">
+          </span>
+          <div class="d-none d-xl-block ps-2">
+            <div>{{ current_user.nome }} {{ current_user.sobrenome[0] }}.</div>
+            <div class="mt-1 small text-secondary">{{ current_user.role.cargo }}</div>
+          </div>
+        </a>
+        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+          <a href="{{ url_for('usuario_minha_conta', id=current_user.id) }}" class="dropdown-item">
+            Minha Conta
+          </a>
+          <a href="{{ url_for('logout') }}" class="dropdown-item">Sair</a>
+        </div>
+      </div>
+    </div>
+    <div class="collapse navbar-collapse" id="sidebar-menu">
+      <ul class="navbar-nav pt-lg-3">
+        <li class="nav-item {% if request.endpoint == 'principal' %} active {% endif %}">
+          <a class="nav-link" href="{{ url_for('principal') }}">
+            <span class="nav-link-icon d-md-none d-lg-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
+                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+                <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+              </svg>
+            </span>
+            <span class="nav-link-title">
+              Visão Geral
+            </span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('movimentacao_financeira')}}">
+            <span class="nav-link-icon d-md-none d-lg-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-currency-dollar">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
+                <path d="M12 3v3m0 12v3" />
+              </svg>
+            </span>
+            <span class="nav-link-title">
+              Movimentação Financeira
+            </span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('lancamentos_receber')}}">
+            <span class="nav-link-icon d-md-none d-lg-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-device-desktop-dollar">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M13 16h-9a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v5.5" />
+                <path d="M7 20h6.5" />
+                <path d="M9 16v4" />
+                <path d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" />
+                <path d="M19 21v1m0 -8v1" />
+              </svg>
+            </span>
+            <span class="nav-link-title">
+              Lançamentos a Receber
+            </span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('contrato_listar')}}">
+            <span class="nav-link-icon d-md-none d-lg-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-contract">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M8 21h-2a3 3 0 0 1 -3 -3v-1h5.5" />
+                <path d="M17 8.5v-3.5a2 2 0 1 1 2 2h-2" />
+                <path d="M19 3h-11a3 3 0 0 0 -3 3v11" />
+                <path d="M9 7h4" />
+                <path d="M9 11h4" />
+                <path d="M18.42 12.61a2.1 2.1 0 0 1 2.97 2.97l-6.39 6.42h-3v-3z" />
+              </svg>
+            </span>
+            <span class="nav-link-title">
+              Contratos
+            </span>
+          </a>
+        </li>
+
+        <li class="nav-item dropdown {% if request.endpoint == 'projetos_listar' or
+                  request.endpoint == 'projeto_detalhes' or
+                  request.endpoint == 'projeto_cadastrar' or
+                  request.endpoint == 'projeto_editar' or
+                  request.endpoint == 'atividades_listar' or
+                  request.endpoint == 'atividade_visualizar' or
+                  request.endpoint == 'atividade_cadastrar' or
+                  request.endpoint == 'atividade_editar' or
+                  request.endpoint == 'lancamento_horas_listar' or
+                  request.endpoint == 'lancamento_horas_cadastrar' or
+                  request.endpoint == 'lancamento_horas_editar' or
+                  request.endpoint == 'kanban_visualizar' or
+                  request.endpoint == 'kanban_detalhes_atividade'
+            %} active {% endif %}">
+          <a class="nav-link dropdown-toggle" href="#navbar-fluxodev" data-bs-toggle="dropdown"
+            data-bs-auto-close="false" role="button" aria-expanded="false">
+            <span class="nav-link-icon d-md-none d-lg-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-adjustments-alt">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M4 8h4v4h-4z" />
+                <path d="M6 4l0 4" />
+                <path d="M6 12l0 8" />
+                <path d="M10 14h4v4h-4z" />
+                <path d="M12 4l0 10" />
+                <path d="M12 18l0 2" />
+                <path d="M16 5h4v4h-4z" />
+                <path d="M18 4l0 1" />
+                <path d="M18 9l0 11" />
+              </svg>
+            </span>
+            <span class="nav-link-title">
+              Fluxo DEV
+            </span>
+          </a>
+          <div class="dropdown-menu">
+            <div class="dropdown-menu-columns">
+              <div class="dropdown-menu-column">
+                <a class="dropdown-item" href="{{ url_for('kanban_visualizar') }}">
+                  Visualizar Kankan
+                </a>
+                <a class="dropdown-item" href="{{ url_for('projetos_listar') }}">
+                  Projetos
+                </a>
+                <a class="dropdown-item" href="{{ url_for('atividades_listar') }}">
+                  Atividades
+                </a>
+                <a class="dropdown-item" href="{{ url_for('lancamento_horas_listar') }}">
+                  Horas Gastas
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#navbar-gerenciar2" data-bs-toggle="dropdown"
+            data-bs-auto-close="false" role="button" aria-expanded="false">
+            <span class="nav-link-icon d-md-none d-lg-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 
+                        1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 
+                        1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 
+                        1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 
+                        2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 
+                        1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 
+                        -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 
+                        -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 
+                        -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z">
+                </path>
+                <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path>
+              </svg>
+            </span>
+            <span class="nav-link-title">
+              Gerenciar
+            </span>
+          </a>
+          <div class="dropdown-menu">
+            <div class="dropdown-menu-columns">
+              <div class="dropdown-menu-column">
+                <a href="{{url_for('listar_clientes')}}" class="dropdown-item">
+                  Clientes
+                </a>
+                <a href="{{url_for('listar_produtos')}}" class="dropdown-item">
+                  Produtos
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav-item dropdown 
+                {% if request.endpoint == 'variaveis_sistema_editar' or 
+                      request.endpoint == 'usuarios_listar' or
+                      request.endpoint == 'usuario_cadastrar' or
+                      request.endpoint == 'usuario_editar' or
+                      request.endpoint == 'usuario_desativar' or
+                      request.endpoint == 'usuario_ativar' or
+                      request.endpoint == 'usuario_excluir' or
+                      request.endpoint == 'usuario_reenvio_email' or
+                      request.endpoint == 'roles_listar' or
+                      request.endpoint == 'role_cadastrar' or
+                      request.endpoint == 'role_editar' or
+                      request.endpoint == 'role_excluir' or
+                      request.endpoint == 'andamentos_listar' or
+                      request.endpoint == 'andamento_cadastrar' or
+                      request.endpoint == 'andamento_editar'
+                %} 
+                  active 
+                {% endif %}">
+          <a class="nav-link dropdown-toggle" href="#navbar-configuracoes2" data-bs-toggle="dropdown"
+            data-bs-auto-close="false" role="button" aria-expanded="false">
+            <span class="nav-link-icon d-md-none d-lg-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 
+                        1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 
+                        1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 
+                        1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 
+                        2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 
+                        1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 
+                        -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 
+                        -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 
+                        -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z">
+                </path>
+                <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path>
+              </svg>
+            </span>
+            <span class="nav-link-title">
+              Configurações
+            </span>
+          </a>
+          <div class="dropdown-menu">
+            <div class="dropdown-menu-columns">
+              <div class="dropdown-menu-column">
+                <div class="dropend">
+                  <a class="dropdown-item dropdown-toggle" href="#sidebar-roles2" data-bs-toggle="dropdown"
+                    data-bs-auto-close="false" role="button" aria-expanded="false">
+                    Roles e Rotas
+                  </a>
+                  <div class="dropdown-menu">
+                    <a href="{{ url_for('roles_listar') }}" class="dropdown-item">
+                      Roles/Funções
+                    </a>
+                  </div>
+                </div>
+                <div class="dropend">
+                  <a class="dropdown-item dropdown-toggle" href="#sidebar-auth2" data-bs-toggle="dropdown"
+                    data-bs-auto-close="false" role="button" aria-expanded="false">
+                    Autenticação
+                  </a>
+                  <div class="dropdown-menu">
+                    <a href="{{ url_for('usuarios_listar') }}" class="dropdown-item">
+                      Usuários
+                    </a>
+                  </div>
+                </div>
+                <div class="dropend">
+                  <a class="dropdown-item dropdown-toggle" href="#sidebar-projetos2" data-bs-toggle="dropdown"
+                    data-bs-auto-close="false" role="button" aria-expanded="false">
+                    Projetos
+                  </a>
+                  <div class="dropdown-menu">
+                    <a href="{{ url_for('andamentos_listar') }}" class="dropdown-item">
+                      Andamentos de Projeto
+                    </a>
+                    <a href="{{ url_for('andamentos_atividade_listar')}}" class="dropdown-item">
+                      Andamentos de Atividades
+                    </a>
+                    <a href="{{ url_for('prioridades_atividade_listar')}}" class="dropdown-item">
+                      Prioridades de Atividades
+                    </a>
+                  </div>
+                </div>
+                <div class="dropend">
+                  <a class="dropdown-item dropdown-toggle" href="#sidebar-gerais2" data-bs-toggle="dropdown"
+                    data-bs-auto-close="false" role="button" aria-expanded="false">
+                    Gerais
+                  </a>
+                  <div class="dropdown-menu">
+                    <a href="{{url_for('listar_modelos_contratos')}}" class="dropdown-item">
+                      Modelos de Contrato
+                    </a>
+                    <a href="{{url_for('listar_categoria_lancamento')}}" class="dropdown-item">
+                      Categorias de Lançamento
+                    </a>
+                  </div>
+                </div>
+                <a class="dropdown-item" href="{{ url_for('variaveis_sistema_editar', id=1)}}">
+                  Variáveis de Sistema
+                </a>
+                <a class="dropdown-item" href="{{ url_for('changelog_listar')}}">
+                  Changelog
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('usuario_minha_conta', id=current_user.id) }}">
+            <span class="nav-link-icon d-md-none d-lg-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-user">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+              </svg>
+            </span>
+            <span class="nav-link-title">
+              Minha Conta
+            </span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('logout') }}">
+            <span class="nav-link-icon d-md-none d-lg-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                <path d="M9 12h12l-3 -3" />
+                <path d="M18 15l3 -3" />
+              </svg>
+            </span>
+            <span class="nav-link-title">
+              Sair
+            </span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</aside>

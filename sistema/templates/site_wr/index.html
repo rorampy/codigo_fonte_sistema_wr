@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>WR Software</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <link href="{{ url_for('static', filename='site_wr/img/wr_icon.png') }}" rel="icon">
+  <link href="{{ url_for('static', filename='site_wr/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+
+  <link href="{{ url_for('static', filename='site_wr/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='site_wr/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='site_wr/vendor/aos/aos.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='site_wr/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='site_wr/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+
+  <link href="{{ url_for('static', filename='site_wr/css/main.css') }}" rel="stylesheet">
+
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="{{ url_for('index_page') }}" class="logo d-flex align-items-center me-auto">
+        <img src="{{ url_for('static', filename='site_wr/img/logo_wr_sem_fundo.png') }}" alt="">
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="#home" class="active">Home<br></a></li>
+          <li><a href="#sobre">Quem Somos</a></li>
+          <li><a href="#produtos">Nossos Produtos</a></li>
+          <li><a href="#contato">Fale Conosco</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <section id="home" class="hero section">
+
+      <img src="{{ url_for('static', filename='site_wr/img/hero-bg-abstract.jpg') }}" alt="" data-aos="fade-in" class="">
+
+      <div class="container">
+        <div class="row justify-content-center" data-aos="zoom-out">
+          <div class="col-xl-7 col-lg-9 text-center">
+            <h1>WR Software - Tecnologia e Gestão de Negócios</h1>
+            <p>Especializados em soluções para gestão e controladoria, oferecemos sistemas inovadores para madeireiras,
+              frigoríficos e casas de carnes, proporcionando controle total e eficiência operacional.</p>
+          </div>
+        </div>
+        <div class="text-center" data-aos="zoom-out" data-aos-delay="100">
+          <a href="#sobre" class="btn-get-started">Saiba Mais</a>
+        </div>
+
+        <div class="row gy-4 mt-5">
+          <div class="col-md-6 col-lg-3" data-aos="zoom-out" data-aos-delay="100">
+            <div class="icon-box">
+              <div class="icon"><i class="bi bi-bar-chart"></i></div>
+              <h4 class="title"><a href="">Controle Financeiro</a></h4>
+              <p class="description">Gestão financeira completa, com relatórios detalhados e análises estratégicas
+                para tomada de decisão.</p>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3" data-aos="zoom-out" data-aos-delay="200">
+            <div class="icon-box">
+              <div class="icon"><i class="bi bi-gear"></i></div>
+              <h4 class="title"><a href="">Automação de Processos</a></h4>
+              <p class="description">Soluções inteligentes para otimizar operações, reduzir erros e aumentar a
+                produtividade
+                do seu negócio.</p>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3" data-aos="zoom-out" data-aos-delay="300">
+            <div class="icon-box">
+              <div class="icon"><i class="bi bi-shield-lock"></i></div>
+              <h4 class="title"><a href="">Segurança de Dados</a></h4>
+              <p class="description">Sistemas robustos e criptografados para garantir a proteção e integridade das
+                informações
+                da sua empresa.</p>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3" data-aos="zoom-out" data-aos-delay="400">
+            <div class="icon-box">
+              <div class="icon"><i class="bi bi-people"></i></div>
+              <h4 class="title"><a href="">Suporte Especializado</a></h4>
+              <p class="description">Equipe técnica altamente capacitada para oferecer suporte rápido e eficiente sempre
+                que
+                precisar.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <section id="sobre" class="about section">
+
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Sobre a WR Software</h2>
+        <p>Transformando gestão empresarial com tecnologia inovadora e soluções inteligentes.</p>
+      </div>
+
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
+            <p>
+              A WR Software é uma empresa especializada no desenvolvimento de sistemas de gestão e controladoria para
+              madeireiras, frigoríficos e casas de carnes. Nossas soluções otimizam processos, garantindo mais
+              eficiência,
+              segurança e inteligência na tomada de decisões.
+            </p>
+            <ul>
+              <li><i class="bi bi-check2-circle"></i> <span>Software intuitivo e adaptável às necessidades do seu
+                  negócio.</span></li>
+              <li><i class="bi bi-check2-circle"></i> <span>Automação de processos para aumentar produtividade e reduzir
+                  erros.</span></li>
+              <li><i class="bi bi-check2-circle"></i> <span>Controle financeiro e gerencial completo, com relatórios
+                  precisos.</span></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+            <p>
+              Nosso compromisso é oferecer tecnologia acessível e de alto desempenho para empresas que buscam crescer e
+              se
+              destacar no mercado. Com suporte técnico especializado e um time comprometido com a inovação, garantimos
+              que
+              nossos clientes tenham sempre as melhores ferramentas para gestão eficiente.
+            </p>
+            <a href="#home" class="read-more"><span>Saiba Mais</span><i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="produtos" class="services section light-background">
+
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Nossos Produtos</h2>
+        <p>Soluções inovadoras para otimizar a gestão e o controle do seu negócio.</p>
+      </div>
+
+      <div class="container">
+        <div class="row gy-4">
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item item-cyan position-relative">
+              <div class="icon">
+                <svg width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke="none" stroke-width="0" fill="#f5f5f5"
+                    d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174">
+                  </path>
+                </svg>
+                <i class="bi bi-tree"></i>
+              </div>
+              <a href="#" class="stretched-link">
+                <h3>Gestão para Madeireiras</h3>
+              </a>
+              <p>Sistema completo para controle de estoque, produção e logística no setor madeireiro, garantindo
+                rastreabilidade e eficiência.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item item-orange position-relative">
+              <div class="icon">
+                <svg width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke="none" stroke-width="0" fill="#f5f5f5"
+                    d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174">
+                  </path>
+                </svg>
+                <i class="bi bi-box-seam"></i>
+              </div>
+              <a href="#" class="stretched-link">
+                <h3>Gestão para Frigoríficos</h3>
+              </a>
+              <p>Solução integrada para controle de produção, estoque e venda de carnes, assegurando qualidade e
+                conformidade com as normas sanitárias.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item item-teal position-relative">
+              <div class="icon">
+                <svg width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke="none" stroke-width="0" fill="#f5f5f5"
+                    d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174">
+                  </path>
+                </svg>
+                <i class="bi bi-shop"></i>
+              </div>
+              <a href="#" class="stretched-link">
+                <h3>Gestão para Casas de Carnes</h3>
+              </a>
+              <p>Ferramenta ideal para gerenciamento de vendas, controle de estoque e fidelização de clientes em
+                açougues e casas de carnes.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="service-item item-red position-relative">
+              <div class="icon">
+                <svg width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke="none" stroke-width="0" fill="#f5f5f5"
+                    d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174">
+                  </path>
+                </svg>
+                <i class="bi bi-clipboard-data"></i>
+              </div>
+              <a href="#" class="stretched-link">
+                <h3>Controladoria para Terceiros</h3>
+              </a>
+              <p>Sistema especializado para gestão e auditoria financeira de empresas de diversos setores, garantindo
+                precisão e conformidade contábil.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+            <div class="service-item item-indigo position-relative">
+              <div class="icon">
+                <svg width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke="none" stroke-width="0" fill="#f5f5f5"
+                    d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174">
+                  </path>
+                </svg>
+                <i class="bi bi-link"></i>
+              </div>
+              <a href="#" class="stretched-link">
+                <h3>Integração com ERPs</h3>
+              </a>
+              <p>Facilitamos a integração do seu negócio com os principais sistemas de ERP do mercado, garantindo
+                automação e eficiência operacional.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+            <div class="service-item item-pink position-relative">
+              <div class="icon">
+                <svg width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke="none" stroke-width="0" fill="#f5f5f5"
+                    d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174">
+                  </path>
+                </svg>
+                <i class="bi bi-headset"></i>
+              </div>
+              <a href="#" class="stretched-link">
+                <h3>Suporte e Consultoria</h3>
+              </a>
+              <p>Equipe especializada para oferecer suporte técnico e consultoria estratégica, garantindo o máximo
+                desempenho dos nossos sistemas.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+
+    <section id="call-to-action" class="call-to-action section accent-background">
+
+      <div class="container">
+        <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="100">
+          <div class="col-xl-10">
+            <div class="text-center">
+              <h3>Transforme a Gestão do Seu Negócio</h3>
+              <p>Otimize processos, reduza custos e aumente a produtividade com as soluções inteligentes da WR Software.
+                Tenha controle total da sua empresa com sistemas modernos e eficientes, desenvolvidos para madeireiras,
+                frigoríficos e casas de carnes.</p>
+              <a class="cta-btn" href="#contact">Entre em Contato</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <section id="faq" class="faq section light-background">
+
+
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Perguntas Frequentes</h2>
+        <p>Encontre respostas para as principais dúvidas sobre nossas soluções.</p>
+      </div>
+
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10" data-aos="fade-up" data-aos-delay="100">
+            <div class="faq-container">
+
+              <div class="faq-item faq-active">
+                <h3>Quais são os principais produtos da WR Software?</h3>
+                <div class="faq-content">
+                  <p>Nossos principais produtos incluem sistemas de gestão para madeireiras, frigoríficos e casas de
+                    carnes, além de soluções de controladoria</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+              <div class="faq-item">
+                <h3>Como posso integrar o software da WR Software ao meu sistema atual?</h3>
+                <div class="faq-content">
+                  <p>Nossas soluções são projetadas para fácil integração com softwares de gestão,
+                    garantindo a sincronização de dados e automação de processos.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+              <div class="faq-item">
+                <h3>A WR Software oferece suporte técnico?</h3>
+                <div class="faq-content">
+                  <p>Sim! Contamos com uma equipe de suporte especializada para atender dúvidas e garantir o bom
+                    funcionamento dos nossos sistemas.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+              <div class="faq-item">
+                <h3>Como posso contratar os serviços da WR Software?</h3>
+                <div class="faq-content">
+                  <p>Entre em contato conosco para conhecer melhor nossas soluções e encontrar o plano ideal para o seu
+                    negócio.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <section id="contato" class="contact section">
+
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Entre em Contato</h2>
+        <p>Fale conosco pelo WhatsApp e tire suas dúvidas sobre nossas soluções.</p>
+      </div>
+
+      <div class="container text-center" data-aos="fade-up" data-aos-delay="100">
+        <a href="https://wa.me/5567991376391" target="_blank" class="btn btn-success btn-lg">
+          <i class="bi bi-whatsapp"></i> Fale Conosco no WhatsApp
+        </a>
+      </div>
+
+    </section>
+
+
+  </main>
+
+  <footer id="footer" class="footer light-background">
+
+    <div class="container footer-top">
+      <div class="row gy-4">
+
+        <div class="col-lg-5 col-md-12 footer-about">
+          <a href="index.html" class="logo d-flex align-items-center">
+            <span class="sitename">WR Software</span>
+          </a>
+          <p>Especialistas em soluções de gestão e controladoria, oferecemos tecnologia inovadora para madeireiras,
+            frigoríficos e casas de carnes, garantindo eficiência e controle total do seu negócio.</p>
+          <div class="social-links d-flex mt-4">
+            <a href="https://instagram.com/wrgestaoesoftware" target="_blank"><i class="bi bi-instagram"></i></a>
+            <a href="https://twitter.com" target="_blank"><i class="bi bi-twitter-x"></i></a>
+            <a href="https://facebook.com" target="_blank"><i class="bi bi-facebook"></i></a>
+            <a href="https://linkedin.com" target="_blank"><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-6 footer-links">
+          <h4>Links Úteis</h4>
+          <ul>
+            <li><a href="#home">Início</a></li>
+            <li><a href="#sobre">Sobre Nós</a></li>
+            <li><a href="#produtos">Produtos</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-6 footer-links">
+          <h4>Nossos Produtos</h4>
+          <ul>
+            <li><a href="#">Gestão para Madeireiras</a></li>
+            <li><a href="#">Gestão para Frigoríficos</a></li>
+            <li><a href="#">Gestão para Casas de Carnes</a></li>
+            <li><a href="#">Controladoria para Terceiros</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
+          <h4>Fale Conosco</h4>
+          <a href="https://wa.me/5567991376391" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" width="50">
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="container copyright text-center mt-4">
+      <p>© <span>Copyright</span> <strong class="px-1 sitename">WR Software</strong> <span>Todos os direitos
+          reservados</span></p>
+      <div class="credits">
+        Desenvolvido por <a href="#">WR Software</a>
+      </div>
+    </div>
+
+  </footer>
+
+
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <div id="preloader"></div>
+
+  <script src="{{ url_for('static', filename='site_wr/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='site_wr/vendor/php-email-form/validate.js') }}"></script>
+  <script src="{{ url_for('static', filename='site_wr/vendor/aos/aos.js') }}"></script>
+  <script src="{{ url_for('static', filename='site_wr/vendor/purecounter/purecounter_vanilla.js') }}"></script>
+  <script src="{{ url_for('static', filename='site_wr/vendor/glightbox/js/glightbox.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='site_wr/vendor/swiper/swiper-bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='site_wr/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='site_wr/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='site_wr/js/main.js') }}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,570 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">ATIVIDADE</div>
+          <h2 class="page-title">Editar</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('atividade_editar', atividade_id=atividade.id) }}" method="POST" enctype="multipart/form-data">
+          <div class="card-body">
+            
+            <!-- Informações Básicas -->
+            <h3 class="text-primary mb-3">Informações Básicas</h3>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Projeto</label>
+                  <select name="projetoId" 
+                    class="form-select {% if 'projetoId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione um projeto</option>
+                    {% for projeto in projetos %}
+                    <option value="{{ projeto.id }}" 
+                      {% if dados_corretos.get('projetoId')|string == projeto.id|string %}selected{% endif %}>
+                      {{ projeto.nome_projeto }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('projetoId') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Título</label>
+                  <input type="text" name="titulo"
+                    value="{{ dados_corretos.get('titulo', '') }}"
+                    class="form-control {% if 'titulo' in campos_obrigatorios %}is-invalid{% endif %}"
+                    placeholder="Título da atividade">
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('titulo') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Atribuição e Status -->
+            <h3 class="text-primary mb-3 mt-4">Atribuição e Status</h3>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Responsável</label>
+                  <select name="usuarioExecucaoId" class="form-select">
+                    <option value="">Não atribuído</option>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" 
+                      {% if dados_corretos.get('usuarioExecucaoId')|string == usuario.id|string %}selected{% endif %}>
+                      {{ usuario.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Prioridade</label>
+                  <select name="prioridadeId" 
+                    class="form-select {% if 'prioridadeId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione a prioridade</option>
+                    {% for prioridade in prioridades %}
+                    <option value="{{ prioridade.id }}" 
+                      {% if dados_corretos.get('prioridadeId')|string == prioridade.id|string %}selected{% endif %}>
+                      {{ prioridade.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('prioridadeId') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Situação</label>
+                  <select name="situacaoId" 
+                    class="form-select {% if 'situacaoId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione a situação</option>
+                    {% for situacao in situacoes %}
+                    <option value="{{ situacao.id }}" 
+                      {% if dados_corretos.get('situacaoId')|string == situacao.id|string %}selected{% endif %}>
+                      {{ situacao.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('situacaoId') }}
+                  </div>
+                  <small class="form-hint">
+                    <strong>Importante:</strong> Uma atividade só pode ser marcada como "Concluída" se tiver pelo menos 1 lançamento de horas.
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estimativas e Prazos -->
+            <h3 class="text-primary mb-3 mt-4">Estimativas e Prazos</h3>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Horas Necessárias</label>
+                  <input type="text" name="horasNecessarias"
+                    value="{{ dados_corretos.get('horasNecessarias', '0') }}"
+                    class="form-control {% if 'horasNecessarias' in campos_erros %}is-invalid{% endif %} campo-float"
+                    placeholder="0">
+                  <div class="invalid-feedback">
+                    {{ campos_erros.get('horasNecessarias') }}
+                  </div>
+                  <small class="form-hint">Estimativa de horas para completar</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Prazo de Conclusão</label>
+                  <input type="date" name="dataPrazoConclusao"
+                    value="{{ dados_corretos.get('dataPrazoConclusao', '') }}"
+                    class="form-control {% if 'dataPrazoConclusao' in campos_erros %}is-invalid{% endif %}">
+                  <div class="invalid-feedback">
+                    {{ campos_erros.get('dataPrazoConclusao') }}
+                  </div>
+                  {% if atividade.esta_atrasada %}
+                  <small class="form-hint text-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="16" height="16" 
+                      viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M12 9v4" />
+                      <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                      <path d="M12 16h.01" />
+                    </svg>
+                    Atividade atrasada!
+                  </small>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Valor da Atividade</label>
+                  <input type="text" name="valorAtividade"
+                    value="{{ dados_corretos.get('valorAtividade') }}"
+                    class="form-control {% if 'valorAtividade' in campos_erros %}is-invalid{% endif %} campo-moeda-brl">
+                  <div class="invalid-feedback">
+                    {{ campos_erros.get('valorAtividade') }}
+                  </div>
+                  <small class="form-hint">Valor cobrado pela atividade</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progresso Visual -->
+            {% if atividade.horas_necessarias > 0 %}
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label">Progresso da Atividade</label>
+                  <div class="progress mb-2">
+                    <div class="progress-bar {% if atividade.percentual_horas > 100 %}bg-danger{% elif atividade.percentual_horas > 80 %}bg-warning{% else %}bg-primary{% endif %}" 
+                         style="width: {{ atividade.percentual_horas if atividade.percentual_horas <= 100 else 100 }}%" 
+                         role="progressbar" aria-valuenow="{{ atividade.percentual_horas }}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                      <span class="progress-bar-label">{{ "%.1f"|format(atividade.percentual_horas) }}%</span>
+                    </div>
+                  </div>
+                  <small class="text-muted">
+                    {{ "%.1f"|format(atividade.percentual_horas) }}% concluído 
+                    ({{ "%.1f"|format(atividade.horas_utilizadas) }}h de {{ "%.1f"|format(atividade.horas_necessarias) }}h)
+                    {% if atividade.percentual_horas > 100 %}
+                      <span class="text-danger">- {{ "%.1f"|format(atividade.percentual_horas - 100) }}% acima do estimado</span>
+                    {% endif %}
+                  </small>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Descrição -->
+            <h3 class="text-primary mb-3 mt-4">Descrição</h3>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label">Descrição</label>
+                  <div id="editor-container" style="height: 300px; background: white;"></div>
+                  <textarea name="descricao" id="descricao" style="display: none;">{{ dados_corretos.get('descricao', '') }}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Anexos Existentes -->
+            {% if atividade.anexos.filter_by(deletado=False).count() > 0 %}
+            <h3 class="text-primary mb-3 mt-4">Anexos Existentes</h3>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div id="anexos-existentes">
+                      {% for anexo in atividade.anexos.filter_by(deletado=False) %}
+                      <div class="row align-items-center py-2 border-bottom" id="anexo-{{ anexo.id }}">
+                        <div class="col-auto">
+                          {% if anexo.tipo_arquivo == 'image' %}
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon text-info" width="24" height="24" 
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M15 8h.01" />
+                            <path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" />
+                            <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" />
+                            <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" />
+                          </svg>
+                          {% elif anexo.tipo_arquivo == 'document' %}
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary" width="24" height="24" 
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                            <path d="M9 9l1 0" />
+                            <path d="M9 13l6 0" />
+                            <path d="M9 17l6 0" />
+                          </svg>
+                          {% else %}
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon text-secondary" width="24" height="24" 
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                          </svg>
+                          {% endif %}
+                        </div>
+                        <div class="col">
+                          <div class="fw-bold">{{ anexo.nome_original }}</div>
+                          <div class="text-muted small">
+                            {{ anexo.tamanho_formatado }} • 
+                            <span class="text-uppercase">{{ anexo.tipo_arquivo }}</span>
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div class="btn-group" role="group">
+                            <a href="{{ url_for('atividade_download_anexo', anexo_id=anexo.id) }}" 
+                               class="btn btn-sm btn-outline-primary" title="Download">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" 
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                                <path d="M7 11l5 5l5 -5" />
+                                <path d="M12 4l0 12" />
+                              </svg>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onclick="removerAnexo({{ anexo.id }})" title="Remover">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" 
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M18 6l-12 12" />
+                                <path d="M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Novos Anexos -->
+            <h3 class="text-primary mb-3 mt-4">Adicionar Novos Anexos</h3>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label">Arquivos Anexos</label>
+                  <input type="file" name="anexos[]" id="anexos" class="form-control" multiple 
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.zip,.rar">
+                  <small class="form-hint">
+                    Formatos aceitos: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, GIF, ZIP, RAR. Máximo 10MB por arquivo.
+                  </small>
+                  {% if 'anexos' in campos_erros %}
+                  <div class="text-danger mt-1">
+                    <small>{{ campos_erros.get('anexos') }}</small>
+                  </div>
+                  {% endif %}
+                </div>
+                
+                <!-- Preview dos novos arquivos -->
+                <div id="preview-anexos" class="mt-3" style="display: none;">
+                  <h6>Novos arquivos selecionados:</h6>
+                  <div id="lista-anexos" class="list-group"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Informações do Sistema -->
+            <div class="row mt-4">
+              <div class="col-12">
+                <div class="card border-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">Informações do Sistema</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <strong>Data de criação:</strong><br>
+                        {{ atividade.data_cadastro | formatar_data_hora_para_brl }}
+                      </div>
+                      <div class="col-md-3">
+                        <strong>Última atualização:</strong><br>
+                        {{ atividade.data_alteracao | formatar_data_hora_para_brl }}
+                      </div>
+                      <div class="col-md-3">
+                        <strong>Total de anexos:</strong><br>
+                        {{ atividade.anexos.filter_by(deletado=False).count() }} arquivo(s)
+                      </div>
+                      <div class="col-md-3">
+                        <strong>Status:</strong><br>
+                        {% if atividade.esta_atrasada %}
+                        <span class="badge bg-danger text-white">Atrasada</span>
+                        {% else %}
+                        <span class="badge bg-success text-white">No prazo</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-footer text-center text-md-end">
+            <a href="{{ url_for('atividades_listar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Cancelar
+            </a>
+            <button type="submit" class="btn btn-success">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l5 5l10 -10"></path>
+              </svg>
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+
+<!-- Quill CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<!-- Quill JS -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<script>
+// Configurar highlight.js para Quill
+hljs.configure({
+    languages: ['javascript', 'python', 'html', 'css', 'sql', 'php', 'java']
+});
+
+$(document).ready(function() {
+    // Inicializar Quill com conteúdo existente
+    var quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: 'Descreva a atividade, incluindo detalhes, requisitos, critérios de aceitação, etc.',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'align': [] }],
+                ['link', 'image'],
+                ['clean']
+            ],
+            syntax: {
+                highlight: text => hljs.highlightAuto(text).value
+            }
+        }
+    });
+
+    // Carregar conteúdo existente da descrição (com imagens Base64)
+    var conteudoExistente = $('#descricao').val();
+    if (conteudoExistente) {
+        quill.root.innerHTML = conteudoExistente;
+    }
+
+    // Ao submeter o formulário, copiar o conteúdo do Quill para o textarea
+    $('form').on('submit', function() {
+        $('#descricao').val(quill.root.innerHTML);
+    });
+
+    // Handler para upload de imagem no Quill
+    quill.getModule('toolbar').addHandler('image', function() {
+        selectLocalImage();
+    });
+
+    function selectLocalImage() {
+        var input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = function() {
+            var file = input.files[0];
+            if (/^image\//.test(file.type)) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var range = quill.getSelection();
+                    quill.insertEmbed(range.index, 'image', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Por favor, selecione apenas imagens.');
+            }
+        };
+    }
+
+    // Máscara para valor monetário
+    $('.campo-moeda-brl').mask('#.##0,00', {reverse: true});
+    
+    // Converter vírgula para ponto em campos numéricos
+    $('.campo-float').on('blur', function() {
+        var valor = $(this).val().replace(',', '.');
+        $(this).val(valor);
+    });
+
+    // Preview de novos anexos
+    $('#anexos').on('change', function() {
+        var files = this.files;
+        var previewContainer = $('#preview-anexos');
+        var listaAnexos = $('#lista-anexos');
+        
+        if (files.length > 0) {
+            previewContainer.show();
+            listaAnexos.empty();
+            
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+                var fileIcon = getFileIcon(file.name);
+                
+                if (fileSize > 10) {
+                    alert('O arquivo "' + file.name + '" excede o limite de 10MB');
+                    continue;
+                }
+                
+                var fileItem = `
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-auto">${fileIcon}</div>
+                            <div class="col">
+                                <div class="text-truncate"><strong>${file.name}</strong></div>
+                                <div class="text-muted small">${fileSize} MB</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                listaAnexos.append(fileItem);
+            }
+        } else {
+            previewContainer.hide();
+        }
+    });
+
+    // Atualizar progresso em tempo real
+    $('input[name="horasUtilizadas"], input[name="horasNecessarias"]').on('input', function() {
+        var horasUtilizadas = parseFloat($('input[name="horasUtilizadas"]').val().replace(',', '.')) || 0;
+        var horasNecessarias = parseFloat($('input[name="horasNecessarias"]').val().replace(',', '.')) || 0;
+        
+        if (horasNecessarias > 0) {
+            var percentual = (horasUtilizadas / horasNecessarias) * 100;
+            var percentualVisual = Math.min(100, percentual);
+            
+            $('.progress-bar').css('width', percentualVisual + '%').attr('aria-valuenow', percentual);
+            $('.progress-bar-label').text(percentual.toFixed(1) + '%');
+            
+            // Atualizar cor da barra
+            $('.progress-bar').removeClass('bg-primary bg-warning bg-danger');
+            if (percentual > 100) {
+                $('.progress-bar').addClass('bg-danger');
+            } else if (percentual > 80) {
+                $('.progress-bar').addClass('bg-warning');
+            } else {
+                $('.progress-bar').addClass('bg-primary');
+            }
+        }
+    });
+});
+
+// Função para remover anexo via AJAX
+function removerAnexo(anexoId) {
+    if (confirm('Tem certeza que deseja remover este anexo?')) {
+        $.ajax({
+            url: "{{ url_for('atividade_remover_anexo', anexo_id=0) }}".replace('0', anexoId),
+            type: 'POST',
+            success: function(response) {
+                if (response.success) {
+                    $('#anexo-' + anexoId).fadeOut(300, function() {
+                        $(this).remove();
+                        // Verificar se ainda há anexos
+                        if ($('#anexos-existentes .row').length === 0) {
+                            $('#anexos-existentes').parent().parent().fadeOut();
+                        }
+                    });
+                    alert(response.message);
+                } else {
+                    alert('Erro: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('Erro ao remover anexo. Tente novamente.');
+            }
+        });
+    }
+}
+
+// Função para obter ícone do arquivo
+function getFileIcon(filename) {
+    var ext = filename.split('.').pop().toLowerCase();
+    var iconMap = {
+        'pdf': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-danger" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" /></svg>',
+        'doc': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>',
+        'docx': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>'
+    };
+    
+    return iconMap[ext] || '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-secondary" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>';
+}
+</script>
+
+{% endblock conteudo %}

@@ -1,0 +1,934 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<style>
+  .kanban-container {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    min-height: calc(100vh - 200px);
+  }
+  
+  .kanban-column {
+    flex: 0 0 300px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  .kanban-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+  }
+  
+  .kanban-cards {
+    min-height: 200px;
+    padding: 5px;
+  }
+  
+  .kanban-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    cursor: move;
+    transition: all 0.2s;
+    position: relative;
+    user-select: none;
+  }
+  
+  .kanban-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  .kanban-card.dragging {
+    opacity: 0.6;
+    transform: rotate(3deg);
+    z-index: 1000;
+  }
+  
+  .kanban-column.drag-over {
+    background: #e7f3ff;
+    border: 2px dashed #0066cc;
+  }
+  
+  .kanban-cards.drag-over {
+    background: rgba(0, 102, 204, 0.1);
+    border-radius: 6px;
+  }
+  
+  .card-priority-indicator {
+    width: 4px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 6px 0 0 6px;
+  }
+  
+  .priority-baixa { background-color: #10b981; }
+  .priority-média { background-color: #f59e0b; }
+  .priority-alta { background-color: #f97316; }
+  .priority-urgente { background-color: #ef4444; }
+  
+  .card-meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .card-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  
+  .progress-bar {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: #3b82f6;
+    transition: width 0.3s;
+  }
+  
+  .view-mode-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-right: 1rem;
+  }
+
+  .view-mode-btn {
+    padding: 0.5rem 1rem;
+    border: 1.5px solid #d1d5db;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+
+  .view-mode-btn:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    text-decoration: none;
+    color: #374151;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .view-mode-btn.active {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    color: #0369a1;
+    border-color: #0ea5e9;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
+  }
+
+  .view-mode-btn.active:hover {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    border-color: #0284c7;
+    transform: translateY(-1px);
+  }
+
+  .btn-projeto {
+    border-color: #d1d5db;
+    color: #6b7280;
+    background: #ffffff;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-projeto:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #374151;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .btn-projeto:focus {
+    box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.1);
+    border-color: #9ca3af;
+  }
+</style>
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">KANBAN</div>
+          <h2 class="page-title">
+            {% if projeto_atual %}
+              {{ projeto_atual.nome_projeto }}
+            {% else %}
+              Todos os Projetos
+            {% endif %}
+          </h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <!-- Seletor de Visualização -->
+            <div class="view-mode-selector">
+              {% if projeto_atual %}
+                <a href="{{ url_for('kanban_visualizar', projeto_id=projeto_atual.id, modo='prioridade') }}" 
+                  class="view-mode-btn {% if modo_visualizacao == 'prioridade' %}active{% endif %}">
+                  Por Prioridade
+                </a>
+                <a href="{{ url_for('kanban_visualizar', projeto_id=projeto_atual.id, modo='situacao') }}" 
+                  class="view-mode-btn {% if modo_visualizacao == 'situacao' %}active{% endif %}">
+                  Por Situação
+                </a>
+              {% else %}
+                <a href="{{ url_for('kanban_visualizar', modo='prioridade') }}" 
+                  class="view-mode-btn {% if modo_visualizacao == 'prioridade' %}active{% endif %}">
+                  Por Prioridade
+                </a>
+                <a href="{{ url_for('kanban_visualizar', modo='situacao') }}" 
+                  class="view-mode-btn {% if modo_visualizacao == 'situacao' %}active{% endif %}">
+                  Por Situação
+                </a>
+              {% endif %}
+            </div>
+            
+            <!-- Seletor de Projeto -->
+            <div class="dropdown">
+              <button class="btn btn-outline-secondary dropdown-toggle btn-projeto" type="button" data-bs-toggle="dropdown">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M9 4h6a2 2 0 0 1 2 2v14l-5 -3l-5 3v-14a2 2 0 0 1 2 -2" />
+                </svg>
+                Projeto
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item {% if not projeto_atual %}active{% endif %}" 
+                  href="{{ url_for('kanban_visualizar', modo=modo_visualizacao) }}">
+                  Todos os Projetos
+                </a>
+                <div class="dropdown-divider"></div>
+                {% for projeto in projetos %}
+                <a class="dropdown-item {% if projeto_atual and projeto.id == projeto_atual.id %}active{% endif %}" 
+                  href="{{ url_for('kanban_visualizar', projeto_id=projeto.id, modo=modo_visualizacao) }}">
+                  {{ projeto.nome_projeto }}
+                </a>
+                {% endfor %}
+              </div>
+            </div>
+            
+            <!-- Botão Filtros -->
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#modal-filtros">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+              </svg>
+              Filtros
+            </button>
+            
+            <!-- Botão Nova Atividade -->
+            {% if projeto_atual %}
+              <a href="{{ url_for('atividade_cadastrar', projeto_id=projeto_atual.id) }}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M12 5l0 14" />
+                  <path d="M5 12l14 0" />
+                </svg>
+                Nova Atividade
+              </a>
+            {% else %}
+              <a href="{{ url_for('atividade_cadastrar') }}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M12 5l0 14" />
+                  <path d="M5 12l14 0" />
+                </svg>
+                Nova Atividade
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+      
+      <!-- Filtros ativos -->
+      {% if filtros and (filtros.responsavel_id or filtros.situacao_id or filtros.prioridade_id or filtros.titulo) %}
+      <div class="card mb-3">
+        <div class="card-body py-2">
+          <div class="d-flex align-items-center">
+            <span class="text-muted me-2">Filtros ativos:</span>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge badge-outline">
+                Visualização: {{ 'Por Prioridade' if modo_visualizacao == 'prioridade' else 'Por Situação' }}
+              </span>
+              
+              {% if filtros.responsavel_id %}
+                {% for usuario in usuarios %}
+                  {% if usuario.id|string == filtros.responsavel_id|string %}
+                  <span class="badge badge-outline">Responsável: {{ usuario.nome }}</span>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              
+              {% if filtros.situacao_id and modo_visualizacao == 'prioridade' %}
+                {% for andamento in andamentos %}
+                  {% if andamento.id|string == filtros.situacao_id|string %}
+                  <span class="badge badge-outline">Situação: {{ andamento.nome }}</span>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              
+              {% if filtros.prioridade_id and modo_visualizacao == 'situacao' %}
+                {% for prioridade in prioridades %}
+                  {% if prioridade.id|string == filtros.prioridade_id|string %}
+                  <span class="badge badge-outline">Prioridade: {{ prioridade.nome }}</span>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              
+              {% if filtros.titulo %}
+              <span class="badge badge-outline">Título: {{ filtros.titulo }}</span>
+              {% endif %}
+            </div>
+            {% if projeto_atual %}
+            <a href="{{ url_for('kanban_visualizar', projeto_id=projeto_atual.id, modo=modo_visualizacao) }}" 
+               class="btn btn-sm btn-link ms-auto">
+              Limpar filtros
+            </a>
+            {% else %}
+            <a href="{{ url_for('kanban_visualizar', modo=modo_visualizacao) }}" 
+               class="btn btn-sm btn-link ms-auto">
+              Limpar filtros
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if projetos %}
+      <div class="kanban-container">
+        {% for coluna in colunas %}
+        <div class="kanban-column" data-coluna-id="{{ coluna.id }}" data-tipo="{{ tipo_coluna }}">
+          <div class="kanban-column-header">
+            <h3 class="mb-0">
+              {% if tipo_coluna == 'prioridade' %}
+                {% if coluna.nome.lower() == 'baixa' %}
+                  <span class="badge bg-green text-white">{{ coluna.nome }}</span>
+                {% elif coluna.nome.lower() == 'média' %}
+                  <span class="badge bg-yellow text-white">{{ coluna.nome }}</span>
+                {% elif coluna.nome.lower() == 'alta' %}
+                  <span class="badge bg-orange text-white">{{ coluna.nome }}</span>
+                {% elif coluna.nome.lower() == 'urgente' %}
+                  <span class="badge bg-red text-white">{{ coluna.nome }}</span>
+                {% else %}
+                  <span class="badge bg-blue text-white">{{ coluna.nome }}</span>
+                {% endif %}
+              {% else %}
+                {% if coluna.nome.lower().strip() == 'não iniciada' %}
+                  <span class="badge bg-secondary text-white">{{ coluna.nome }}</span>
+                {% elif coluna.nome.lower().strip() == 'em andamento' %}
+                  <span class="badge bg-warning text-white">{{ coluna.nome }}</span>
+                {% elif coluna.nome.lower().strip() == 'concluída' %}
+                  <span class="badge bg-success text-white">{{ coluna.nome }}</span>
+                {% elif coluna.nome.lower().strip() == 'cancelada' %}
+                  <span class="badge bg-warning text-white">{{ coluna.nome }}</span>
+                {% elif coluna.nome.lower().strip() == 'pausada' %}
+                  <span class="badge bg-info text-white">{{ coluna.nome }}</span>
+                {% elif coluna.nome.lower().strip() == 'atrasada' %}
+                  <span class="badge bg-danger text-white">{{ coluna.nome }}</span>
+                {% else %}
+                  <span class="badge bg-blue text-white">{{ coluna.nome }}</span>
+                {% endif %}
+              {% endif %}
+            </h3>
+            <span class="text-muted count-display">
+              {{ atividades_organizadas[coluna.id]|length }} 
+              {% if atividades_organizadas[coluna.id]|length == 1 %}atividade{% else %}atividades{% endif %}
+            </span>
+          </div>
+          
+          <div class="kanban-cards" 
+               data-coluna-id="{{ coluna.id }}" 
+               data-tipo="{{ tipo_coluna }}"
+               ondrop="handleDrop(event)" 
+               ondragover="handleDragOver(event)"
+               ondragenter="handleDragEnter(event)"
+               ondragleave="handleDragLeave(event)">
+            {% for atividade in atividades_organizadas.get(coluna.id, []) %}
+            <div class="kanban-card position-relative" 
+                 draggable="true" 
+                 data-atividade-id="{{ atividade.id }}"
+                 ondragstart="handleDragStart(event)"
+                 ondragend="handleDragEnd(event)"
+                 onclick="verDetalhesAtividade({{ atividade.id }}, event)">
+              
+              <!-- Indicador de prioridade (sempre mostrar) -->
+              <div class="card-priority-indicator priority-{{ atividade.prioridade.nome.lower() }}"></div>
+              
+              <!-- Título da atividade -->
+              <h4 class="card-title mb-2" style="font-size: 0.875rem;">
+                {{ atividade.titulo }}
+              </h4>
+              
+              <!-- Badges de status e botões de ação -->
+              <div class="mb-2 d-flex justify-content-between align-items-center">
+                <div>
+                  {% if tipo_coluna == 'prioridade' %}
+                    <span class="badge badge-sm">{{ atividade.situacao.nome }}</span>
+                  {% else %}
+                    {% if atividade.prioridade.nome.lower() == 'baixa' %}
+                      <span class="badge badge-sm bg-green text-white">{{ atividade.prioridade.nome }}</span>
+                    {% elif atividade.prioridade.nome.lower() == 'média' %}
+                      <span class="badge badge-sm bg-yellow text-white">{{ atividade.prioridade.nome }}</span>
+                    {% elif atividade.prioridade.nome.lower() == 'alta' %}
+                      <span class="badge badge-sm bg-orange text-white">{{ atividade.prioridade.nome }}</span>
+                    {% elif atividade.prioridade.nome.lower() == 'urgente' %}
+                      <span class="badge badge-sm bg-red text-white">{{ atividade.prioridade.nome }}</span>
+                    {% else %}
+                      <span class="badge badge-sm bg-blue text-white">{{ atividade.prioridade.nome }}</span>
+                    {% endif %}
+                  {% endif %}
+                </div>
+                
+                <div class="d-flex gap-1">
+                  <!-- Botão Visualizar Atividade -->
+                  <a href="{{ url_for('atividade_visualizar', atividade_id=atividade.id) }}" 
+                    class="btn btn-sm btn-ghost-secondary p-1" 
+                    title="Visualizar atividade"
+                    onclick="event.stopPropagation()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                      <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                    </svg>
+                  </a>
+                  
+                  <!-- Botão Lançar Horas -->
+                  <a href="{{ url_for('lancamento_horas_cadastrar', atividade_id=atividade.id) }}" 
+                    class="btn btn-sm btn-ghost-secondary p-1" 
+                    title="Lançar horas"
+                    onclick="event.stopPropagation()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                      <path d="M12 7l0 5l3 3" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              
+              <!-- Meta informações -->
+              <div class="card-meta">
+                <!-- Responsável -->
+                {% if atividade.usuario_execucao %}
+                <div class="card-meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                  </svg>
+                  {{ atividade.usuario_execucao.nome.split()[0] }}
+                </div>
+                {% endif %}
+                
+                <!-- Prazo -->
+                {% if atividade.data_prazo_conclusao and atividade.situacao.id not in [4, 5] %}
+                  <div class="card-meta-item {% if atividade.esta_atrasada %}text-danger{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+                      <path d="M16 3v4" />
+                      <path d="M8 3v4" />
+                      <path d="M4 11h16" />
+                    </svg>
+                    {{ atividade.data_prazo_conclusao.strftime('%d/%m') }}
+                  </div>
+                {% endif %}
+                
+                <!-- Anexos -->
+                {% if atividade.anexos.count() > 0 %}
+                <div class="card-meta-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
+                  </svg>
+                  {{ atividade.anexos.count() }}
+                </div>
+                {% endif %}
+              </div>
+              
+              <!-- Barra de progresso (se houver horas) -->
+              {% if atividade.horas_necessarias > 0 %}
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ atividade.percentual_horas }}%"></div>
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M9 4h6a2 2 0 0 1 2 2v14l-5 -3l-5 3v-14a2 2 0 0 1 2 -2" />
+          </svg>
+        </div>
+        <p class="empty-title">Nenhum projeto encontrado</p>
+        <p class="empty-subtitle text-secondary">
+          Cadastre um projeto para começar a usar o kanban
+        </p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Filtros -->
+<div class="modal modal-blur fade" id="modal-filtros" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <form action="{{ url_for('kanban_filtrar') }}" method="GET">
+      <input type="hidden" name="projeto_id" value="{{ projeto_atual.id if projeto_atual else '' }}">
+      <input type="hidden" name="modo" value="{{ modo_visualizacao }}">
+      
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Filtrar atividades</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Responsável</label>
+              <select name="responsavel_id" class="form-select">
+                <option value="">Todos</option>
+                {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}" {% if filtros.responsavel_id|string == usuario.id|string %}selected{% endif %}>
+                  {{ usuario.nome }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            {% if modo_visualizacao == 'prioridade' %}
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Situação</label>
+              <select name="situacao_id" class="form-select">
+                <option value="">Todas</option>
+                {% for andamento in andamentos %}
+                <option value="{{ andamento.id }}" {% if filtros.situacao_id|string == andamento.id|string %}selected{% endif %}>
+                  {{ andamento.nome }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            {% else %}
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Prioridade</label>
+              <select name="prioridade_id" class="form-select">
+                <option value="">Todas</option>
+                {% for prioridade in prioridades %}
+                <option value="{{ prioridade.id }}" {% if filtros.prioridade_id|string == prioridade.id|string %}selected{% endif %}>
+                  {{ prioridade.nome }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endif %}
+            
+            <div class="col-md-12 mb-3">
+              <label class="form-label">Buscar</label>
+              <input type="text" name="titulo" class="form-control" 
+                     value="{{ filtros.titulo or '' }}"
+                     placeholder="Buscar no título da atividade...">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {% if projeto_atual %}
+          <a href="{{ url_for('kanban_visualizar', projeto_id=projeto_atual.id, modo=modo_visualizacao) }}" 
+            class="btn btn-link link-secondary">
+            Limpar Filtros
+          </a>
+          {% else %}
+          <a href="{{ url_for('kanban_visualizar', modo=modo_visualizacao) }}" 
+            class="btn btn-link link-secondary">
+            Limpar Filtros
+          </a>
+          {% endif %}
+          <button type="submit" class="btn btn-primary ms-auto">
+            Aplicar Filtros
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Detalhes da Atividade -->
+<div class="modal modal-blur fade" id="modal-detalhes" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-detalhes-titulo">Detalhes da Atividade</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modal-detalhes-conteudo">
+        <!-- Conteúdo será preenchido via JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+          Fechar
+        </button>
+        <a href="#" id="btn-editar-atividade" class="btn btn-primary">
+          Editar Atividade
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== VARIÁVEIS GLOBAIS =====
+let draggedElement = null;
+let sourceColumn = null;
+let modoVisualizacao = '{{ modo_visualizacao }}';
+
+// ===== FUNÇÕES DE DRAG AND DROP =====
+function handleDragStart(event) {
+    draggedElement = event.target;
+    sourceColumn = event.target.closest('.kanban-cards');
+    
+    // Visual feedback
+    setTimeout(() => {
+        draggedElement.classList.add('dragging');
+    }, 0);
+    
+    // Definir dados para transferência
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/html', draggedElement.outerHTML);
+}
+
+function handleDragEnd(event) {
+    // Limpar estilos visuais
+    event.target.classList.remove('dragging');
+    
+    // Limpar todos os indicadores de drop
+    document.querySelectorAll('.kanban-column').forEach(col => {
+        col.classList.remove('drag-over');
+    });
+    document.querySelectorAll('.kanban-cards').forEach(cards => {
+        cards.classList.remove('drag-over');
+    });
+}
+
+function handleDragOver(event) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+}
+
+function handleDragEnter(event) {
+    event.preventDefault();
+    
+    // Adicionar classe visual na coluna
+    const column = event.target.closest('.kanban-column');
+    if (column) {
+        column.classList.add('drag-over');
+    }
+    
+    // Adicionar classe visual na área de cards
+    const cardsArea = event.target.closest('.kanban-cards');
+    if (cardsArea) {
+        cardsArea.classList.add('drag-over');
+    }
+}
+
+function handleDragLeave(event) {
+    // Remover classes visuais apenas se realmente saiu da área
+    const column = event.target.closest('.kanban-column');
+    const cardsArea = event.target.closest('.kanban-cards');
+    
+    if (!event.relatedTarget || !column?.contains(event.relatedTarget)) {
+        if (column) column.classList.remove('drag-over');
+        if (cardsArea) cardsArea.classList.remove('drag-over');
+    }
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    
+    if (!draggedElement) return;
+    
+    const targetCardsArea = event.target.closest('.kanban-cards');
+    if (!targetCardsArea) return;
+    
+    // Verificar se mudou de coluna
+    if (sourceColumn === targetCardsArea) {
+        return; // Mesma coluna, não fazer nada
+    }
+    
+    // Obter IDs
+    const atividadeId = draggedElement.dataset.atividadeId;
+    const novoValorId = targetCardsArea.dataset.colunaId;
+    const tipoColuna = targetCardsArea.dataset.tipo;
+    
+    // Mover elemento imediatamente (feedback visual rápido)
+    targetCardsArea.appendChild(draggedElement);
+    
+    // Atualizar contadores
+    atualizarContadores();
+    
+    // Enviar para o servidor
+    if (tipoColuna === 'prioridade') {
+        atualizarPrioridade(atividadeId, novoValorId);
+    } else {
+        atualizarSituacao(atividadeId, novoValorId);
+    }
+}
+
+// ===== FUNÇÕES DE COMUNICAÇÃO COM SERVIDOR =====
+function atualizarPrioridade(atividadeId, novaPrioridadeId) {
+    fetch('/kanban/atualizar_prioridade', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            atividade_id: atividadeId,
+            nova_prioridade_id: novaPrioridadeId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacao(data.message, 'success');
+        } else {
+            mostrarNotificacao(data.message, 'error');
+            // Reverter mudança em caso de erro
+            sourceColumn.appendChild(draggedElement);
+            atualizarContadores();
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        mostrarNotificacao('Erro ao atualizar prioridade', 'error');
+        // Reverter mudança em caso de erro
+        sourceColumn.appendChild(draggedElement);
+        atualizarContadores();
+    });
+}
+
+function atualizarSituacao(atividadeId, novaSituacaoId) {
+    fetch('/kanban/atualizar_situacao', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            atividade_id: atividadeId,
+            nova_situacao_id: novaSituacaoId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacao(data.message, 'success');
+        } else {
+            mostrarNotificacao(data.message, 'error');
+            // Reverter mudança em caso de erro
+            sourceColumn.appendChild(draggedElement);
+            atualizarContadores();
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        mostrarNotificacao('Erro ao atualizar situação', 'error');
+        // Reverter mudança em caso de erro
+        sourceColumn.appendChild(draggedElement);
+        atualizarContadores();
+    });
+}
+
+// ===== FUNÇÕES AUXILIARES =====
+function atualizarContadores() {
+    document.querySelectorAll('.kanban-column').forEach(column => {
+        const cardsArea = column.querySelector('.kanban-cards');
+        const cards = cardsArea.querySelectorAll('.kanban-card');
+        const countDisplay = column.querySelector('.count-display');
+        
+        if (countDisplay) {
+            const count = cards.length;
+            countDisplay.textContent = `${count} ${count === 1 ? 'atividade' : 'atividades'}`;
+        }
+    });
+}
+
+function verDetalhesAtividade(atividadeId, event) {
+    // Prevenir se estiver arrastando
+    if (draggedElement) {
+        event.preventDefault();
+        return;
+    }
+    
+    // Impedir propagação do evento
+    event.stopPropagation();
+    
+    fetch(`/kanban/detalhes/${atividadeId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarModalDetalhes(data.atividade);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            mostrarNotificacao('Erro ao carregar detalhes', 'error');
+        });
+}
+
+function mostrarModalDetalhes(atividade) {
+    const modal = new bootstrap.Modal(document.getElementById('modal-detalhes'));
+    const titulo = document.getElementById('modal-detalhes-titulo');
+    const conteudo = document.getElementById('modal-detalhes-conteudo');
+    
+    titulo.textContent = atividade.titulo;
+    
+    conteudo.innerHTML = `
+        <div class="row">
+            <div class="col-md-8">
+                <h4>Descrição</h4>
+                <div class="mb-3">
+                    ${atividade.descricao || '<p class="text-muted">Sem descrição</p>'}
+                </div>
+                
+                <h4>Informações</h4>
+                <dl class="row">
+                    <dt class="col-sm-3">Projeto:</dt>
+                    <dd class="col-sm-9">${atividade.projeto.nome}</dd>
+                    
+                    <dt class="col-sm-3">Prioridade:</dt>
+                    <dd class="col-sm-9">${atividade.prioridade.nome}</dd>
+                    
+                    <dt class="col-sm-3">Situação:</dt>
+                    <dd class="col-sm-9">${atividade.situacao.nome}</dd>
+                    
+                    <dt class="col-sm-3">Responsável:</dt>
+                    <dd class="col-sm-9">${atividade.responsavel.nome}</dd>
+                </dl>
+            </div>
+            <div class="col-md-4">
+                <h4>Métricas</h4>
+                <dl>
+                    <dt>Horas:</dt>
+                    <dd>${atividade.horas.utilizadas} / ${atividade.horas.necessarias} (${atividade.horas.percentual.toFixed(0)}%)</dd>
+                    
+                    <dt>Valor:</dt>
+                    <dd>${atividade.valor}</dd>
+                    
+                    <dt>Prazo:</dt>
+                    <dd>${atividade.prazo || 'Sem prazo'}</dd>
+                    
+                    <dt>Anexos:</dt>
+                    <dd>${atividade.anexos} arquivo(s)</dd>
+                    
+                    <dt>Criado em:</dt>
+                    <dd>${atividade.criado_em}</dd>
+                </dl>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('btn-editar-atividade').href = `/gerenciar/atividades/editar/${atividade.id}`;
+    modal.show();
+}
+
+function mostrarNotificacao(mensagem, tipo) {
+    // Remover notificações existentes
+    document.querySelectorAll('.notification-toast').forEach(n => n.remove());
+    
+    // Criar nova notificação
+    const notificacao = document.createElement('div');
+    notificacao.className = `notification-toast alert alert-${tipo === 'success' ? 'success' : 'danger'} alert-dismissible position-fixed`;
+    notificacao.style.cssText = `
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        max-width: 400px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        animation: slideInFromRight 0.3s ease-out;
+    `;
+    
+    notificacao.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="me-2">
+                ${tipo === 'success' ? 
+                    '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>' :
+                    '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-danger" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+                }
+            </div>
+            <div class="flex-fill">${mensagem}</div>
+            <button type="button" class="btn-close ms-2" onclick="this.closest('.notification-toast').remove()"></button>
+        </div>
+    `;
+    
+    // Adicionar CSS de animação se não existir
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideInFromRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notificacao);
+    
+    // Auto-remover após 5 segundos
+    setTimeout(() => {
+        if (notificacao.parentElement) {
+            notificacao.remove();
+        }
+    }, 5000);
+}
+
+// ===== INICIALIZAÇÃO =====
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Kanban inicializado no modo:', modoVisualizacao);
+});
+</script>
+
+{% include 'sistema_hash/estrutura/footer.html' %}
+{% endblock conteudo %}

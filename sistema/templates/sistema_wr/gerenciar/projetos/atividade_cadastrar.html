@@ -1,0 +1,416 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">ATIVIDADE</div>
+          <h2 class="page-title">Cadastrar</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('atividade_cadastrar') }}" method="POST" enctype="multipart/form-data">
+          <div class="card-body">
+            
+            <!-- Informações Básicas -->
+            <h3 class="text-primary mb-3">Informações Básicas</h3>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Projeto</label>
+                  <select name="projetoId" 
+                    class="form-select {% if 'projetoId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione um projeto</option>
+                    {% for projeto in projetos %}
+                        <option value="{{ projeto.id }}" {% if projeto.id == dados_corretos.get('projetoId') | int %} selected {% endif %}>
+                          {{ projeto.nome_projeto }}
+                        </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('projetoId') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Título</label>
+                  <input type="text" name="titulo"
+                    value="{{ dados_corretos.get('titulo', '') }}"
+                    class="form-control {% if 'titulo' in campos_obrigatorios %}is-invalid{% endif %}"
+                    placeholder="Título da atividade">
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('titulo') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Atribuição e Status -->
+            <h3 class="text-primary mb-3 mt-4">Atribuição e Status</h3>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Responsável</label>
+                  <select name="usuarioExecucaoId" class="form-select">
+                    <option value="">Não atribuído</option>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" 
+                      {% if dados_corretos.get('usuarioExecucaoId') | string == usuario.id | string %}selected{% endif %}>
+                      {{ usuario.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Prioridade</label>
+                  <select name="prioridadeId" 
+                    class="form-select {% if 'prioridadeId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione a prioridade</option>
+                    {% for prioridade in prioridades %}
+                    <option value="{{ prioridade.id }}" 
+                      {% if prioridade.id == dados_corretos.get('prioridadeId') | int %} selected {% endif %}>
+                      {{ prioridade.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('prioridadeId') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Situação</label>
+                  <select name="situacaoId" 
+                    class="form-select {% if 'situacaoId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione a situação</option>
+                    {% for situacao in situacoes %}
+                      {% if situacao.id not in [4, 5] %}
+                        <option value="{{ situacao.id }}" 
+                          {% if situacao.id == dados_corretos.get('situacaoId') | int %} selected {% endif %}>
+                          {{ situacao.nome }}
+                        </option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('situacaoId') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estimativas e Prazos -->
+            <h3 class="text-primary mb-3 mt-4">Estimativas e Prazos</h3>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Horas Necessárias</label>
+                  <input type="text" name="horasNecessarias"
+                    value="{{ dados_corretos['horasNecessarias'] }}"
+                    class="form-control {% if 'horasNecessarias' in campos_erros %}is-invalid{% endif %} campo-float">
+                  <div class="invalid-feedback">
+                    {{ campos_erros.get('horasNecessarias') }}
+                  </div>
+                  <small class="form-hint">Estimativa de horas para completar</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Prazo de Conclusão</label>
+                  <input type="date" name="dataPrazoConclusao"
+                    value="{{ dados_corretos.get('dataPrazoConclusao', '') }}"
+                    class="form-control {% if 'dataPrazoConclusao' in campos_erros %}is-invalid{% endif %}">
+                  <div class="invalid-feedback">
+                    {{ campos_erros.get('dataPrazoConclusao') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Valor da Atividade</label>
+                  <input type="text" name="valorAtividade"
+                    value="{{ dados_corretos.get('valorAtividade') }}"
+                    class="form-control {% if 'valorAtividade' in campos_erros %}is-invalid{% endif %} campo-moeda-brl">
+                  <small class="form-hint">Valor cobrado pela atividade</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Descricao '-->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label">Descrição</label>
+                  <div id="editor-container" style="height: 300px; background: white;"></div>
+                  <textarea name="descricao" id="descricao" style="display: none;">{{ dados_corretos.get('descricao', '') }}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upload de Anexos -->
+            <h3 class="text-primary mb-3 mt-4">Anexos</h3>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label">Arquivos Anexos</label>
+                  <input type="file" name="anexos[]" id="anexos" class="form-control" multiple 
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.zip,.rar">
+                  <small class="form-hint">
+                    Formatos aceitos: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, GIF, ZIP, RAR. Máximo 10MB por arquivo.
+                  </small>
+                </div>
+                
+                <!-- Preview dos arquivos selecionados -->
+                <div id="preview-anexos" class="mt-3" style="display: none;">
+                  <h6>Arquivos selecionados:</h6>
+                  <div id="lista-anexos" class="list-group"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Informações Adicionais -->
+            <div class="row mt-3">
+              <div class="col-md-12">
+                <div class="alert alert-info border-0 shadow-sm">
+                  <div class="d-flex">
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" 
+                        width="24" height="24" viewBox="0 0 24 24" 
+                        stroke-width="2" stroke="currentColor" fill="none" 
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                        <path d="M12 9h.01" />
+                        <path d="M11 12h1v4h1" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="alert-title">Dicas para cadastrar atividades:</h4>
+                      <div class="text-secondary">
+                        • <strong>Título claro:</strong> Use títulos descritivos que indiquem claramente o que deve ser feito<br>
+                        • <strong>Descrição detalhada:</strong> Inclua todos os requisitos, critérios de aceitação e informações relevantes<br>
+                        • <strong>Estimativas realistas:</strong> Base suas estimativas em experiências anteriores<br>
+                        • <strong>Prioridade adequada:</strong> Considere impacto e urgência ao definir a prioridade<br>
+                        • <strong>Anexos:</strong> Após criar a atividade, você poderá adicionar anexos como imagens, documentos e arquivos
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-footer text-center text-md-end">
+            <a href="{% if projeto_id_url %}{{ url_for('atividades_listar', projeto_id=projeto_id_url) }}{% else %}{{ url_for('atividades_listar') }}{% endif %}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M12 5l0 14"></path>
+                <path d="M5 12l14 0"></path>
+              </svg>
+              Cadastrar Atividade
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+
+<!-- Quill CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<!-- Quill JS -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+// Configurar highlight.js para Quill
+hljs.configure({
+    languages: ['javascript', 'python', 'html', 'css', 'sql', 'php', 'java']
+});
+
+$(document).ready(function() {
+    // Inicializar Quill
+    var quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: 'Descreva a atividade, incluindo detalhes, requisitos, critérios de aceitação, etc.',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'align': [] }],
+                ['link', 'image'],
+                ['clean']
+            ],
+            syntax: {
+                highlight: text => hljs.highlightAuto(text).value
+            }
+        }
+    });
+
+    // Carregar conteúdo inicial se existir
+    var conteudoInicial = $('#descricao').val();
+    if (conteudoInicial) {
+        quill.root.innerHTML = conteudoInicial;
+    }
+
+    // Ao submeter o formulário, copiar o conteúdo do Quill para o textarea
+    $('form').on('submit', function() {
+        $('#descricao').val(quill.root.innerHTML);
+    });
+
+    // Handler para upload de imagem
+    quill.getModule('toolbar').addHandler('image', function() {
+        selectLocalImage();
+    });
+
+    function selectLocalImage() {
+        var input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = function() {
+            var file = input.files[0];
+            if (/^image\//.test(file.type)) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var range = quill.getSelection();
+                    quill.insertEmbed(range.index, 'image', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Por favor, selecione apenas imagens.');
+            }
+        };
+    }
+    
+    // Se houver projeto na URL, selecionar automaticamente
+    {% if projeto_id_url %}
+    $('select[name="projetoId"]').val('{{ projeto_id_url }}');
+    {% endif %}
+    
+    // Converter vírgula para ponto em campos numéricos
+    $('input[name="horasNecessarias"]').on('blur', function() {
+        var valor = $(this).val().replace(',', '.');
+        $(this).val(valor);
+    });
+
+    // Gerenciar preview de anexos
+    $('#anexos').on('change', function() {
+        var files = this.files;
+        var previewContainer = $('#preview-anexos');
+        var listaAnexos = $('#lista-anexos');
+        
+        if (files.length > 0) {
+            previewContainer.show();
+            listaAnexos.empty();
+            
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+                var fileIcon = getFileIcon(file.name);
+                
+                // Verificar tamanho do arquivo
+                if (fileSize > 10) {
+                    alert('O arquivo "' + file.name + '" excede o limite de 10MB');
+                    continue;
+                }
+                
+                var fileItem = `
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                ${fileIcon}
+                            </div>
+                            <div class="col">
+                                <div class="text-truncate">
+                                    <strong>${file.name}</strong>
+                                </div>
+                                <div class="text-muted small">${fileSize} MB</div>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerArquivo(${i})">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M18 6l-12 12" />
+                                        <path d="M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                listaAnexos.append(fileItem);
+            }
+        } else {
+            previewContainer.hide();
+        }
+    });
+});
+
+// Função para obter ícone baseado na extensão do arquivo
+function getFileIcon(filename) {
+    var ext = filename.split('.').pop().toLowerCase();
+    var iconMap = {
+        'pdf': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-danger" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" /><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" /><path d="M17 18h2" /><path d="M20 15h-3v6" /><path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" /></svg>',
+        'doc': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 9l1 0" /><path d="M9 13l6 0" /><path d="M9 17l6 0" /></svg>',
+        'docx': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 9l1 0" /><path d="M9 13l6 0" /><path d="M9 17l6 0" /></svg>',
+        'xls': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M10 12l4 0" /><path d="M10 18l4 0" /><path d="M10 9l4 0" /><path d="M10 15l4 0" /></svg>',
+        'xlsx': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M10 12l4 0" /><path d="M10 18l4 0" /><path d="M10 9l4 0" /><path d="M10 15l4 0" /></svg>',
+        'png': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-info" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></svg>',
+        'jpg': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-info" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></svg>',
+        'jpeg': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-info" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></svg>',
+        'gif': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-info" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></svg>',
+        'zip': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-warning" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.5 15.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0" /><path d="M12 2l-5 9v11a1 1 0 0 0 1 1h10a1 1 0 0 0 1 -1v-11l-5 -9" /><path d="M9 13h6" /><path d="M9 17h6" /></svg>',
+        'rar': '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-warning" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.5 15.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0" /><path d="M12 2l-5 9v11a1 1 0 0 0 1 1h10a1 1 0 0 0 1 -1v-11l-5 -9" /><path d="M9 13h6" /><path d="M9 17h6" /></svg>'
+    };
+    
+    return iconMap[ext] || '<svg xmlns="http://www.w3.org/2000/svg" class="icon text-secondary" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>';
+}
+
+// Função para remover arquivo (implementação simplificada)
+function removerArquivo(index) {
+    alert('Para remover arquivos individualmente, será necessário implementar lógica adicional no backend.');
+}
+</script>
+{% endblock conteudo %}

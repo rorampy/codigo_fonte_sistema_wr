@@ -1,0 +1,421 @@
+<style>
+    /* Reset e configurações básicas para PDF */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif !important;
+        background-color: #FFFFFF !important;
+        color: #212529 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Container principal - dimensionamentos fixos para exportação */
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        background-color: #FFFFFF !important;
+        position: relative !important;
+        overflow: visible !important;
+        padding: 0 !important;
+    }
+
+    /* Marca d'água para identificação do documento */
+    .watermark {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        z-index: 0 !important;
+        opacity: 0.03 !important;
+        pointer-events: none !important;
+    }
+
+    .watermark img {
+        max-width: 50% !important;
+        max-height: 50% !important;
+    }
+
+    /* Conteúdo principal do documento */
+    .content {
+        position: relative !important;
+        z-index: 1 !important;
+    }
+
+    /* Cabeçalho com background customizado */
+    .header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 15px 25px !important;
+        background-color: #FF8E44 !important;
+        color: white !important;
+        border-bottom: 4px solid #e67c3a !important;
+    }
+
+    .header img {
+        max-width: 140px !important;
+        height: auto !important;
+    }
+
+    .system-info {
+        text-align: right !important;
+        font-size: 11px !important;
+        color: #FFFFFF !important;
+    }
+
+    .system-info div {
+        margin-bottom: 3px !important;
+    }
+
+    /* Conteúdo principal com padding ajustado */
+    .main-content {
+        padding: 15px 20px 20px !important;
+    }
+
+    /* Título do relatório centralizado - TEMA LARANJA */
+    .relatorio-title {
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        color: #FF8E44 !important;
+        margin: 15px 0 20px !important;
+        text-align: center !important;
+        padding-bottom: 10px !important;
+        border-bottom: 1px solid #FF8E44 !important;
+    }
+
+    /* Grid de duas colunas para layout responsivo */
+    .content-grid {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 15px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .content-grid>div {
+        flex: 1 1 calc(50% - 10px) !important;
+        min-width: 300px !important;
+    }
+
+    /* Cards de contrato com bordas sólidas para melhor impressão */
+    .contract-card {
+        background-color: #FFFFFF !important;
+        border: 1px solid #ddd !important;
+        border-radius: 6px !important;
+        margin-bottom: 15px !important;
+        overflow: hidden !important;
+        page-break-inside: avoid !important;
+        box-shadow: none !important;
+    }
+
+    .contract-header {
+        background-color: #fff3e6 !important;
+        padding: 10px 15px !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .contract-title {
+        color: #FF8E44 !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .contract-title svg {
+        margin-right: 8px !important;
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    .contract-body {
+        padding: 10px 12px !important;
+    }
+
+    /* Grid de detalhes compacto para economizar espaço */
+    .details-grid-compact {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    .detail-item {
+        flex: 1 1 calc(50% - 10px) !important;
+        min-width: 120px !important;
+        padding: 8px 12px !important;
+        background-color: #f8f9fa !important;
+        border-left: 3px solid #FF8E44 !important;
+        border-radius: 0 4px 4px 0 !important;
+    }
+
+    .detail-title {
+        font-size: 11px !important;
+        text-transform: uppercase !important;
+        color: #6c757d !important;
+        margin-bottom: 4px !important;
+        font-weight: 600 !important;
+    }
+
+    .detail-value {
+        font-size: 13px !important;
+        color: #212529 !important;
+        font-weight: 500 !important;
+        word-break: break-word !important;
+    }
+
+    /* Tabela de valores com bordas definidas para exportação */
+    .table-container {
+        background-color: #FFFFFF !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+        margin-bottom: 15px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .table-header {
+        background-color: #fff3e6 !important;
+        padding: 10px 15px !important;
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+
+    .table-title {
+        color: #FF8E44 !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .table-title svg {
+        margin-right: 8px !important;
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    th {
+        text-align: left !important;
+        padding: 8px 12px !important;
+        background-color: #FF8E44 !important;
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 12px !important;
+        border: 1px solid #dee2e6 !important;
+    }
+
+    td {
+        padding: 8px 12px !important;
+        border: 1px solid #dee2e6 !important;
+        vertical-align: middle !important;
+        font-size: 12px !important;
+        color: #212529 !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f8f9fa !important;
+    }
+
+    /* Layout para assinaturas */
+    .flex-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 15px !important;
+        margin-bottom: 15px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .flex-col {
+        flex: 1 !important;
+    }
+
+    .signature-section {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 15px !important;
+        margin-bottom: 15px !important;
+    }
+
+    .signature-box {
+        text-align: center !important;
+        padding: 10px !important;
+        flex: 1 !important;
+        min-width: 200px !important;
+        margin-top: 15px !important;
+    }
+
+    .signature-line {
+        margin: 0 auto 10px !important;
+        width: 80% !important;
+        border-bottom: 1px solid #000000 !important;
+    }
+
+    .signature-name {
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        color: #FF8E44 !important;
+    }
+
+    .signature-title {
+        font-size: 11px !important;
+        color: #6c757d !important;
+        margin-top: 4px !important;
+    }
+
+    /* Rodapé com bordas definidas */
+    .footer {
+        text-align: center !important;
+        padding: 15px 0 !important;
+        border-top: 1px solid #dee2e6 !important;
+        background-color: #f8f9fa !important;
+        color: #6c757d !important;
+        font-size: 11px !important;
+        margin-top: 20px !important;
+    }
+
+    .footer p {
+        margin: 3px 0 !important;
+    }
+
+    .footer strong {
+        color: #FF8E44 !important;
+    }
+
+    /* Utilitários para controle de quebra de página */
+    .mb-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .mt-0 {
+        margin-top: 0 !important;
+    }
+
+    .no-break {
+        page-break-inside: avoid !important;
+    }
+
+    /* Garantindo que todos elementos tenham cores impressas corretamente */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Garantindo espaçamento adequado para exportação PDF */
+    .page-wrapper {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .page.body {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Status visível com cor forte */
+    .status-badge {
+        display: inline-block !important;
+        padding: 2px 8px !important;
+        border-radius: 4px !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+    }
+
+    .status-active {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+
+    /* Ajustes extras para compatibilidade */
+    svg {
+        display: inline-block !important;
+    }
+
+    /* Evitar que o SVG cause problemas na exportação */
+    svg * {
+        stroke-width: 2px !important;
+    }
+
+    /* Tabela de valores - tema laranja */
+    .values-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+
+    .values-table th {
+        background-color: #FF8E44 !important;
+        color: white !important;
+        padding: 10px;
+        text-align: left;
+        font-weight: bold;
+        font-size: 11px;
+    }
+
+    .values-table td {
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        font-size: 11px;
+    }
+
+    .values-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .total-row {
+        font-weight: bold;
+        background-color: #fff3e6 !important;
+    }
+
+    .total-row td {
+        border-top: 2px solid #FF8E44;
+    }
+
+    /* Observações */
+    .observations {
+        background-color: #fff3e6;
+        border-left: 4px solid #FF8E44;
+        padding: 15px;
+        margin: 20px 0;
+        font-size: 11px;
+    }
+
+    /* Responsivo para impressão */
+    @media print {
+        .content-grid {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .signature-section {
+            flex-direction: column;
+            gap: 20px;
+        }
+    }
+</style>

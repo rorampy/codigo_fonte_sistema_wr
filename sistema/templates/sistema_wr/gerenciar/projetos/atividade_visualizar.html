@@ -1,0 +1,325 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">ATIVIDADE</div>
+          <h2 class="page-title">{{ atividade.titulo }}</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <a href="{{ url_for('atividade_editar', atividade_id=atividade.id) }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                <path d="M16 5l3 3" />
+              </svg>
+              Editar
+            </a>
+            <a href="{{ url_for('atividades_listar', projeto_id=atividade.projeto_id) }}" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 12l14 0" />
+                <path d="M5 12l6 6" />
+                <path d="M5 12l6 -6" />
+              </svg>
+              Voltar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="row row-deck row-cards">
+        
+        <!-- Informações Básicas -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Informações Básicas</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted">Projeto</label>
+                    <div class="fw-bold">{{ atividade.projeto.nome_projeto }}</div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label text-muted">Responsável</label>
+                    <div class="fw-bold">
+                      {% if atividade.usuario_execucao %}
+                        {{ atividade.usuario_execucao.nome }}
+                      {% else %}
+                        <span class="text-muted">Não atribuído</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted">Prioridade</label>
+                    <div>
+                      <span class="badge bg-{{ 'danger' if atividade.prioridade.id == 1 else 'warning' if atividade.prioridade.id == 2 else 'primary' }} text-white">
+                        {{ atividade.prioridade.nome }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label text-muted">Situação</label>
+                    <div>
+                      <span class="badge bg-{{ 'success' if atividade.situacao.id == 3 else 'warning' if atividade.situacao.id == 2 else 'secondary' }} text-white">
+                        {{ atividade.situacao.nome }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estimativas e Prazos -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Estimativas e Prazos</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted">Horas Estimadas</label>
+                    <div class="fw-bold">{{ "%.1f"|format(atividade.horas_necessarias) }}h</div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted">Horas Utilizadas</label>
+                    <div class="fw-bold">{{ "%.1f"|format(atividade.horas_utilizadas) }}h</div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Progresso de Horas -->
+              <div class="mb-3">
+                <label class="form-label text-muted">Progresso das Horas</label>
+                <div class="progress mb-2">
+                  <div class="progress-bar {% if percentual_horas > 100 %}bg-danger{% elif percentual_horas > 80 %}bg-warning{% else %}bg-primary{% endif %}" 
+                       style="width: {{ percentual_horas_visual }}%"></div>
+                </div>
+                <small class="text-muted">
+                  {{ "%.1f"|format(percentual_horas) }}% 
+                  {% if percentual_horas > 100 %}
+                    <span class="text-danger">({{ "%.1f"|format(percentual_horas - 100) }}% acima do estimado)</span>
+                  {% endif %}
+                </small>
+              </div>
+
+              {% if atividade.data_prazo_conclusao %}
+              <div class="mb-3">
+                <label class="form-label text-muted">Prazo de Conclusão</label>
+                <div class="fw-bold {% if esta_atrasada and atividade.situacao.id not in [4, 5] %}text-danger{% endif %}">
+                  {{ data_prazo_formatada }}
+                  {% if esta_atrasada and atividade.situacao.id not in [4, 5] %}
+                    <span class="badge bg-danger text-white ms-2">Atrasada</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% endif %}
+
+              {% if valor_real > 0 %}
+              <div class="mb-3">
+                <label class="form-label text-muted">Valor da Atividade</label>
+                <div class="fw-bold text-success">R$ {{ "%.2f"|format(valor_real) }}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Descrição -->
+        {% if atividade.descricao %}
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Descrição</h3>
+            </div>
+            <div class="card-body">
+              <div class="ql-editor">
+                {{ atividade.descricao|safe }}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Anexos -->
+        {% if anexos %}
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Anexos ({{ anexos|length }})</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                {% for anexo in anexos %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                  <div class="card card-sm">
+                    <div class="card-body p-3">
+                      <div class="d-flex align-items-center">
+                        <span class="me-3">
+                          {% if anexo.tipo_arquivo == 'image' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon text-info" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M15 8h.01" />
+                              <path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" />
+                              <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" />
+                              <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" />
+                            </svg>
+                          {% elif anexo.tipo_arquivo == 'document' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                              <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                              <path d="M9 9l1 0" />
+                              <path d="M9 13l6 0" />
+                              <path d="M9 17l6 0" />
+                            </svg>
+                          {% elif anexo.tipo_arquivo == 'compressed' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon text-warning" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M16.5 15.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0" />
+                              <path d="M12 2l-5 9v11a1 1 0 0 0 1 1h10a1 1 0 0 0 1 -1v-11l-5 -9" />
+                              <path d="M9 13h6" />
+                              <path d="M9 17h6" />
+                            </svg>
+                          {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon text-secondary" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                              <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                            </svg>
+                          {% endif %}
+                        </span>
+                        <div class="flex-fill">
+                          <div class="font-weight-medium">{{ anexo.nome_original[:25] }}{% if anexo.nome_original | length > 25 %}...{% endif %}</div>
+                          <div class="text-muted small">
+                            {{ anexo.tamanho_formatado }} • 
+                            <span class="text-uppercase">{{ anexo.tipo_arquivo }}</span>
+                          </div>
+                        </div>
+                        <div class="ms-auto">
+                          <a href="{{ url_for('atividade_download_anexo', anexo_id=anexo.id) }}" class="btn btn-sm btn-outline-primary" title="Download">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                              <path d="M7 11l5 5l5 -5" />
+                              <path d="M12 4l0 12" />
+                            </svg>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Informações do Sistema -->
+        <div class="col-12">
+          <div class="card border-secondary">
+            <div class="card-header">
+              <h3 class="card-title">Informações do Sistema</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <strong>Data de criação:</strong><br>
+                  {{ atividade.data_cadastro | formatar_data_hora_para_brl }}
+                </div>
+                <div class="col-md-3">
+                  <strong>Última atualização:</strong><br>
+                  {{ atividade.data_alteracao | formatar_data_hora_para_brl }}
+                </div>
+                <div class="col-md-3">
+                  <strong>Total de anexos:</strong><br>
+                  {{ atividade.anexos.filter_by(deletado=False).count() }} arquivo(s)
+                </div>
+                <div class="col-md-3">
+                  <strong>Status:</strong><br>
+                  {% if atividade.esta_atrasada %}
+                  <span class="badge bg-danger text-white">Atrasada</span>
+                  {% else %}
+                  <span class="badge bg-success text-white">No prazo</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+{% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+
+<!-- Quill CSS para renderizar a descrição -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+<style>
+/* Estilos para renderizar conteúdo do Quill sem editor */
+.ql-editor {
+  padding: 0;
+  border: none;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.ql-editor blockquote {
+  border-left: 4px solid #206bc4;
+  margin: 16px 0;
+  padding-left: 16px;
+  color: #6c757d;
+}
+
+.ql-editor pre.ql-syntax {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+.ql-editor .ql-code-block-container {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+</style>
+
+{% endblock conteudo %}

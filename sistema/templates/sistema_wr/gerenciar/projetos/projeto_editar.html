@@ -1,0 +1,234 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">PROJETO</div>
+          <h2 class="page-title">Editar</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('projeto_editar', id=projeto.id) }}" method="POST">
+          <div class="card-body">
+            
+            <!-- Informações Básicas -->
+            <h3 class="text-primary mb-3">Informações Básicas</h3>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Nome do Projeto</label>
+                  <input type="text" name="nomeProjeto"
+                    value="{{ projeto.nome_projeto }}"
+                    class="form-control {% if 'nomeProjeto' in campos_obrigatorios or 'nomeProjeto' in campos_erros %}is-invalid{% endif %}"
+                    placeholder="Nome do projeto">
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('nomeProjeto') or campos_erros.get('nomeProjeto') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label required">Data de Início</label>
+                  <input type="date" name="dataInicio"
+                    value="{{ projeto.data_inicio }}"
+                    class="form-control {% if 'dataInicio' in campos_obrigatorios or 'dataInicio' in campos_erros %}is-invalid{% endif %}">
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('dataInicio') or campos_erros.get('dataInicio') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Data de Fim</label>
+                  <input type="date" name="dataFim"
+                    value="{{ projeto.data_fim }}"
+                    class="form-control {% if 'dataFim' in campos_erros %}is-invalid{% endif %}">
+                  <div class="invalid-feedback">
+                    {{ campos_erros.get('dataFim') }}
+                  </div>
+                  <small class="form-hint">Deixe em branco se ainda não finalizado</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Responsável Técnico</label>
+                  <select name="responsavelTecnico"
+                    class="form-select {% if 'responsavelTecnico' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione...</option>
+                    {% for usuario in usuarios_ativos %}
+                    <option value="{{ usuario.id }}" 
+                      {% if projeto.responsavel_tecnico_id == usuario.id %}selected{% endif %}>
+                      {{ usuario.nome }} {{ usuario.sobrenome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('responsavelTecnico') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Andamento</label>
+                  <select name="andamentoProjeto"
+                    class="form-select {% if 'andamentoProjeto' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione...</option>
+                    {% for andamento in andamentos %}
+                    <option value="{{ andamento.id }}"
+                      {% if projeto.andamento_id == andamento.id %}selected{% endif %}>
+                      {{ andamento.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('andamentoProjeto') }}
+                  </div>
+                  <small class="form-hint">
+                    <strong>Importante:</strong> Um projeto só pode ser marcado como "Concluído" quando todas as suas atividades estiverem concluídas ou canceladas.
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Equipe do Projeto -->
+            <h3 class="text-primary mb-3">Equipe do Projeto</h3>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label">Usuários Envolvidos</label>
+                  <select name="usuariosEnvolvidos" class="form-select" multiple>
+                    {% for usuario in usuarios_ativos %}
+                    <option value="{{ usuario.id }}"
+                      {% if usuario.id|string in dados_corretos.get('usuariosEnvolvidos', []) %}selected{% endif %}>
+                      {{ usuario.nome }} {{ usuario.sobrenome }} - {{ usuario.role.cargo }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <small class="form-hint">Mantenha Ctrl pressionado para selecionar múltiplos usuários</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Observações -->
+            <h3 class="text-primary mb-3">Observações</h3>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label">Observações</label>
+                  <textarea name="observacoes" rows="4" class="form-control"
+                    placeholder="Observações sobre o projeto...">{{ projeto.observacoes }}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Informações do Sistema -->
+            <div class="row mt-4">
+              <div class="col-12">
+                <div class="card border-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">Informações do Sistema</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <strong>Data de criação:</strong><br>
+                        {{ projeto.data_cadastro | formatar_data_hora_para_brl }}
+                      </div>
+                      <div class="col-md-4">
+                        <strong>Última atualização:</strong><br>
+                        {{ projeto.data_alteracao | formatar_data_hora_para_brl }}
+                      </div>
+                      <div class="col-md-4">
+                        <strong>Status:</strong><br>
+                        {% if projeto.ativo %}
+                        <span class="badge bg-green text-white">Ativo</span>
+                        {% else %}
+                        <span class="badge bg-red text-white">Inativo</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-footer text-center text-md-end">
+            <a href="{{ url_for('projetos_listar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l5 5l10 -10"></path>
+              </svg>
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+
+  <!-- Script auxiliar para selects -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Inicializar Tom Select para usuários envolvidos
+      new TomSelect('select[name="usuariosEnvolvidos"]', {
+        create: false,
+        allowEmptyOption: true,
+        placeholder: 'Selecione os usuários envolvidos...',
+        plugins: ['remove_button'],
+        render: {
+          item: function(data, escape) {
+            return '<div><span class="dropdown-item-indicator">' + escape(data.text) + '</span></div>';
+          }
+        }
+      });
+
+      // Inicializar Tom Select para outros selects
+      document.querySelectorAll('select.form-select:not([name="usuariosEnvolvidos"])').forEach(function (select) {
+        if (!select.hasAttribute('multiple')) {
+          new TomSelect(select, {
+            create: false,
+            allowEmptyOption: true,
+            sortField: {
+              field: "text",
+              direction: "asc"
+            }
+          });
+        }
+      });
+    });
+  </script>
+</div>
+{% endblock conteudo %}

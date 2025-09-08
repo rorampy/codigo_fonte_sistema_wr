@@ -1,0 +1,220 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">CONTRATOS</div>
+          <h2 class="page-title">Listagem</h2>
+        </div>
+        <div class="col-12 col-md-auto ms-auto d-print-none">
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('contrato_cadastrar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Cadastrar Contrato
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+      <div class="col-12">
+        <div class="card">
+          {% if contratos %}
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+              <thead>
+                <tr>
+                  <th style="text-align: center;">Cliente</th>
+                  <th style="text-align: center;">Produto</th>
+                  <th style="text-align: center;">Vigência</th>
+                  <th style="text-align: center;">Valor</th>
+                  <th style="text-align: center;">Contrato Assinado?</th>
+                  <th style="text-align: center;">Status</th>
+                  <th class="w-1" style="text-align: center;">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for contrato in contratos %}
+                <tr>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ contrato.cliente.identificacao or '-' }}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ (contrato.contrato_produto[0].produto.descricao if contrato.contrato_produto else None) or '-' }}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ (contrato.contrato_produto[0].vigencia_inicio | formatar_data_para_brl if
+                    contrato.contrato_produto else None) or '-' }}
+                    {% if contrato.contrato_produto and contrato.contrato_produto[0].vigencia_fim %} - {{
+                    contrato.contrato_produto[0].vigencia_fim | formatar_data_para_brl }}{% endif %}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    {{ (contrato.contrato_produto[0].valor_negociado | formatar_float_para_brl if
+                    contrato.contrato_produto and contrato.contrato_produto[0].valor_negociado else None) or '-' }}
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    <span
+                      class="badge badge-outline text-{% if contrato.contrato_assinado %}green{% else %}red{% endif %}">
+                      {{ 'Sim' if contrato.contrato_assinado else 'Não' }}
+                    </span>
+                  </td>
+                  <td class="text-secondary" style="text-align: center;">
+                    <span
+                      class="badge badge-outline text-{% if contrato.status_contrato == 1 %}green{% elif contrato.status_contrato == 2 %}red{% else %}red{% endif %}">
+                      {% if contrato.status_contrato == 1 %}
+                      Ativo
+                      {% elif contrato.status_contrato == 2 %}
+                      Inativo
+                      {% elif contrato.status_contrato == 3 %}
+                      Cancelado
+                      {% else %}
+                      Desconhecido
+                      {% endif %}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-list flex-nowrap">
+                      {%if not contrato.contrato_assinado %}
+                      <a href="{{url_for('contrato_exportar_pdf', id=contrato.id)}}"
+                        class="btn btn-icon btn-outline-success" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Exportar contrato">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                          class="icon icon-tabler icons-tabler-outline icon-tabler-download">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                          <path d="M7 11l5 5l5 -5" />
+                          <path d="M12 4l0 12" />
+                        </svg>
+                      </a>
+                      {%else%}
+
+                      <a href="#" class="btn btn-icon btn-outline-success btn-visualizar-arquivo"
+                        data-url="{{ url_for('diretorio_upload_contrato_assinado', filename=contrato.arquivo_contrato.caminho.split('/')[-1]) }}"
+                        data-bs-toggle="modal" data-bs-target="#modal-visualizar-arquivo">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                          class="icon icon-tabler icons-tabler-outline icon-tabler-receipt">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path
+                            d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2" />
+                        </svg>
+                      </a>
+
+                      {%endif%}
+                      <a href="{{url_for('cadastrar_contrato_assinado', id=contrato.id)}}"
+                        class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Área de contrato assinado">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                          class="icon icon-tabler icons-tabler-outline icon-tabler-file-upload">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                          <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                          <path d="M12 11v6" />
+                          <path d="M9.5 13.5l2.5 -2.5l2.5 2.5" />
+                        </svg>
+                      </a>
+                      <a href="{{ url_for('contrato_editar', contrato_id=contrato.id) }}"
+                        class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Editar contrato">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="24"
+                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+                          <path d="M13.5 6.5l4 4" />
+                        </svg>
+                      </a>
+                      <a href="#" class="btn btn-icon btn-outline-danger excluir" data-bs-toggle="modal"
+                        data-bs-target="#modal-excluir-{{ contrato.id }}" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="Excluir contrato">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M18 6l-12 12" />
+                          <path d="M6 6l12 12" />
+                        </svg>
+                      </a>
+
+                      <!-- Modal de exclusão -->
+                      <div class="modal modal-blur fade" id="modal-excluir-{{contrato.id}}" tabindex="-1" role="dialog"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                          <div class="modal-content">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal-status bg-danger"></div>
+                            <div class="modal-body text-center py-4">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                                <path d="M12 9v4" />
+                                <path
+                                  d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                                <path d="M12 16h.01" />
+                              </svg>
+                              <div class="text-secondary">
+                                Você realmente deseja excluir este contrato?
+                              </div>
+                              <div class="text-muted mt-2">
+                                Esta ação não pode ser desfeita.
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <div class="w-100">
+                                <div class="row">
+                                  <div class="col">
+                                    <a href="#" class="btn btn w-100" data-bs-dismiss="modal">
+                                      Cancelar
+                                    </a>
+                                  </div>
+                                  <div class="col">
+                                    <form action="{{ url_for('contrato_excluir', contrato_id=contrato.id) }}"
+                                      method="post" style="display:inline;">
+                                      <button type="submit" class="btn btn-danger w-100">
+                                        Excluir
+                                      </button>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="area-info-card"
+            style="padding: 30px; border-radius: 10px; text-align: center; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); background-color: white;">
+            <div class="icon-extrato" style="font-size: 70px; color: #fc7801; margin-bottom: 15px">❌</div>
+            <h2 style="font-size: 22px; margin-bottom: 10px; color: #555;">Nenhum contrato cadastrado.</h2>
+            <p style="color: #777;">No momento não há contratos para serem exibidos.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+{% endblock conteudo %}

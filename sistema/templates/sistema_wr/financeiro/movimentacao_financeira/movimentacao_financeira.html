@@ -1,0 +1,297 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<link href="{{ url_for('static', filename='css/financeiro/movimentacao_financeira/movimentacao_financeira.css') }}"
+  rel="stylesheet">
+
+<div class="page-wrapper">
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">GERENCIAMENTO FINANCEIRO</div>
+          <h2 class="page-title">Movimentações financeiras</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="d-flex gap-2">
+            <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-report">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-filter">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path
+                  d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+              </svg>
+              Filtrar </a>
+            <a href="{{url_for('cadastrar_lancamento')}}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Lançar Movimentação
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <!-- Resumo Financeiro -->
+      <div class="financial-summary">
+        <div class="summary-card saldo">
+          <div class="card-header-custom">
+            <div class="card-icon saldo">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path
+                  d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" />
+                <path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="card-title-custom">Saldo Disponível</h3>
+            </div>
+          </div>
+          <div class="card-value">{{saldo_liquido | formatar_float_para_brl
+            }}</div>
+        </div>
+
+        <div class="summary-card entradas">
+          <div class="card-header-custom">
+            <div class="card-icon entradas">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M3 17l6 -6l4 4l8 -8" />
+                <path d="M14 7l7 0l0 7" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="card-title-custom">Total Entradas</h3>
+            </div>
+          </div>
+          <div class="card-value">{{ saldo_entradas | formatar_float_para_brl
+            }}</div>
+        </div>
+
+        <div class="summary-card saidas">
+          <div class="card-header-custom">
+            <div class="card-icon saidas">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M3 7l6 6l4 -4l8 8" />
+                <path d="M21 10l0 7l-7 0" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="card-title-custom">Total Saídas</h3>
+            </div>
+          </div>
+          <div class="card-value">{{ saldo_saidas | formatar_float_para_brl
+            }}</div>
+        </div>
+      </div>
+
+      <!-- Extrato -->
+      {% if movimentacao %}
+      <div class="extrato-section">
+        <div class="extrato-list">
+          {% for mov in movimentacao %}
+          <div class="extrato-item">
+            <div class="item-icon {{ 'receita' if mov.tipo_movimentacao == 1 else 'despesa' }}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                {% if mov.tipo_movimentacao == 1 %}
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M3 17l6 -6l4 4l8 -8" />
+                <path d="M14 7l7 0l0 7" />
+                {% else %}
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M3 7l6 6l4 -4l8 8" />
+                <path d="M21 10l0 7l-7 0" />
+                {% endif %}
+              </svg>
+            </div>
+            <div class="item-details">
+              <div class="item-title">
+                {% if mov.tipo_movimentacao == 3 %}
+                  Movimentação cancelada
+                {% elif mov.tipo_movimentacao == 4 and mov.recebimento_id and mov.recebimento %}
+                  Estorno pagamento Cliente {{ mov.recebimento.cliente.identificacao | truncate(20, '...') }} | Produto : {{ mov.recebimento.contrato_produto.produto.descricao | truncate(20, '...') }}
+                {% elif mov.tipo_movimentacao == 4 %}
+                  Movimentação estornada
+                {% elif mov.lancamento_id %}
+                  {{ mov.lancamento.descricao }}
+                {% elif mov.recebimento_id and mov.recebimento %}
+                  {{ mov.recebimento.observacao }}
+                {% else %}
+                  Recebimento
+                {% endif %}
+              </div>
+              <div class="item-subtitle">
+                <span class="item-category">
+                  {% if mov.tipo_movimentacao == 3 %}
+                    Cancelamento
+                  {% elif mov.tipo_movimentacao == 4 %}
+                    Estorno
+                  {% elif mov.lancamento and mov.lancamento.categoria %}
+                    {{ mov.lancamento.categoria.codigo }} - {{ mov.lancamento.categoria.nome }}
+                  {% elif mov.recebimento and mov.recebimento.categoria %}
+                    {{ mov.recebimento.categoria.codigo }} - {{ mov.recebimento.categoria.nome }}
+                  {% else %}
+                    Categoria não definida
+                  {% endif %}
+                </span>
+                <span>•</span>
+                <span>
+                  {% if mov.tipo_movimentacao == 3 %}
+                    Movimentação cancelada
+                  {% elif mov.tipo_movimentacao == 4 %}
+                    Movimentação estornada
+                  {% elif mov.tipo_movimentacao == 1 %}
+                    Pagamento recebido
+                  {% else %}
+                    Pagamento efetuado
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+            <div class="item-amount">
+              <div class="amount-value {{ 'positive' if mov.tipo_movimentacao == 1 else 'negative' }}">
+                {{ '+' if mov.tipo_movimentacao == 1 else '-' }}
+                {{ mov.valor_movimentacao_100 | formatar_float_para_brl }}
+              </div>
+              <div class="amount-date">{{ mov.data_movimentacao |
+                formatar_data_para_brl }}</div>
+            </div>
+          </div>
+          {% endfor %}
+
+        </div>
+      </div>
+      {%else%}
+      <div class="area-info-card" style="padding: 30px; border-radius: 10px; text-align: center;
+                          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+                          background-color: white;">
+        <div class="icon-extrato" style="font-size: 70px; color: #fc7801; margin-bottom: 15px">❌
+        </div>
+        <h2 style="font-size: 22px; margin-bottom: 10px; color: #555;">
+          Nenhuma movimentação encontrada.
+        </h2>
+        <p style="color: #777;">
+          No momento não há movimentações para serem exibidas.
+        </p>
+      </div>
+      {%endif%}
+    </div>
+  </div>
+
+
+  <div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="display: grid;">
+      <form action="{{ url_for('movimentacao_financeira') }}" method="GET">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Filtrar Movimentações Financeiras</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Data Início</label>
+                <input type="date" name="dataInicio" class="form-control"
+                  value="{{ dados_corretos.get('dataInicio', '') }}">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Data Fim</label>
+                <input type="date" name="dataFim" class="form-control" value="{{ dados_corretos.get('dataFim', '') }}">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Tipo de Movimentação</label>
+                <select name="tipoMovimentacao" class="form-select">
+                  <option value="">Todos os tipos</option>
+                  <option value="1" {% if dados_corretos.get('tipoMovimentacao')=='1' %}selected{% endif %}>
+                    Entrada (Receita)
+                  </option>
+                  <option value="2" {% if dados_corretos.get('tipoMovimentacao')=='2' %}selected{% endif %}>
+                    Saída (Despesa)
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Categoria</label>
+                <select name="categoriaId" class="form-select">
+                  <option value="">Todas as categorias</option>
+                  {% if estrutura %}
+                  {% for categoria in estrutura %}
+                  <option value="{{ categoria.id }}" {% if dados_corretos.get('categoriaId')==categoria.id|string
+                    %}selected{% endif %}>
+                    {{ categoria.codigo }} - {{ categoria.nome }}
+                  </option>
+                  {% if categoria.children %}
+                  {% for subcategoria in categoria.children %}
+                  <option value="{{ subcategoria.id }}" {% if dados_corretos.get('categoriaId')==subcategoria.id|string
+                    %}selected{% endif %}>
+                    &nbsp;&nbsp;├── {{ subcategoria.codigo }} - {{ subcategoria.nome }}
+                  </option>
+                  {% if subcategoria.children %}
+                  {% for subsubcategoria in subcategoria.children %}
+                  <option value="{{ subsubcategoria.id }}" {% if
+                    dados_corretos.get('categoriaId')==subsubcategoria.id|string %}selected{% endif %}>
+                    &nbsp;&nbsp;&nbsp;&nbsp;└── {{ subsubcategoria.codigo }} - {{ subsubcategoria.nome }}
+                  </option>
+                  {% endfor %}
+                  {% endif %}
+                  {% endfor %}
+                  {% endif %}
+                  {% endfor %}
+                  {% endif %}
+                </select>
+              </div>
+
+              <div class="col-md-12 mb-3">
+                <label class="form-label">Cliente</label>
+                <input type="text" name="clienteNome" class="form-control"
+                  placeholder="Digite o nome do cliente para buscar..."
+                  value="{{ dados_corretos.get('clienteNome', '') }}">
+                <div class="form-text">
+                  Digite parte do nome do cliente para filtrar movimentações relacionadas
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <a href="{{ url_for('movimentacao_financeira') }}" class="btn btn-link link-secondary btn-3">
+              Limpar Filtros
+            </a>
+            <button type="submit" class="btn btn-primary btn-5 ms-auto" data-bs-dismiss="modal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icon-tabler-filter">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path
+                  d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+              </svg>
+              Filtrar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+{% endblock conteudo %}

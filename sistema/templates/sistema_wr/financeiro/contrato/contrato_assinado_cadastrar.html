@@ -1,0 +1,170 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+<div class="page-wrapper">
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">
+            CADASTRAR CONTRATO ASSINADO
+          </div>
+          <h2 class="page-title">
+            Cadastrar
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('cadastrar_contrato_assinado', id=contrato.id) }}" method="POST"
+          enctype="multipart/form-data">
+          <div class="card-body">
+
+            <div class="row row-cards">
+              <div class="row mt-3">
+                <div class="col-md-12">
+                  <label class="form-label required">Arquivo Contrato (PDF)</label>
+                  <div class="mb-3">
+                    {% if contrato.arquivo_contrato_id %}
+                    <div class="d-flex gap-4 mb-2">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="opcaoContrato" value="manter"
+                          id="opcaoManterContrato" {% if dados_corretos.get('opcaoContrato')=='manter' or not
+                          dados_corretos.get('opcaoContrato') %}checked{% endif %}>
+                        <label class="form-check-label" for="opcaoManterContrato">
+                          Manter atual
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="opcaoContrato" value="alterar"
+                          id="opcaoAlterarContrato" {% if dados_corretos.get('opcaoContrato')=='alterar' %}checked{%
+                          endif %}>
+                        <label class="form-check-label" for="opcaoAlterarContrato">
+                          Enviar novo
+                        </label>
+                      </div>
+                    </div>
+
+                    {% if 'opcaoContrato' in campos_obrigatorios or 'opcaoContrato' in campos_erros %}
+                    <div class="invalid-feedback d-block">
+                      {% if 'opcaoContrato' in campos_obrigatorios %}
+                      {{ campos_obrigatorios['opcaoContrato'] }}
+                      {% elif 'opcaoContrato' in campos_erros %}
+                      {{ campos_erros['opcaoContrato'] }}
+                      {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <a href="#" id="visualizar-contrato" class="btn btn-visualizar-arquivo mb-3"
+                      data-url="{{ url_for('diretorio_upload_contrato_assinado', filename=contrato.arquivo_contrato.caminho.split('/')[-1]) }}"
+                      data-bs-toggle="modal" data-bs-target="#modal-visualizar-arquivo">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-receipt">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path
+                          d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2">
+                        </path>
+                      </svg>
+                      Visualizar Contrato Atual
+                    </a>
+
+                    <div id="inputUploadContrato"
+                      class="{% if dados_corretos.get('opcaoContrato') != 'alterar' %}d-none{% endif %}">
+                      <input type="file" name="arquivoContrato" accept=".pdf"
+                        class="form-control {% if 'arquivoContrato' in campos_obrigatorios or 'arquivoContrato' in campos_erros %}is-invalid{% endif %}">
+                      {% if 'arquivoContrato' in campos_obrigatorios or 'arquivoContrato' in campos_erros %}
+                      <div class="invalid-feedback">
+                        {% if 'arquivoContrato' in campos_obrigatorios %}
+                        {{ campos_obrigatorios['arquivoContrato'] }}
+                        {% elif 'arquivoContrato' in campos_erros %}
+                        {{ campos_erros['arquivoContrato'] }}
+                        {% endif %}
+                      </div>
+                      {% endif %}
+                    </div>
+                    {% else %}
+                    <input type="file" name="arquivoContrato" accept=".pdf"
+                      class="form-control {% if 'arquivoContrato' in campos_obrigatorios or 'arquivoContrato' in campos_erros %}is-invalid{% endif %}">
+                    {% if 'arquivoContrato' in campos_obrigatorios or 'arquivoContrato' in campos_erros %}
+                    <div class="invalid-feedback">
+                      {% if 'arquivoContrato' in campos_obrigatorios %}
+                      {{ campos_obrigatorios['arquivoContrato'] }}
+                      {% elif 'arquivoContrato' in campos_erros %}
+                      {{ campos_erros['arquivoContrato'] }}
+                      {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+          <div class="card-footer text-center text-md-end">
+            <a href="javascript:history.back()" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M12 5l0 14"></path>
+                <path d="M5 12l14 0"></path>
+              </svg>
+              Cadastrar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const radioManterContrato = document.getElementById("opcaoManterContrato");
+      const radioAlterarContrato = document.getElementById("opcaoAlterarContrato");
+      const inputUploadContrato = document.getElementById("inputUploadContrato");
+      const linkVisualizarContrato = document.getElementById("visualizar-contrato");
+
+      if (radioManterContrato && radioAlterarContrato && inputUploadContrato && linkVisualizarContrato) {
+        function atualizarUploadContrato() {
+          if (radioAlterarContrato.checked) {
+            inputUploadContrato.classList.remove("d-none");
+            linkVisualizarContrato.classList.add("d-none");
+          } else {
+            inputUploadContrato.classList.add("d-none");
+            linkVisualizarContrato.classList.remove("d-none");
+          }
+        }
+
+        radioManterContrato.addEventListener("change", atualizarUploadContrato);
+        radioAlterarContrato.addEventListener("change", atualizarUploadContrato);
+
+        atualizarUploadContrato();
+      }
+    });
+  </script>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+
+{% endblock conteudo %}

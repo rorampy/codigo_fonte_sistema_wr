@@ -1,0 +1,167 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <!-- Page pre-title -->
+          <div class="page-pretitle">
+            FINANCEIRO
+          </div>
+          <h2 class="page-title">
+            INFORMAR RECEBIMENTO
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      <form action="{{ url_for('informar_recebimento', id=recebimento.id) }}" method="POST"
+        enctype="multipart/form-data">
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+          <div class="card-header bg-light fw-bold">Informações do Recebimento</div>
+          <div class="card-body">
+            <div class="row g-4">
+              <div class="col-md-3">
+                <label class="form-label">Cliente</label>
+                <input type="text" class="form-control"
+                  value="{{ recebimento.cliente.identificacao if recebimento.cliente else '' }}" disabled readonly>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Produto</label>
+                <input type="text" class="form-control"
+                  value="{{ recebimento.contrato_produto.produto.descricao if recebimento.contrato_produto.produto else '-' }}"
+                  disabled readonly>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Valor Total</label>
+                <input type="text" class="form-control campo-moeda-brl" name="valorRecebimento"
+                  value="{{ recebimento.valor_a_receber }}">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Status Financeiro</label>
+                <input type="text" class="form-control"
+                  value="{{ recebimento.status.descricao if recebimento.status else 'Sem status' }}" disabled readonly>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+          <div class="card-header bg-light fw-bold">Dados do Pagamento</div>
+          <div class="card-body">
+            <div class="row g-4">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label required">Data do Recebimento</label>
+                  <input type="date" name="dataPagamento" id="dataPagamento"
+                    class="form-control {% if 'dataPagamento' in campos_obrigatorios or 'dataPagamento' in campos_erros %}is-invalid{% endif %}"
+                    value="{{ dados_corretos['dataPagamento'] if dados_corretos['dataPagamento'] else '' }}">
+                  <div class="invalid-feedback">
+                    {% if 'dataPagamento' in campos_obrigatorios %}
+                    {{ campos_obrigatorios['dataPagamento'] }}
+                    {% elif 'dataPagamento' in campos_erros %}
+                    {{ campos_erros['dataPagamento'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label required">Categorização Fiscal</label>
+                  <select name="categorizacao_fiscal" id="categorizacao_fiscal"
+                    class="form-select {% if 'categorizacao_fiscal' in campos_obrigatorios or 'categorizacao_fiscal' in campos_erros %}is-invalid{% endif %}">
+                    <option value>Selecione...</option>
+                    {% for cat in estrutura if cat.tipo == 1%}
+                    <option value="{{ cat.id }}" disabled>
+                      {{ cat.codigo }} – {{ cat.nome }}
+                    </option>
+                    {% for sub in cat.children if sub.tipo == 1%}
+                    <option value="{{ sub.id }}" {% if dados_corretos['categorizacao_fiscal']==sub.id|string
+                      %}selected{% endif %}>
+                      &nbsp;&nbsp;{{ sub.codigo }} – {{ sub.nome }}
+                    </option>
+                    {% for sub2 in sub.children if sub2.tipo == 1%}
+                    <option value="{{ sub2.id }}" {% if dados_corretos['categorizacao_fiscal']==sub2.id|string
+                      %}selected{% endif %}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;{{ sub2.codigo }} – {{ sub2.nome }}
+                    </option>
+                    {% endfor %}
+                    {% endfor %}
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {% if 'categorizacao_fiscal' in campos_obrigatorios %}
+                    {{ campos_obrigatorios['categorizacao_fiscal'] }}
+                    {% elif 'categorizacao_fiscal' in campos_erros %}
+                    {{ campos_erros['categorizacao_fiscal'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Comprovante de Recebimento</label>
+                  <input type="file" class="form-control" name="comprovante_recebimento" accept=".pdf, image/*">
+                  <div class="form-text">Anexe o comprovante bancário do recebimento (opcional)</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-end mt-4">
+              <a class="btn btn-primary" href="javascript:history.back()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M5 12l14 0" />
+                  <path d="M5 12l6 6" />
+                  <path d="M5 12l6 -6" />
+                </svg>
+                Voltar
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                Confirmar Recebimento
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const dataField = document.getElementById('dataPagamento');
+    if (!dataField.value) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      dataField.value = `${year}-${month}-${day}`;
+    }
+  });
+</script>
+
+{% endblock conteudo %}

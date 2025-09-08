@@ -1,0 +1,70 @@
+{% extends 'sistema_hash/estrutura/base_login.html' %}
+{% block conteudo %}
+<div class="container container-tight py-4">
+    <div class="text-center mb-4">
+      <a href="{{ url_for('login') }}" class="navbar-brand navbar-brand-autodark">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" 
+        width="200" height="70" alt="Logomarca Sistema" >
+      </a>
+    </div>
+    <div class="card card-md">
+      <div class="card-body">
+
+        {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+        
+        <form action="{{ url_for('login') }}" method="POST" autocomplete="off" novalidate>
+          <div class="mb-3">
+            <label class="form-label">Telefone:</label>
+            <input type="text" class="form-control" name="telefone"
+              data-mask="(00) 0 0000-0000" placeholder="(00) 0 0000-0000" 
+              data-mask-visible="true" autocomplete="off"
+            >
+          </div>
+          <div class="mb-2">
+            <label class="form-label">    
+              Senha:
+            </label>
+            <div class="input-group input-group-flat">
+              <input type="password" id="campoSenha" name="senha" class="form-control" autocomplete="off">
+              <span class="input-group-text">
+                <a href="#" class="link-secondary" title="Mostrar Senha" 
+                    data-bs-toggle="tooltip" onclick="mostrarSenha()">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" 
+                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" 
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                  <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                </svg>
+                </a>
+              </span>
+            </div>
+          </div>
+          
+          <div class="form-footer">
+            <button type="submit" class="btn btn-dark w-100">Acessar Sistema</button>
+          </div>
+        </form>
+        <div class="text-center text-secundary mt-5">
+          <a href="#" tabindex="-1">Esqueci minha senha</a>
+        </div>
+      </div>
+    </div>
+    <div class="text-center text-secondary mt-3">
+      Precisa de ajuda? <a href="#" tabindex="-1">Suporte Técnico</a>
+    </div>
+  </div>
+
+  <!-- Exibe/Oculta conteúdo do input password -->
+	<script>
+		function mostrarSenha() {
+			const passwordField = document.getElementById('campoSenha');
+			if (passwordField.type === "password") {
+				passwordField.type = "text";
+			} else {
+				passwordField.type = "password";
+			}
+		}
+	</script>
+
+{% endblock conteudo %}

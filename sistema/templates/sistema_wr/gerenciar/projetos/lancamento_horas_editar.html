@@ -1,0 +1,287 @@
+{% extends 'sistema_hash/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_hash/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">LANÇAMENTO DE HORAS</div>
+          <h2 class="page-title">Editar</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('lancamento_horas_editar', id=lancamento.id) }}" method="POST">
+          <div class="card-body">
+            
+            <!-- Informações Básicas -->
+            <h3 class="text-primary mb-3">Informações do Lançamento</h3>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Projeto</label>
+                  <select name="projetoId" id="projeto-select"
+                    class="form-select">
+                    <option value="">Selecione um projeto</option>
+                    {% for projeto in projetos %}
+                    <option value="{{ projeto.id }}" 
+                      {% if projeto.id == lancamento.atividade.projeto_id %}selected{% endif %}>
+                      {{ projeto.nome_projeto }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label required">Atividade</label>
+                  <select name="atividadeId" id="atividade-select"
+                    class="form-select {% if 'atividadeId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione uma atividade</option>
+                    {% for atividade in atividades %}
+                    <option value="{{ atividade.id }}" 
+                      {% if dados_corretos.get('atividadeId')|string == atividade.id|string %}selected{% endif %}>
+                      {{ atividade.titulo }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('atividadeId') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Usuário</label>
+                  <select name="usuarioId"
+                    class="form-select {% if 'usuarioId' in campos_obrigatorios %}is-invalid{% endif %}">
+                    <option value="">Selecione o usuário</option>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" 
+                      {% if dados_corretos.get('usuarioId')|string == usuario.id|string %}selected{% endif %}>
+                      {{ usuario.nome }} {{ usuario.sobrenome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('usuarioId') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Data do Lançamento</label>
+                  <input type="date" name="dataLancamento"
+                    value="{{ dados_corretos.get('dataLancamento', '') }}"
+                    class="form-control {% if 'dataLancamento' in campos_obrigatorios or 'dataLancamento' in campos_erros %}is-invalid{% endif %}">
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('dataLancamento') or campos_erros.get('dataLancamento') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label required">Horas Gastas</label>
+                  <input type="text" name="horasGastas"
+                    value="{{ dados_corretos.get('horasGastas', '') }}"
+                    class="form-control {% if 'horasGastas' in campos_obrigatorios or 'horasGastas' in campos_erros %}is-invalid{% endif %} campo-float"
+                    placeholder="0,00">
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('horasGastas') or campos_erros.get('horasGastas') }}
+                  </div>
+                  <small class="form-hint">Use vírgula para decimais (ex: 2,5)</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Descrição -->
+            <h3 class="text-primary mb-3 mt-4">Descrição do Trabalho</h3>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label required">Descrição</label>
+                  <textarea name="descricao" rows="4" 
+                    class="form-control {% if 'descricao' in campos_obrigatorios %}is-invalid{% endif %}"
+                    placeholder="Descreva detalhadamente o trabalho realizado...">{{ dados_corretos.get('descricao', '') }}</textarea>
+                  <div class="invalid-feedback">
+                    {{ campos_obrigatorios.get('descricao') }}
+                  </div>
+                  <small class="form-hint">Seja específico sobre as tarefas realizadas, problemas resolvidos, etc.</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Informações do Sistema -->
+            <div class="row mt-4">
+              <div class="col-12">
+                <div class="card border-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">Informações do Sistema</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <strong>Data de criação:</strong><br>
+                        {{ lancamento.data_cadastro | formatar_data_hora_para_brl }}
+                      </div>
+                      <div class="col-md-3">
+                        <strong>Última atualização:</strong><br>
+                        {{ lancamento.data_alteracao | formatar_data_hora_para_brl }}
+                      </div>
+                      <div class="col-md-3">
+                        <strong>Atividade atual:</strong><br>
+                        {{ lancamento.atividade.titulo[:40] }}{% if lancamento.atividade.titulo | length > 40 %}...{% endif %}
+                      </div>
+                      <div class="col-md-3">
+                        <strong>Projeto atual:</strong><br>
+                        {{ lancamento.atividade.projeto.nome_projeto[:30] }}{% if lancamento.atividade.projeto.nome_projeto | length > 30 %}...{% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-footer text-center text-md-end">
+            <a href="{{ url_for('lancamento_horas_listar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Cancelar
+            </a>
+            <button type="submit" class="btn btn-success">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l5 5l10 -10"></path>
+              </svg>
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_hash/estrutura/footer.html' %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Converter vírgula para ponto em campos de horas
+    $('.campo-float').on('blur', function() {
+        var valor = $(this).val().replace(',', '.');
+        $(this).val(valor);
+    });
+    
+    // Filtro dinâmico de atividades baseado no projeto
+    $('#projeto-select').on('change', function() {
+        const projetoId = $(this).val();
+        const atividadeSelect = $('#atividade-select');
+        const atividadeAtual = '{{ dados_corretos.get("atividadeId") }}';
+        
+        if (projetoId) {
+            $.get(`/api/atividades-por-projeto/${projetoId}`)
+                .done(function(data) {
+                    if (data.success) {
+                        atividadeSelect.empty();
+                        atividadeSelect.append('<option value="">Selecione uma atividade</option>');
+                        
+                        data.atividades.forEach(function(atividade) {
+                            const selected = atividade.id.toString() === atividadeAtual ? 'selected' : '';
+                            atividadeSelect.append(
+                                `<option value="${atividade.id}" ${selected}>${atividade.titulo}</option>`
+                            );
+                        });
+                    }
+                })
+                .fail(function() {
+                    console.error('Erro ao carregar atividades');
+                    alert('Erro ao carregar atividades. Tente novamente.');
+                });
+        } else {
+            atividadeSelect.empty();
+            atividadeSelect.append('<option value="">Selecione um projeto primeiro</option>');
+        }
+    });
+    
+    // Carregar atividades do projeto inicialmente selecionado
+    const projetoInicial = $('#projeto-select').val();
+    if (projetoInicial) {
+        $('#projeto-select').trigger('change');
+    }
+    
+    // Validação em tempo real das horas
+    $('input[name="horasGastas"]').on('input', function() {
+        const valor = parseFloat($(this).val().replace(',', '.'));
+        const feedback = $(this).siblings('.invalid-feedback');
+        
+        if (isNaN(valor)) {
+            return;
+        }
+        
+        if (valor <= 0) {
+            $(this).addClass('is-invalid');
+            feedback.text('Horas devem ser maior que zero');
+        } else if (valor > 24) {
+            $(this).addClass('is-invalid');
+            feedback.text('Máximo de 24 horas por dia');
+        } else {
+            $(this).removeClass('is-invalid');
+            feedback.text('');
+        }
+    });
+    
+    // Validação da data
+    $('input[name="dataLancamento"]').on('change', function() {
+        const dataLancamento = new Date($(this).val());
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        
+        const feedback = $(this).siblings('.invalid-feedback');
+        
+        if (dataLancamento > hoje) {
+            $(this).addClass('is-invalid');
+            feedback.text('Data não pode ser futura');
+        } else {
+            $(this).removeClass('is-invalid');
+            feedback.text('');
+        }
+    });
+    
+    // Aviso se mudar de atividade
+    const atividadeOriginal = '{{ lancamento.atividade_id }}';
+    $('#atividade-select').on('change', function() {
+        const novaAtividade = $(this).val();
+        if (novaAtividade && novaAtividade !== atividadeOriginal) {
+            if (!confirm('Você está alterando a atividade deste lançamento. As horas utilizadas serão recalculadas para ambas as atividades. Deseja continuar?')) {
+                $(this).val(atividadeOriginal);
+                return false;
+            }
+        }
+    });
+});
+</script>
+{% endblock conteudo %}
