@@ -1,0 +1,265 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{{ url_for('solicitacoes_atividade_listar') }}">Solicitações</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Estatísticas de Rejeições</li>
+            </ol>
+          </nav>
+          <div class="page-pretitle">RELATÓRIOS</div>
+          <h2 class="page-title">Estatísticas de Rejeições</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <a href="{{ url_for('solicitacoes_atividade_listar') }}" class="btn btn-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M5 12l14 0"/>
+              <path d="M5 12l6 6"/>
+              <path d="M5 12l6 -6"/>
+            </svg>
+            Voltar para Listagem
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      
+      <!-- Cards de Estatísticas Principais -->
+      <div class="row row-deck row-cards mb-3">
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="subheader">Total de Solicitações</div>
+              </div>
+              <div class="h1 mb-0">{{ estatisticas.total_solicitacoes }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="subheader">Solicitações Rejeitadas</div>
+              </div>
+              <div class="d-flex align-items-baseline">
+                <div class="h1 mb-0 me-2">{{ estatisticas.solicitacoes_rejeitadas }}</div>
+                <div class="me-auto">
+                  <span class="badge bg-danger">{{ estatisticas.taxa_rejeicao }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="subheader">Múltiplas Rejeições</div>
+              </div>
+              <div class="h1 mb-0">{{ estatisticas.solicitacoes_multiplas_rejeicoes }}</div>
+              <div class="text-muted">
+                {% if estatisticas.solicitacoes_rejeitadas > 0 %}
+                {{ "%.1f"|format((estatisticas.solicitacoes_multiplas_rejeicoes / estatisticas.solicitacoes_rejeitadas * 100)) }}% das rejeitadas
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="subheader">Taxa de Aprovação</div>
+              </div>
+              <div class="h1 mb-0 text-success">{{ 100 - estatisticas.taxa_rejeicao }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row row-deck row-cards">
+        
+        <!-- Motivos de Rejeição Mais Frequentes -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                  <path d="M12 7v5l3 3" />
+                </svg>
+                Top 5 Motivos Mais Frequentes
+              </h3>
+            </div>
+            <div class="card-body">
+              {% if estatisticas.motivos_frequentes %}
+              <div class="list-group list-group-flush">
+                {% for motivo, total in estatisticas.motivos_frequentes %}
+                <div class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="me-auto">
+                    <div class="fw-bold">{{ motivo[:80] }}{% if motivo|length > 80 %}...{% endif %}</div>
+                    <small class="text-muted">{{ total }} ocorrência{{ 's' if total != 1 else '' }}</small>
+                  </div>
+                  <span class="badge bg-danger rounded-pill">{{ total }}</span>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="text-center text-muted">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-3" width="48" height="48" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                </svg>
+                <p>Nenhum motivo de rejeição encontrado.</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Usuários que Mais Rejeitam -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                </svg>
+                Usuários que Mais Rejeitam
+              </h3>
+            </div>
+            <div class="card-body">
+              {% if estatisticas.usuarios_rejeitam %}
+              <div class="list-group list-group-flush">
+                {% for nome, total_rejeicoes in estatisticas.usuarios_rejeitam %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">{{ nome }}</div>
+                    <small class="text-muted">{{ total_rejeicoes }} rejeição{{ 'ões' if total_rejeicoes != 1 else 'ão' }}</small>
+                  </div>
+                  <span class="badge bg-primary rounded-pill">{{ total_rejeicoes }}</span>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="text-center text-muted">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-3" width="48" height="48" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                </svg>
+                <p>Nenhuma rejeição encontrada.</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico de Taxa de Rejeição por Período -->
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M3 3v18h18" />
+                  <path d="M20 9l-4 -4l-4 4l-2 -2l-4 4l-2 -2" />
+                </svg>
+                Visão Geral do Sistema
+              </h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="card bg-light">
+                    <div class="card-body text-center">
+                      <h4 class="text-primary">{{ estatisticas.total_solicitacoes - estatisticas.solicitacoes_rejeitadas }}</h4>
+                      <p class="text-muted mb-0">Solicitações Aprovadas/Em Análise</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card bg-danger-subtle">
+                    <div class="card-body text-center">
+                      <h4 class="text-danger">{{ estatisticas.solicitacoes_rejeitadas }}</h4>
+                      <p class="text-muted mb-0">Solicitações Rejeitadas</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card bg-warning-subtle">
+                    <div class="card-body text-center">
+                      <h4 class="text-warning">{{ estatisticas.solicitacoes_multiplas_rejeicoes }}</h4>
+                      <p class="text-muted mb-0">Com Múltiplas Rejeições</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {% if estatisticas.taxa_rejeicao > 20 %}
+              <div class="alert alert-warning mt-3">
+                <div class="d-flex">
+                  <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M12 9v4" />
+                      <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                      <path d="M12 16h.01" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="alert-title">Alta Taxa de Rejeição</h4>
+                    <p class="mb-0">A taxa de rejeição está em {{ estatisticas.taxa_rejeicao }}%, o que pode indicar necessidade de melhorar a comunicação dos requisitos ou oferecer treinamento aos solicitantes.</p>
+                  </div>
+                </div>
+              </div>
+              {% elif estatisticas.taxa_rejeicao < 5 %}
+              <div class="alert alert-success mt-3">
+                <div class="d-flex">
+                  <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M5 12l5 5l10 -10" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="alert-title">Excelente Taxa de Aprovação</h4>
+                    <p class="mb-0">Parabéns! A taxa de rejeição está em apenas {{ estatisticas.taxa_rejeicao }}%, indicando que o processo está funcionando muito bem.</p>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+{% endblock conteudo %}

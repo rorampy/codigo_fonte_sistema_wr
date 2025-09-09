@@ -22,7 +22,7 @@ def usuarios_listar():
 
     flask_logger.info(f'Funcionario {current_user.nome} {current_user.sobrenome} acessou a tela de usuarios!')
     return render_template(
-        'sistema_hash/autenticacao/usuario/usuarios_listar.html',
+        'sistema_wr/autenticacao/usuario/usuarios_listar.html',
         usuarios = usuarios
     )
 
@@ -110,7 +110,7 @@ def usuario_cadastrar():
             return redirect(url_for('usuarios_listar'))
 
     return render_template(
-        'sistema_hash/autenticacao/usuario/usuario_cadastrar.html',
+        'sistema_wr/autenticacao/usuario/usuario_cadastrar.html',
         campos_obrigatorios = validacao_campos_obrigatorios,
         campos_erros = validacao_campos_erros,
         dados_corretos = request.form,
@@ -181,7 +181,7 @@ def usuario_editar(id):
             return redirect(url_for('usuarios_listar'))
         
     return render_template(
-        'sistema_hash/autenticacao/usuario/usuario_editar.html',
+        'sistema_wr/autenticacao/usuario/usuario_editar.html',
         campos_obrigatorios = validacao_campos_obrigatorios,
         campos_erros = validacao_campos_erros,
         usuario = usuario,
@@ -303,7 +303,7 @@ def usuario_minha_conta(id):
 
 
     return render_template(
-        'sistema_hash/autenticacao/minha_conta/usuarios_minha_conta.html',
+        'sistema_wr/autenticacao/minha_conta/usuarios_minha_conta.html',
         usuario = usuario,
         campos_obrigatorios = validacao_campos_obrigatorios,
         campos_erros = validacao_campos_erros,

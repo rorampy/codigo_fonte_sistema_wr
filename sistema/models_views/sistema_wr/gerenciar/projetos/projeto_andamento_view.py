@@ -30,7 +30,7 @@ def andamentos_listar():
         dados_corretos = {}
     
     return render_template(
-        "sistema_hash/configuracao/andamento_projeto/andamentos_listar.html",
+        "sistema_wr/configuracao/andamento_projeto/andamentos_listar.html",
         andamentos=andamentos,
         dados_corretos=dados_corretos
     )
@@ -78,7 +78,7 @@ def andamento_cadastrar():
             return redirect(url_for("andamentos_listar"))
 
     return render_template(
-        "sistema_hash/configuracao/andamento_projeto/andamento_cadastrar.html",
+        "sistema_wr/configuracao/andamento_projeto/andamento_cadastrar.html",
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,
         dados_corretos=request.form,
@@ -133,7 +133,7 @@ def andamento_editar(id):
             return redirect(url_for("andamentos_listar"))
 
     return render_template(
-        "sistema_hash/configuracao/andamento_projeto/andamento_editar.html",
+        "sistema_wr/configuracao/andamento_projeto/andamento_editar.html",
         andamento=andamento,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,

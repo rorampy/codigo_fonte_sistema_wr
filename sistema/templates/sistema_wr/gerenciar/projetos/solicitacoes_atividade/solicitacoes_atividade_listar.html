@@ -1,0 +1,300 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <!-- Page pre-title -->
+          <div class="page-pretitle">
+            GERENCIAR
+          </div>
+          <h2 class="page-title">
+            Solicitações de Atividades
+          </h2>
+        </div>
+        <div class="col-12 col-md-auto ms-auto d-print-none">
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('solicitacao_atividade_cadastrar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Nova Solicitação
+            </a>
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#modal-filtros">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+              </svg>
+              Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+
+      <div class="row row-deck row-cards">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Lista de Solicitações</h3>
+            </div>
+            <div class="card-body border-bottom py-3">
+              <!-- Informações resumidas -->
+              <div class="d-flex">
+                <div class="text-secondary">
+                  Total: <strong>{{ solicitacoes|length }}</strong> solicitação(ões)
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table card-table table-vcenter text-nowrap datatable">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Projeto</th>
+                    <th>Título</th>
+                    <th>Solicitante</th>
+                    <th>Status</th>
+                    <th>Data Solicitação</th>
+                    <th class="w-1">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for solicitacao in solicitacoes %}
+                  <tr>
+                    <td>
+                      <span class="text-secondary">#{{ solicitacao.id }}</span>
+                    </td>
+                    <td>
+                      <span class="badge bg-blue-lt">{{ solicitacao.projeto.nome_projeto }}</span>
+                    </td>
+                    <td>
+                      <div class="d-flex py-1 align-items-center">
+                        <div class="flex-fill">
+                          <div class="font-weight-medium">{{ solicitacao.titulo }}</div>
+                          {% if solicitacao.descricao %}
+                          <div class="text-secondary">
+                            {{ solicitacao.descricao[:50] }}{% if solicitacao.descricao|length > 50 %}...{% endif %}
+                          </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="d-flex py-1 align-items-center">
+                        <div class="flex-fill">
+                          <div class="font-weight-medium">{{ solicitacao.usuario_solicitante.nome }}</div>
+                          <div class="text-secondary">{{ solicitacao.usuario_solicitante.role.cargo }}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {% if solicitacao.situacao_id == 7 %}
+                        <span class="badge bg-warning-lt">Em Análise</span>
+                      {% elif solicitacao.situacao_id == 8 %}
+                        <span class="badge bg-danger-lt">Rejeitada</span>
+                      {% elif solicitacao.situacao_id == 3 %}
+                        <span class="badge bg-success-lt">Aceita</span>
+                      {% else %}
+                        <span class="badge bg-secondary-lt">{{ solicitacao.situacao.nome }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {{ solicitacao.data_cadastro | formatar_data_hora_para_brl }}
+                    </td>
+                    <td>
+                      <div class="btn-list flex-nowrap">
+                        <!-- Botão Visualizar -->
+                        <a href="{{ url_for('atividade_solicitacao_visualizar', id=solicitacao.id) }}"
+                          class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip"
+                          data-bs-placement="top" title="Visualizar Detalhes">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                            <path d="M21 12c-2.4 3.6 -6 6 -9 6c-3 0 -6.6 -2.4 -9 -6c2.4 -3.6 6 -6 9 -6c3 0 6.6 2.4 9 6" />
+                          </svg>
+                        </a>
+
+                        <!-- Botão Editar (apenas para o solicitante e apenas rejeitadas) -->
+                        {% if solicitacao.usuario_solicitante_id == current_user.id and solicitacao.situacao_id == 8 %}
+                        <a href="{{ url_for('atividade_solicitacao_editar', id=solicitacao.id) }}"
+                          class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip"
+                          data-bs-placement="top" title="Editar Solicitação">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                            <path d="M16 5l3 3" />
+                          </svg>
+                        </a>
+                        {% endif %}
+
+                        <!-- Botão Excluir (apenas para o solicitante) -->
+                        {% if solicitacao.usuario_solicitante_id == current_user.id and solicitacao.situacao_id in [7, 8] %}
+                        <a href="{{ url_for('atividade_solicitacao_excluir', id=solicitacao.id) }}"
+                          class="btn btn-icon btn-outline-danger" data-bs-toggle="tooltip"
+                          data-bs-placement="top" title="Excluir Solicitação"
+                          onclick="return confirm('Tem certeza que deseja excluir esta solicitação?')">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M4 7l16 0" />
+                            <path d="M10 11l0 6" />
+                            <path d="M14 11l0 6" />
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                          </svg>
+                        </a>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% else %}
+                  <tr>
+                    <td colspan="7" class="text-center text-secondary">
+                      <div class="empty">
+                        <div class="empty-img">
+                          <img src="{{ url_for('static', filename='tabler/img/undraw_printing_invoices_5r4r.svg') }}"
+                            height="128" alt="">
+                        </div>
+                        <p class="empty-title">Nenhuma solicitação encontrada</p>
+                        <p class="empty-subtitle text-secondary">
+                          Ainda não há solicitações de atividades cadastradas no sistema.
+                        </p>
+                        <div class="empty-action">
+                          <a href="{{ url_for('solicitacao_atividade_cadastrar') }}" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                              stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path d="M12 5l0 14" />
+                              <path d="M5 12l14 0" />
+                            </svg>
+                            Criar primeira solicitação
+                          </a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+<!-- Modal de Filtros -->
+<div class="modal modal-blur fade" id="modal-filtros" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Filtrar Solicitações</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="GET" action="{{ url_for('solicitacoes_atividade_listar') }}">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Projeto</label>
+                <select class="form-select" name="projeto_id">
+                  <option value="">Todos os projetos</option>
+                  {% for projeto in projetos %}
+                  <option value="{{ projeto.id }}" {% if dados_corretos.projeto_id == projeto.id|string %}selected{% endif %}>
+                    {{ projeto.nome_projeto }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="situacao_id">
+                  <option value="">Todos os status</option>
+                  <option value="7" {% if dados_corretos.situacao_id == "7" %}selected{% endif %}>Em Análise</option>
+                  <option value="8" {% if dados_corretos.situacao_id == "8" %}selected{% endif %}>Rejeitada</option>
+                  <option value="3" {% if dados_corretos.situacao_id == "3" %}selected{% endif %}>Aceita</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Solicitante</label>
+                <select class="form-select" name="usuario_id">
+                  <option value="">Todos os usuários</option>
+                  {% for usuario in usuarios %}
+                  <option value="{{ usuario.id }}" {% if dados_corretos.usuario_id == usuario.id|string %}selected{% endif %}>
+                    {{ usuario.nome }} {{ usuario.sobrenome }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Título</label>
+                <input type="text" class="form-control" name="titulo" 
+                  value="{{ dados_corretos.titulo or '' }}" placeholder="Buscar por título...">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a href="{{ url_for('solicitacoes_atividade_listar') }}" class="btn btn-link link-secondary">
+            Limpar filtros
+          </a>
+          <button type="submit" class="btn btn-primary ms-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+            </svg>
+            Aplicar Filtros
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Inicializar tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock conteudo %}

@@ -1,0 +1,217 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">SOLICITAÇÃO</div>
+          <h2 class="page-title">Nova Solicitação de Atividade</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+
+      <form method="POST" enctype="multipart/form-data">
+        <div class="row row-deck row-cards">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Informações da Solicitação</h3>
+              </div>
+              <div class="card-body">
+                
+                <!-- Projeto -->
+                <div class="mb-3">
+                  <label class="form-label required">Projeto</label>
+                  <select class="form-select {% if 'projetoId' in campos_obrigatorios %}is-invalid{% endif %}" 
+                    name="projetoId" required>
+                    <option value="">Selecione um projeto</option>
+                    {% for projeto in projetos %}
+                    <option value="{{ projeto.id }}" 
+                      {% if (dados_corretos.projetoId == projeto.id|string) or (projeto_id_url == projeto.id) %}selected{% endif %}>
+                      {{ projeto.nome_projeto }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  {% if 'projetoId' in campos_obrigatorios %}
+                  <div class="invalid-feedback">{{ campos_obrigatorios.get('projetoId') }}</div>
+                  {% endif %}
+                  {% if 'projetoId' in campos_erros %}
+                  <div class="invalid-feedback d-block">{{ campos_erros.get('projetoId') }}</div>
+                  {% endif %}
+                </div>
+
+                <!-- Título -->
+                <div class="mb-3">
+                  <label class="form-label required">Título da Solicitação</label>
+                  <input type="text" class="form-control {% if 'titulo' in campos_obrigatorios %}is-invalid{% endif %}" 
+                    name="titulo" placeholder="Ex: Implementar sistema de notificações por email" 
+                    value="{{ dados_corretos.titulo or '' }}" maxlength="200" required>
+                  {% if 'titulo' in campos_obrigatorios %}
+                  <div class="invalid-feedback">{{ campos_obrigatorios.get('titulo') }}</div>
+                  {% endif %}
+                  <small class="form-hint">Seja claro e específico sobre o que precisa ser desenvolvido.</small>
+                </div>
+
+                <!-- Descrição -->
+                <div class="mb-3">
+                  <label class="form-label">Descrição Detalhada</label>
+                  <textarea class="form-control" name="descricao" rows="6" 
+                    placeholder="Descreva detalhadamente a funcionalidade ou tarefa que você está solicitando:&#10;&#10;• Qual problema isso resolve?&#10;• Como deve funcionar?&#10;• Há algum requisito específico?&#10;• Existem exemplos ou referências?">{{ dados_corretos.descricao or '' }}</textarea>
+                  <small class="form-hint">
+                    Quanto mais detalhes você fornecer, melhor será a análise da sua solicitação.
+                  </small>
+                </div>
+
+                <!-- Anexos -->
+                <div class="mb-3">
+                  <label class="form-label">Anexos (Opcional)</label>
+                  <input type="file" class="form-control {% if 'anexos' in campos_erros %}is-invalid{% endif %}" 
+                    name="anexos[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.txt,.zip,.rar">
+                  <small class="form-hint">
+                    Tipos permitidos: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, GIF, TXT, ZIP, RAR. 
+                    Máximo 10MB por arquivo.
+                  </small>
+                  {% if 'anexos' in campos_erros %}
+                  <div class="invalid-feedback d-block">{{ campos_erros.get('anexos') }}</div>
+                  {% endif %}
+                </div>
+                
+                <!-- Preview dos arquivos selecionados -->
+                <div id="preview-anexos" class="mt-3" style="display: none;">
+                  <h6>Arquivos selecionados:</h6>
+                  <div id="lista-anexos" class="list-group"></div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Informações Adicionais -->
+            <div class="card mt-3">
+              <div class="card-body">
+                <div class="alert alert-info border-0 shadow-sm">
+                  <div class="d-flex">
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" 
+                        width="24" height="24" viewBox="0 0 24 24" 
+                        stroke-width="2" stroke="currentColor" fill="none" 
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                        <path d="M12 9h.01" />
+                        <path d="M11 12h1v4h1" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="alert-title">Como funciona o processo:</h4>
+                      <div class="text-secondary">
+                        <strong>1. Solicitação:</strong> Você cria uma solicitação com os detalhes do que precisa<br>
+                        <strong>2. Análise:</strong> A gestão irá analisar sua solicitação e poderá aceitar ou solicitar ajustes<br>
+                        <strong>3. Aprovação:</strong> Se aprovada, sua solicitação será convertida em uma atividade oficial<br>
+                        <strong>4. Desenvolvimento:</strong> A atividade entrará no fluxo normal de desenvolvimento
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-footer text-center text-md-end">
+            <a href="{{ url_for('solicitacoes_atividade_listar') }}" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
+                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 12l6 6"></path>
+                <path d="M5 12l6 -6"></path>
+              </svg>
+              Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" 
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" 
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Enviar Solicitação
+            </button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview de anexos
+    const inputAnexos = document.querySelector('input[name="anexos[]"]');
+    const previewAnexos = document.getElementById('preview-anexos');
+    const listaAnexos = document.getElementById('lista-anexos');
+
+    if (inputAnexos) {
+        inputAnexos.addEventListener('change', function() {
+            const files = this.files;
+            listaAnexos.innerHTML = '';
+            
+            if (files.length > 0) {
+                previewAnexos.style.display = 'block';
+                
+                Array.from(files).forEach((file, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    const fileIcon = getFileIcon(file.name);
+                    
+                    item.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">${fileIcon}</span>
+                            <div>
+                                <div class="font-weight-medium">${file.name}</div>
+                                <small class="text-secondary">${fileSize} MB</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-primary">${index + 1}</span>
+                    `;
+                    
+                    listaAnexos.appendChild(item);
+                });
+            } else {
+                previewAnexos.style.display = 'none';
+            }
+        });
+    }
+
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const icons = {
+            'pdf': '📄',
+            'doc': '📝', 'docx': '📝',
+            'xls': '📊', 'xlsx': '📊',
+            'png': '🖼️', 'jpg': '🖼️', 'jpeg': '🖼️', 'gif': '🖼️',
+            'txt': '📄',
+            'zip': '📦', 'rar': '📦'
+        };
+        return icons[ext] || '📎';
+    }
+});
+</script>
+{% endblock conteudo %}

@@ -13,7 +13,7 @@ def roles_listar():
     roles = RoleModel.obter_roles_desc_id()
 
     return render_template(
-        'sistema_hash/configuracao/role/roles_listar.html',
+        'sistema_wr/configuracao/role/roles_listar.html',
         roles = roles
     )
 
@@ -38,7 +38,7 @@ def role_cadastrar():
             return redirect(url_for('roles_listar'))
 
     return render_template(
-        'sistema_hash/configuracao/role/role_cadastrar.html'
+        'sistema_wr/configuracao/role/role_cadastrar.html'
     )
 
 
@@ -63,7 +63,7 @@ def role_editar(id):
             return redirect(url_for('roles_listar'))
 
     return render_template(
-        'sistema_hash/configuracao/role/role_editar.html',
+        'sistema_wr/configuracao/role/role_editar.html',
         role = role
     )
 

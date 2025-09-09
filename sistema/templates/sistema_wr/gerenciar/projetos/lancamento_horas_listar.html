@@ -1,6 +1,6 @@
-{% extends 'sistema_hash/estrutura/base.html' %}
+{% extends 'sistema_wr/estrutura/base.html' %}
 {% block conteudo %}
-{% include 'sistema_hash/estrutura/header.html' %}
+{% include 'sistema_wr/estrutura/header.html' %}
 
 <div class="page-wrapper">
   <!-- Page header -->
@@ -64,7 +64,7 @@
   <!-- Page body -->
   <div class="page-body">
     <div class="container-xl">
-      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
       <!-- Filtros ativos -->
       {% if filtros and (filtros.projeto_id or filtros.atividade_id or filtros.usuario_id or filtros.data_inicio or filtros.data_fim) %}
@@ -417,7 +417,7 @@
     </div>
   </div>
 
-  {% include 'sistema_hash/estrutura/footer.html' %}
+  {% include 'sistema_wr/estrutura/footer.html' %}
 </div>
 
 <script>

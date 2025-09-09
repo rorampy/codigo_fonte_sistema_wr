@@ -96,7 +96,7 @@ def lancamento_horas_listar(atividade_id=None):
         atividade_filtrada = AtividadeModel.obter_atividade_por_id(filtro_atividade)
     
     return render_template(
-        "sistema_hash/gerenciar/projetos/lancamento_horas_listar.html",
+        "sistema_wr/gerenciar/projetos/lancamento_horas_listar.html",
         lancamentos=lancamentos,
         projetos=projetos,
         atividades=atividades,
@@ -215,7 +215,7 @@ def lancamento_horas_cadastrar(atividade_id=None):
                 gravar_banco = False
     
     return render_template(
-        "sistema_hash/gerenciar/projetos/lancamento_horas_cadastrar.html",
+        "sistema_wr/gerenciar/projetos/lancamento_horas_cadastrar.html",
         projetos=projetos,
         atividades=atividades,
         usuarios=usuarios,
@@ -338,7 +338,7 @@ def lancamento_horas_editar(id):
         }
     
     return render_template(
-        "sistema_hash/gerenciar/projetos/lancamento_horas_editar.html",
+        "sistema_wr/gerenciar/projetos/lancamento_horas_editar.html",
         lancamento=lancamento,
         projetos=projetos,
         atividades=atividades,

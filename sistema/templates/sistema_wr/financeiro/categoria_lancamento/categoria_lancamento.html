@@ -1,4 +1,4 @@
-{% extends 'sistema_hash/estrutura/base.html' %}
+{% extends 'sistema_wr/estrutura/base.html' %}
 {% macro render_categoria(categoria) %}
 <div class="tree-item" data-category="{{ categoria.codigo }}"
   data-id="{{ categoria.id }}">
@@ -86,7 +86,7 @@
 {% endmacro %}
 
 {% block conteudo %}
-{% include 'sistema_hash/estrutura/header.html' %}
+{% include 'sistema_wr/estrutura/header.html' %}
 
 <link rel="stylesheet"
   href="{{ url_for('static', filename='css/financeiro/categoria_lancamento/categoria_lancamento.css') }}">
@@ -112,7 +112,7 @@
   <div class="page-body">
     <div class="container-xl">
 
-      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
       <div class="col-12">
         <div class="card">
@@ -275,7 +275,7 @@
     </div>
   </div>
 
-  {% include 'sistema_hash/estrutura/footer.html' %}
+  {% include 'sistema_wr/estrutura/footer.html' %}
 </div>
 
 <script>

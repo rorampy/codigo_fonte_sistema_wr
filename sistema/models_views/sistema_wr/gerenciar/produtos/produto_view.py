@@ -27,7 +27,7 @@ def obter_produto(id):
 @requires_roles
 def listar_produtos():
     produtos = ProdutoModel.listar_produtos()
-    return render_template("sistema_hash/gerenciar/produtos/produtos_listar.html", dados_corretos=request.form, produtos=produtos)
+    return render_template("sistema_wr/gerenciar/produtos/produtos_listar.html", dados_corretos=request.form, produtos=produtos)
 
 
 @app.route("/gerenciar/produto/cadastrar", methods=["GET", "POST"])
@@ -88,7 +88,7 @@ def cadastrar_produto():
                 flash(("Erro ao cadastrar produto. Tente novamente!", "danger"))
     
     return render_template(
-        "sistema_hash/gerenciar/produtos/produto_cadastrar.html",
+        "sistema_wr/gerenciar/produtos/produto_cadastrar.html",
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,
         dados_corretos=request.form,
@@ -156,7 +156,7 @@ def editar_produto(id):
                 flash(("Erro ao atualizar produto. Tente novamente!", "danger"))
     
     return render_template(
-        "sistema_hash/gerenciar/produtos/produto_editar.html",
+        "sistema_wr/gerenciar/produtos/produto_editar.html",
         produto=obter_produto,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,

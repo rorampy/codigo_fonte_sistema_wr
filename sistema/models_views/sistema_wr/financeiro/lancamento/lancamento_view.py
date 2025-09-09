@@ -17,7 +17,7 @@ from sistema._utilitarios import *
 @login_required
 def lancamentos_financeiros():
     lancamentos = LancamentoModel.lancamentos_ativos_usuario()
-    return render_template('sistema_hash/financeiro/lancamentos/lancamento_listagem.html',
+    return render_template('sistema_wr/financeiro/lancamentos/lancamento_listagem.html',
                            lancamentos=lancamentos)
 
 @app.route('/financeiro/cadastrar/lancamento', methods=['GET', 'POST'])
@@ -101,7 +101,7 @@ def cadastrar_lancamento():
         print(f'[ERRO] Erro ao tentar criar um lançamento! : {e}')
         flash(('Houve um erro ao tentar cadastrar lançamento! Entre em contato com o suporte.', 'warning'))
         return redirect(url_for('lancamentos_financeiros'))
-    return render_template('sistema_hash/financeiro/lancamentos/lancamento_cadastrar.html', dados_corretos=request.form,
+    return render_template('sistema_wr/financeiro/lancamentos/lancamento_cadastrar.html', dados_corretos=request.form,
                            campos_obrigatorios=validacao_campos_obrigatorios,
                            campos_erros=validacao_campos_erros, estrutura=estrutura)
 
@@ -202,7 +202,7 @@ def editar_lancamento(id):
         flash(('Houve um erro ao tentar editar lançamento! Entre em contato com o suporte.', 'warning'))
         return redirect(url_for('lancamentos_financeiros'))
 
-    return render_template('sistema_hash/financeiro/lancamentos/lancamento_editar.html', dados_corretos=dados_corretos,
+    return render_template('sistema_wr/financeiro/lancamentos/lancamento_editar.html', dados_corretos=dados_corretos,
                            campos_obrigatorios=validacao_campos_obrigatorios,
                            campos_erros=validacao_campos_erros, lancamento=lancamento, estrutura=estrutura)
 

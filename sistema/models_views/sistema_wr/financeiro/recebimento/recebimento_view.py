@@ -14,11 +14,11 @@ from sistema.models_views.upload_arquivo.upload_arquivo_view import upload_arqui
 def lancamentos_receber():
     try:
         recebimento = RecebimentoModel.listar_a_receber_agrupado_por_cliente()
-        return render_template('sistema_hash/financeiro/recebimento/lancamentos_receber.html', recebimento=recebimento)
+        return render_template('sistema_wr/financeiro/recebimento/lancamentos_receber.html', recebimento=recebimento)
     except Exception as e:
         print("Erro ao listar lançamentos a receber:", e)
         flash(("Erro ao listar lançamentos a receber.", "danger"))
-        return render_template('sistema_hash/financeiro/recebimento/lancamentos_receber.html', recebimento=[])
+        return render_template('sistema_wr/financeiro/recebimento/lancamentos_receber.html', recebimento=[])
 
 
 @app.route('/lancamentos-receber/informar-recebimento/<int:id>', methods=['GET', 'POST'])
@@ -89,7 +89,7 @@ def informar_recebimento(id):
                 flash(("Recebimento informado com sucesso!", "success"))
                 return redirect(url_for('lancamentos_receber'))
 
-        return render_template('sistema_hash/financeiro/recebimento/informar_recebimento.html', recebimento=recebimento, dados_corretos=request.form,
+        return render_template('sistema_wr/financeiro/recebimento/informar_recebimento.html', recebimento=recebimento, dados_corretos=request.form,
                         campos_obrigatorios=validacao_campos_obrigatorios,
                         campos_erros=validacao_campos_erros, estrutura=estrutura)
     except Exception as e:

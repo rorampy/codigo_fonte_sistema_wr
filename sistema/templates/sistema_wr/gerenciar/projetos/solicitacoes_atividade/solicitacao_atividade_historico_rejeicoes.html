@@ -1,0 +1,177 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{{ url_for('solicitacoes_atividade_listar') }}">Solicitações</a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('atividade_solicitacao_visualizar', id=solicitacao.id) }}">Solicitação #{{ solicitacao.id }}</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Histórico de Rejeições</li>
+            </ol>
+          </nav>
+          <div class="page-pretitle">SOLICITAÇÃO #{{ solicitacao.id }}</div>
+          <h2 class="page-title">Histórico de Rejeições</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <a href="{{ url_for('atividade_solicitacao_visualizar', id=solicitacao.id) }}" class="btn btn-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M5 12l14 0"/>
+              <path d="M5 12l6 6"/>
+              <path d="M5 12l6 -6"/>
+            </svg>
+            Voltar para Solicitação
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+
+      <div class="row row-deck row-cards">
+        <div class="col-12">
+
+          <!-- Informações da Solicitação -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title">Informações da Solicitação</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <dl>
+                    <dt>Projeto:</dt>
+                    <dd>{{ solicitacao.projeto.nome_projeto }}</dd>
+                    <dt>Título:</dt>
+                    <dd>{{ solicitacao.titulo }}</dd>
+                  </dl>
+                </div>
+                <div class="col-md-6">
+                  <dl>
+                    <dt>Solicitante:</dt>
+                    <dd>{{ solicitacao.usuario_solicitante.nome }}</dd>
+                    <dt>Situação Atual:</dt>
+                    <dd>
+                      <span class="badge bg-{{ 'danger' if solicitacao.situacao_id == 8 else 'warning' }}">
+                        {{ solicitacao.situacao.descricao }}
+                      </span>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumo do Histórico -->
+          {% set total_rejeicoes = historico_rejeicoes|length %}
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="alert alert-info border-0 shadow-sm">
+                <div class="d-flex">
+                  <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                      <path d="M12 9h.01" />
+                      <path d="M11 12h1v4h1" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="alert-title">Resumo do Histórico</h4>
+                    <p class="mb-0">
+                      Esta solicitação foi rejeitada <strong>{{ total_rejeicoes }} vez{{ 'es' if total_rejeicoes != 1 else '' }}</strong>
+                      {% if total_rejeicoes > 0 %}
+                      entre {{ historico_rejeicoes[-1].data_rejeicao.strftime('%d/%m/%Y') }} e {{ historico_rejeicoes[0].data_rejeicao.strftime('%d/%m/%Y') }}.
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Histórico de Rejeições -->
+          {% if historico_rejeicoes %}
+          {% for rejeicao in historico_rejeicoes %}
+          <div class="card mb-3">
+            <div class="card-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0">
+                  Rejeição #{{ total_rejeicoes - loop.index0 }}
+                  {% if loop.first %}
+                  <span class="badge bg-danger ms-2" style="color: #ffffff !important;">Mais recente</span>
+                  {% endif %}
+                </h4>
+                <div class="text-muted">
+                  <small>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M12 8v4l3 3" />
+                      <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                    </svg>
+                    {{ rejeicao.data_rejeicao.strftime('%d/%m/%Y às %H:%M') }}
+                  </small>
+                  <small class="ms-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                      <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                    </svg>
+                    {{ rejeicao.usuario_rejeitou.nome if rejeicao.usuario_rejeitou else 'Usuário não encontrado' }}
+                  </small>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-danger border-0 mb-0">
+                <div class="d-flex">
+                  <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M12 9v4" />
+                      <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                      <path d="M12 16h.01" />
+                    </svg>
+                  </div>
+                  <div>
+                    {{ rejeicao.motivo_rejeicao | replace('\n', '<br>') | safe }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="card">
+            <div class="card-body text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-3 text-muted" width="48" height="48" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                <path d="M10 12l4 4m0 -4l-4 4" />
+              </svg>
+              <h3 class="text-muted">Nenhuma rejeição encontrada</h3>
+              <p class="text-muted">Esta solicitação ainda não foi rejeitada.</p>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+{% endblock conteudo %}

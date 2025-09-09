@@ -1,6 +1,6 @@
-{% extends 'sistema_hash/estrutura/base.html' %}
+{% extends 'sistema_wr/estrutura/base.html' %}
 {% block conteudo %}
-{% include 'sistema_hash/estrutura/header.html' %}
+{% include 'sistema_wr/estrutura/header.html' %}
 <div class="page-wrapper">
   <!-- Page header -->
   <div class="page-header d-print-none">
@@ -22,11 +22,11 @@
   <div class="page-body">
     <div class="container-xl">
 
-      {% include  'sistema_hash/estrutura/mensagens_flash.html' %}
+      {% include  'sistema_wr/estrutura/mensagens_flash.html' %}
       <div class="card">
         <div class="row g-0">
 
-          {% include 'sistema_hash/autenticacao/minha_conta/menu_usuarios_minha_conta.html' %}
+          {% include 'sistema_wr/autenticacao/minha_conta/menu_usuarios_minha_conta.html' %}
 
           <div class="col-12 col-md-9 d-flex flex-column">
             <form action="{{ url_for('usuario_minha_conta', id=usuario.id) }}" method="POST" enctype="multipart/form-data">
@@ -203,7 +203,7 @@
     });
   </script>
 
-  {% include 'sistema_hash/estrutura/footer.html' %}
+  {% include 'sistema_wr/estrutura/footer.html' %}
 
 </div>
 

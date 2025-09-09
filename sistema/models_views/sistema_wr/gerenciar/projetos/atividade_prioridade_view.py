@@ -25,7 +25,7 @@ def prioridades_atividade_listar():
         dados_corretos = {}
     
     return render_template(
-        "sistema_hash/configuracao/prioridade_atividade/prioridades_atividade_listar.html",
+        "sistema_wr/configuracao/prioridade_atividade/prioridades_atividade_listar.html",
         prioridades=prioridades,
         dados_corretos=dados_corretos
     )
@@ -96,7 +96,7 @@ def prioridade_atividade_cadastrar():
             return redirect(url_for("prioridades_atividade_listar"))
 
     return render_template(
-        "sistema_hash/configuracao/prioridade_atividade/prioridade_atividade_cadastrar.html",
+        "sistema_wr/configuracao/prioridade_atividade/prioridade_atividade_cadastrar.html",
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,
         dados_corretos=request.form,
@@ -176,7 +176,7 @@ def prioridade_atividade_editar(id):
             return redirect(url_for("prioridades_atividade_listar"))
 
     return render_template(
-        "sistema_hash/configuracao/prioridade_atividade/prioridade_atividade_editar.html",
+        "sistema_wr/configuracao/prioridade_atividade/prioridade_atividade_editar.html",
         prioridade=prioridade,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,

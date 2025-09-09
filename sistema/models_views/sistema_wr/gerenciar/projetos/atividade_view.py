@@ -5,6 +5,7 @@ from sistema.models_views.upload_arquivo.upload_arquivo_view import upload_arqui
 from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_model import AtividadeModel, AtividadeAnexoModel
 from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_prioridade_model import PrioridadeAtividadeModel
 from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_andamento_model import AndamentoAtividadeModel
+from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_solicitacao_model import SolicitacaoAtividadeModel
 from sistema.models_views.sistema_wr.gerenciar.projetos.projeto_model import ProjetoModel
 from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioModel
 from sistema._utilitarios import *
@@ -158,7 +159,7 @@ def atividade_visualizar(atividade_id):
     }
     
     return render_template(
-        "sistema_hash/gerenciar/projetos/atividade_visualizar.html",
+        "sistema_wr/gerenciar/projetos/atividade_visualizar.html",
         atividade=atividade,
         anexos=anexos,
         percentual_horas=percentual_horas,
@@ -230,7 +231,7 @@ def atividades_listar(projeto_id=None):
     usuarios = UsuarioModel.obter_usuarios_asc_nome()
     
     return render_template(
-        "sistema_hash/gerenciar/projetos/atividades_listar.html",
+        "sistema_wr/gerenciar/projetos/atividades_listar.html",
         atividades=atividades,
         projetos=projetos,
         prioridades=prioridades,
@@ -250,9 +251,10 @@ def atividades_listar(projeto_id=None):
 
 @app.route("/gerenciar/atividades/cadastrar", methods=["GET", "POST"])
 @app.route("/gerenciar/atividades/cadastrar/<int:projeto_id>", methods=["GET", "POST"])
+@app.route("/gerenciar/atividades/cadastrar/<int:projeto_id>/<int:solicitacao_id>", methods=["GET", "POST"])
 @login_required
 @requires_roles
-def atividade_cadastrar(projeto_id=None):
+def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
     validacao_campos_obrigatorios = {}
     validacao_campos_erros = {}
     gravar_banco = True
@@ -262,17 +264,36 @@ def atividade_cadastrar(projeto_id=None):
     situacoes = AndamentoAtividadeModel.listar_andamentos_ativos()
     usuarios = UsuarioModel.obter_usuarios_asc_nome()
 
+    # Dados iniciais (podem vir de uma solicitação aceita)
+    dados_corretos = {}
+    solicitacao = None
+    
+    # Se veio de uma solicitação aceita, pré-preencher os dados
+    if solicitacao_id:
+        solicitacao = SolicitacaoAtividadeModel.obter_solicitacao_por_id(solicitacao_id)
+        if solicitacao and solicitacao.situacao_id == 3:  # 3 = Aceita
+            dados_corretos = {
+                "projetoId": str(solicitacao.projeto_id),
+                "titulo": solicitacao.titulo,
+                "descricao": solicitacao.descricao or "",
+                "prioridadeId": "2",  # Prioridade média como padrão
+                "situacaoId": "1"     # Não iniciada como padrão
+            }
+            projeto_id = solicitacao.projeto_id
+        else:
+            flash(("Solicitação não encontrada ou não aceita!", "warning"))
+            return redirect(url_for("solicitacoes_atividade_listar"))
+
     if request.method == "POST":
-        # Coletar dados do formulário
-        projeto_id = request.form.get("projetoId")
-        titulo = request.form.get("titulo")
-        descricao = request.form.get("descricao")  # Imagens em Base64 - no futuro mudar para armazenar em disco
+        projeto_id = request.form["projetoId"]
+        titulo = request.form["titulo"]
+        descricao = request.form["descricao"]
         usuario_execucao_id = request.form.get("usuarioExecucaoId")
         horas_necessarias = request.form.get("horasNecessarias")
         data_prazo_conclusao = request.form.get("dataPrazoConclusao")
-        valor_atividade = request.form["valorAtividade"]
-        prioridade_id = request.form.get("prioridadeId")
-        situacao_id = request.form.get("situacaoId")
+        valor_atividade = request.form.get("valorAtividade")
+        prioridade_id = request.form["prioridadeId"]
+        situacao_id = request.form["situacaoId"]
 
         campos = {
             "projetoId": ["Projeto", projeto_id],
@@ -287,7 +308,7 @@ def atividade_cadastrar(projeto_id=None):
             gravar_banco = False
             flash(("Verifique os campos destacados em vermelho!", "warning"))
 
-        # validação e conversão das horas
+        # Validação de horas necessárias
         horas_processadas = 0.0
         if horas_necessarias:
             try:
@@ -296,10 +317,10 @@ def atividade_cadastrar(projeto_id=None):
                     validacao_campos_erros["horasNecessarias"] = "Horas não podem ser negativas"
                     gravar_banco = False
             except ValueError:
-                validacao_campos_erros["horasNecessarias"] = "Valor inválido para horas"
+                validacao_campos_erros["horasNecessarias"] = "Valor inválido para horas necessárias"
                 gravar_banco = False
 
-        # Converte valor para centavos
+        # Validação de valor monetário
         valor_atividade_100 = 0
         if valor_atividade:
             try:
@@ -322,19 +343,18 @@ def atividade_cadastrar(projeto_id=None):
                 validacao_campos_erros["dataPrazoConclusao"] = "Data inválida"
                 gravar_banco = False
 
-        # Validação de arquivos anexos
+        # Processar anexos
         arquivos_anexos = request.files.getlist('anexos[]')
         anexos_validos = []
         
         for arquivo in arquivos_anexos:
             if arquivo and arquivo.filename:
-                # Validar tipo de arquivo
                 if not allowed_file(arquivo.filename):
                     validacao_campos_erros["anexos"] = f"Tipo de arquivo não permitido: {arquivo.filename}"
                     gravar_banco = False
                     continue
                 
-                # Valida tamanho
+                # Validar tamanho
                 arquivo.seek(0, os.SEEK_END)
                 file_size = arquivo.tell()
                 arquivo.seek(0)  # Reset para o início
@@ -397,10 +417,24 @@ def atividade_cadastrar(projeto_id=None):
                         flash((f"Erro ao processar anexo {arquivo.filename}: {str(e)}", "warning"))
                         continue
                 
+                # Se veio de uma solicitação aceita, marcar como processada
+                if solicitacao_id and solicitacao:
+                    try:
+                        # Criar um relacionamento ou log da conversão se necessário
+                        # Por enquanto, mantemos a solicitação como aceita
+                        pass
+                    except Exception as e:
+                        # Se der erro aqui, não afeta o cadastro da atividade
+                        flash((f"Aviso: Erro ao processar solicitação: {str(e)}", "warning"))
+                
                 db.session.commit()
                 
                 # Mensagem de sucesso com informações dos anexos
-                mensagem_sucesso = "Atividade cadastrada com sucesso!"
+                if solicitacao_id:
+                    mensagem_sucesso = f"Atividade criada com sucesso a partir da solicitação!"
+                else:
+                    mensagem_sucesso = "Atividade cadastrada com sucesso!"
+                
                 if anexos_processados > 0:
                     mensagem_sucesso += f" {anexos_processados} arquivo(s) anexado(s)."
                 
@@ -413,15 +447,16 @@ def atividade_cadastrar(projeto_id=None):
                 gravar_banco = False
 
     return render_template(
-        "sistema_hash/gerenciar/projetos/atividade_cadastrar.html",
+        "sistema_wr/gerenciar/projetos/atividade_cadastrar.html",
         projetos=projetos,
         prioridades=prioridades,
         situacoes=situacoes,
         usuarios=usuarios,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,
-        dados_corretos=request.form,
-        projeto_id_url=projeto_id
+        dados_corretos=dados_corretos,
+        projeto_id_url=projeto_id,
+        solicitacao_id=solicitacao_id
     )
 
 
@@ -615,7 +650,7 @@ def atividade_editar(atividade_id):
         }
 
     return render_template(
-        "sistema_hash/gerenciar/projetos/atividade_editar.html",
+        "sistema_wr/gerenciar/projetos/atividade_editar.html",
         atividade=atividade,
         projetos=projetos,
         prioridades=prioridades,

@@ -46,7 +46,7 @@ def requires_roles(f):
         
         #if not any(role in user_roles for role in required_roles):
         if not user_role in required_roles:
-            return render_template('sistema_hash/paginas_erro/erro_401.html')
+            return render_template('sistema_wr/paginas_erro/erro_401.html')
             
         return f(*args, **kwargs)
     return wrapped
@@ -54,6 +54,7 @@ def requires_roles(f):
 
 # uploads
 app.config['UPLOADED_USERS'] = UPLOAD_USERS
+app.config['UPLOADED_ANEXOS_SOLICITACOES'] = UPLOAD_ANEXOS_SOLICITACOES
 app.config['UPLOADED_ANEXOS_ATIVIDADES'] = UPLOAD_ANEXOS_ATIVIDADES
 app.config['UPLOAD_COMPROVANTE_LANCAMENTO_SAIDA'] = UPLOAD_COMPROVANTE_LANCAMENTO_SAIDA
 app.config['UPLOAD_CONTRATO_ASSINADO'] = UPLOAD_CONTRATO_ASSINADO
@@ -232,6 +233,7 @@ from sistema.models_views.sistema_wr.gerenciar.projetos import atividade_andamen
 from sistema.models_views.sistema_wr.gerenciar.projetos import atividade_prioridade_model
 from sistema.models_views.sistema_wr.gerenciar.projetos import atividade_model
 from sistema.models_views.sistema_wr.gerenciar.projetos import lancamento_horas_model
+from sistema.models_views.sistema_wr.gerenciar.projetos import atividade_solicitacao_model
 
 # Gerenciar
 from sistema.models_views.sistema_wr.gerenciar.clientes import cliente_model
@@ -252,6 +254,7 @@ from sistema.models_views.sistema_wr.gerenciar.projetos import atividade_priorid
 from sistema.models_views.sistema_wr.gerenciar.projetos import atividade_view
 from sistema.models_views.sistema_wr.gerenciar.projetos import lancamento_horas_view
 from sistema.models_views.sistema_wr.gerenciar.projetos import kanban_view
+from sistema.models_views.sistema_wr.gerenciar.projetos import atividade_solicitacao_view
 
 # Financeiro
 from sistema.models_views.sistema_wr.financeiro.lancamento import lancamento_model

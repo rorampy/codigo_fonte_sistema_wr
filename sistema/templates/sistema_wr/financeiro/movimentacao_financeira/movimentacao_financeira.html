@@ -1,6 +1,6 @@
-{% extends 'sistema_hash/estrutura/base.html' %}
+{% extends 'sistema_wr/estrutura/base.html' %}
 {% block conteudo %}
-{% include 'sistema_hash/estrutura/header.html' %}
+{% include 'sistema_wr/estrutura/header.html' %}
 
 <link href="{{ url_for('static', filename='css/financeiro/movimentacao_financeira/movimentacao_financeira.css') }}"
   rel="stylesheet">
@@ -42,7 +42,7 @@
 
   <div class="page-body">
     <div class="container-xl">
-      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
       <!-- Resumo Financeiro -->
       <div class="financial-summary">
@@ -292,6 +292,6 @@
     </div>
   </div>
 
-  {% include 'sistema_hash/estrutura/footer.html' %}
+  {% include 'sistema_wr/estrutura/footer.html' %}
 </div>
 {% endblock conteudo %}

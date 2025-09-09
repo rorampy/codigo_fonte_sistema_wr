@@ -1,6 +1,6 @@
-{% extends 'sistema_hash/estrutura/base.html' %}
+{% extends 'sistema_wr/estrutura/base.html' %}
 {% block conteudo %}
-{% include 'sistema_hash/estrutura/header.html' %}
+{% include 'sistema_wr/estrutura/header.html' %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/financeiro/contrato/contrato_cadastrar.css')}}">
 
 <div class="page-wrapper">
@@ -17,7 +17,7 @@
 
   <div class="page-body">
     <div class="container-xl">
-      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
       <div id="produto-info-section" style="display: none;">
         <div class="card mb-3">
@@ -347,6 +347,6 @@
     });
   </script>
 
-  {% include 'sistema_hash/estrutura/footer.html' %}
+  {% include 'sistema_wr/estrutura/footer.html' %}
 </div>
 {% endblock conteudo %}

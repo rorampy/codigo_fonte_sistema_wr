@@ -26,7 +26,7 @@ def projetos_listar():
     andamentos = AndamentoProjetoModel.listar_andamentos_ativos()
     
     return render_template(
-        "sistema_hash/gerenciar/projetos/projetos_listar.html",
+        "sistema_wr/gerenciar/projetos/projetos_listar.html",
         projetos=projetos,
         andamentos=andamentos,
         dados_corretos=dados_corretos
@@ -116,7 +116,7 @@ def projeto_cadastrar():
             return redirect(url_for("projetos_listar"))
 
     return render_template(
-        "sistema_hash/gerenciar/projetos/projeto_cadastrar.html",
+        "sistema_wr/gerenciar/projetos/projeto_cadastrar.html",
         usuarios_ativos=usuarios_ativos,
         andamentos=andamentos,
         campos_obrigatorios=validacao_campos_obrigatorios,
@@ -223,7 +223,7 @@ def projeto_editar(id):
             return redirect(url_for("projetos_listar"))
 
     return render_template(
-        "sistema_hash/gerenciar/projetos/projeto_editar.html",
+        "sistema_wr/gerenciar/projetos/projeto_editar.html",
         projeto=projeto,
         usuarios_ativos=usuarios_ativos,
         andamentos=andamentos,
@@ -246,7 +246,7 @@ def projeto_detalhes(id):
         return redirect(url_for("projetos_listar"))
 
     return render_template(
-        "sistema_hash/gerenciar/projetos/projeto_detalhes.html",
+        "sistema_wr/gerenciar/projetos/projeto_detalhes.html",
         projeto=projeto,
         data_hoje = data_hoje
     )

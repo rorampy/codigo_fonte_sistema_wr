@@ -53,7 +53,7 @@ def movimentacao_financeira():
         estrutura.append(d)
     
     return render_template(
-        'sistema_hash/financeiro/movimentacao_financeira/movimentacao_financeira.html', 
+        'sistema_wr/financeiro/movimentacao_financeira/movimentacao_financeira.html', 
         saldo_liquido=saldo_liquido,
         saldo_entradas=saldo_entradas, 
         saldo_saidas=saldo_saidas, 

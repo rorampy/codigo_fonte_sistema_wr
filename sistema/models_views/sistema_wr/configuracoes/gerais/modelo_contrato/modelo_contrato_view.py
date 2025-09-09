@@ -14,7 +14,7 @@ from sistema._utilitarios import *
 def listar_modelos_contratos():
     modelos = ModeloContratoModel.obter_modelos_contratos_ativos()
     return render_template(
-        'sistema_hash/configuracao/gerais/modelo_contrato/listagem_modelo_contrato.html',
+        'sistema_wr/configuracao/gerais/modelo_contrato/listagem_modelo_contrato.html',
         modelos=modelos
     )
 
@@ -60,7 +60,7 @@ def cadastrar_modelo_contrato():
                 return redirect(url_for("listar_modelos_contratos"))
 
         return render_template(
-            'sistema_hash/configuracao/gerais/modelo_contrato/cadastrar_modelo_contrato.html',
+            'sistema_wr/configuracao/gerais/modelo_contrato/cadastrar_modelo_contrato.html',
             dados_corretos=request.form,
             campos_obrigatorios=validacao_campos_obrigatorios,
             campos_erros=validacao_campos_erros,
@@ -113,7 +113,7 @@ def editar_modelo_contrato(modelo_id):
                 return redirect(url_for("listar_modelos_contratos"))
 
         return render_template(
-            'sistema_hash/configuracao/gerais/modelo_contrato/editar_modelo_contrato.html',
+            'sistema_wr/configuracao/gerais/modelo_contrato/editar_modelo_contrato.html',
             modelo=modelo,
             dados_corretos=request.form,
             campos_obrigatorios=validacao_campos_obrigatorios,

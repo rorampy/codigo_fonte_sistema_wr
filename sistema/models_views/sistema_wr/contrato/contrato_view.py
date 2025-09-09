@@ -22,9 +22,9 @@ def contrato_listar():
     except Exception as e:
         print(f"Erro ao listar contratos: {str(e)}")
         flash((f"Erro ao listar contratos!", "danger"))
-        return render_template("sistema_hash/financeiro/contrato/contrato_listar.html", contratos=[])
+        return render_template("sistema_wr/financeiro/contrato/contrato_listar.html", contratos=[])
     return render_template(
-        "sistema_hash/financeiro/contrato/contrato_listar.html",
+        "sistema_wr/financeiro/contrato/contrato_listar.html",
         contratos=contratos
     )
 
@@ -132,7 +132,7 @@ def contrato_cadastrar():
                 gravar_banco = False
 
     return render_template(
-        "sistema_hash/financeiro/contrato/contrato_cadastrar.html",
+        "sistema_wr/financeiro/contrato/contrato_cadastrar.html",
         clientes=clientes,
         produtos=produtos,
         modelo_contrato=modelo_contrato,
@@ -269,7 +269,7 @@ def contrato_editar(contrato_id):
                 gravar_banco = False
 
     return render_template(
-        "sistema_hash/financeiro/contrato/contrato_editar.html",
+        "sistema_wr/financeiro/contrato/contrato_editar.html",
         contrato=contrato,
         contrato_produto=contrato_produto,
         clientes=clientes,
@@ -330,7 +330,7 @@ def contrato_exportar_pdf(id):
     logo_path = obter_url_absoluta_de_imagem("logo.png")
 
     html = render_template(
-        "sistema_hash/financeiro/contrato/layout_contrato/layout_contrato.html",
+        "sistema_wr/financeiro/contrato/layout_contrato/layout_contrato.html",
         logo_path=logo_path,
         dataHoje=dataHoje,
         changelog=changelog,
@@ -410,7 +410,7 @@ def cadastrar_contrato_assinado(id):
         return redirect(url_for("contrato_listar"))
 
     return render_template(
-        "sistema_hash/financeiro/contrato/contrato_assinado_cadastrar.html",
+        "sistema_wr/financeiro/contrato/contrato_assinado_cadastrar.html",
         contrato=contrato,
         dados_corretos=dados_corretos,
         campos_obrigatorios=validacao_campos_obrigatorios,

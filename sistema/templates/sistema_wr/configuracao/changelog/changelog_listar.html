@@ -1,6 +1,6 @@
-{% extends 'sistema_hash/estrutura/base.html' %}
+{% extends 'sistema_wr/estrutura/base.html' %}
 {% block conteudo %}
-{% include 'sistema_hash/estrutura/header.html' %}
+{% include 'sistema_wr/estrutura/header.html' %}
 <div class="page-wrapper">
     {% if current_user.role_id == 1 %}
     <!-- Page header -->
@@ -35,7 +35,7 @@
         <div class="row justify-content-center">
           <div class="col-lg-10 col-xl-9">
 
-            {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+            {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
             <div class="card card-lg">
               <div class="card-body markdown">
@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    {% include 'sistema_hash/estrutura/footer.html' %}
+    {% include 'sistema_wr/estrutura/footer.html' %}
     
 </div>
 

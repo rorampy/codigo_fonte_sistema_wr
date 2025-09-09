@@ -1,6 +1,6 @@
-{% extends 'sistema_hash/estrutura/base.html' %}
+{% extends 'sistema_wr/estrutura/base.html' %}
 {% block conteudo %}
-{% include 'sistema_hash/estrutura/header.html' %}
+{% include 'sistema_wr/estrutura/header.html' %}
 
 <style>
   .kanban-container {
@@ -246,23 +246,27 @@
             
             <!-- Botão Nova Atividade -->
             {% if projeto_atual %}
-              <a href="{{ url_for('atividade_cadastrar', projeto_id=projeto_atual.id) }}" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                  <path d="M12 5l0 14" />
-                  <path d="M5 12l14 0" />
-                </svg>
-                Nova Atividade
-              </a>
+              {% if current_user.role.id == 1%}
+                <a href="{{ url_for('atividade_cadastrar', projeto_id=projeto_atual.id) }}" class="btn btn-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                  </svg>
+                  Nova Atividade
+                </a>
+              {% endif %}
             {% else %}
-              <a href="{{ url_for('atividade_cadastrar') }}" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                  <path d="M12 5l0 14" />
-                  <path d="M5 12l14 0" />
-                </svg>
-                Nova Atividade
-              </a>
+              {% if current_user.role.id == 1%}
+                <a href="{{ url_for('atividade_cadastrar') }}" class="btn btn-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                  </svg>
+                  Nova Atividade
+                </a>
+              {% endif %}
             {% endif %}
           </div>
         </div>
@@ -273,7 +277,7 @@
   <!-- Page body -->
   <div class="page-body">
     <div class="container-xl">
-      {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
       
       <!-- Filtros ativos -->
       {% if filtros and (filtros.responsavel_id or filtros.situacao_id or filtros.prioridade_id or filtros.titulo) %}
@@ -930,5 +934,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-{% include 'sistema_hash/estrutura/footer.html' %}
+{% include 'sistema_wr/estrutura/footer.html' %}
 {% endblock conteudo %}

@@ -1,23 +1,21 @@
-{% extends 'sistema_hash/estrutura/base_login.html' %}
+{% extends 'sistema_wr/estrutura/base_login.html' %}
 {% block conteudo %}
 <div class="container container-tight py-4">
     <div class="text-center mb-4">
       <a href="{{ url_for('login') }}" class="navbar-brand navbar-brand-autodark">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" 
-        width="200" height="70" alt="Logomarca Sistema" >
+        <img src="{{ url_for('static', filename='site_wr/img/logo_wr_sem_fundo.png') }}" 
+        width="220" height="34" alt="Logomarca Sistema" >
       </a>
     </div>
     <div class="card card-md">
       <div class="card-body">
 
-        {% include 'sistema_hash/estrutura/mensagens_flash.html' %}
+        {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
         
         <form action="{{ url_for('login') }}" method="POST" autocomplete="off" novalidate>
           <div class="mb-3">
-            <label class="form-label">Telefone:</label>
-            <input type="text" class="form-control" name="telefone"
-              data-mask="(00) 0 0000-0000" placeholder="(00) 0 0000-0000" 
-              data-mask-visible="true" autocomplete="off"
+            <label class="form-label">Email:</label>
+            <input type="text" class="form-control" name="email"
             >
           </div>
           <div class="mb-2">
@@ -49,9 +47,6 @@
           <a href="#" tabindex="-1">Esqueci minha senha</a>
         </div>
       </div>
-    </div>
-    <div class="text-center text-secondary mt-3">
-      Precisa de ajuda? <a href="#" tabindex="-1">Suporte Técnico</a>
     </div>
   </div>
 

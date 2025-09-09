@@ -18,22 +18,19 @@ def get_variaveis():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        telefone = request.form["telefone"]
+        email = request.form["email"]
         senha = request.form["senha"]
 
-        if telefone:
-            telefone = Tels.remove_pontuacao_telefone_celular_br(telefone)
-
-        usuario = UsuarioModel.obter_usuario_por_telefone(telefone)
+        usuario = UsuarioModel.obter_usuario_por_email(email)
 
         if not usuario or not usuario.verificar_senha(senha):
-            flash((f"Telefone e/ou Senha incorreto(s)!", "warning"))
+            flash((f"Email e/ou Senha incorreto(s)!", "warning"))
 
         else:
             login_user(usuario)
             return redirect(url_for("principal"))
 
-    return render_template("sistema_hash/autenticacao/login.html")
+    return render_template("sistema_wr/autenticacao/login.html")
 
 
 @app.route("/logout", methods=["GET", "POST"])
@@ -51,6 +48,6 @@ def logout():
 def principal():
     
     return render_template(
-        "sistema_hash/estrutura/dashboard.html"
+        "sistema_wr/estrutura/dashboard.html"
     )
 

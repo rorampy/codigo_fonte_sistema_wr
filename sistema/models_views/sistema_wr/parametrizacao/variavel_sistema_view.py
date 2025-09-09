@@ -85,7 +85,7 @@ def variaveis_sistema_editar(id):
             return redirect(url_for("variaveis_sistema_editar", id=id))
 
     return render_template(
-        "sistema_hash/configuracao/variavel_sistema/variavel_sistema_editar.html",
+        "sistema_wr/configuracao/variavel_sistema/variavel_sistema_editar.html",
         configs=configs,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,

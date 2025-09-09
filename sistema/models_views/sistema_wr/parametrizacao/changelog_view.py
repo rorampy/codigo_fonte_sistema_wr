@@ -28,7 +28,7 @@ def changelog_listar():
     changelog_sistema = ChangelogModel.obter_changelog_desc_id()
     
     return render_template(
-        'sistema_hash/configuracao/changelog/changelog_listar.html',
+        'sistema_wr/configuracao/changelog/changelog_listar.html',
         changelog_sistema = changelog_sistema
     )
 
@@ -73,6 +73,6 @@ def changelog_cadastrar():
             return redirect(url_for('changelog_listar'))
         
     return render_template(
-        'sistema_hash/configuracao/changelog/changelog_cadastrar.html',
+        'sistema_wr/configuracao/changelog/changelog_cadastrar.html',
         dados_corretos = request.form
     )

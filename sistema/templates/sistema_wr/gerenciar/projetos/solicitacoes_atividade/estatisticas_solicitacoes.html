@@ -1,0 +1,221 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+
+{% block titulo %}Estatísticas - Solicitações de Atividades{% endblock %}
+
+{% block conteudo %}
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">
+          Gerenciar
+        </div>
+        <h2 class="page-title">
+          Estatísticas das Solicitações de Atividades
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="{{ url_for('solicitacoes_atividade_listar') }}" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M9 11l3 3l8 -8"/>
+              <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9"/>
+            </svg>
+            Voltar para Solicitações
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    
+    <!-- Cards de Resumo -->
+    <div class="row row-deck row-cards mb-4">
+      <div class="col-sm-6 col-lg-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="subheader">Total de Solicitações</div>
+              <div class="ms-auto lh-1">
+                <div class="dropdown">
+                  <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Últimos 30 dias</a>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex align-items-baseline">
+              <div class="h1 mb-0 me-2">{{ total_solicitacoes }}</div>
+              <div class="me-auto">
+                <span class="text-green d-inline-flex align-items-center lh-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M3 17l6 -6l4 4l8 -8"/>
+                    <path d="M14 7l7 0l0 7"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-sm-6 col-lg-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="subheader">Em Análise</div>
+            </div>
+            <div class="d-flex align-items-baseline">
+              <div class="h1 mb-0 me-2">{{ solicitacoes_em_analise }}</div>
+              <div class="me-auto">
+                <span class="badge bg-warning">{{ "%.1f"|format((solicitacoes_em_analise / total_solicitacoes * 100) if total_solicitacoes > 0 else 0) }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-sm-6 col-lg-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="subheader">Aceitas</div>
+            </div>
+            <div class="d-flex align-items-baseline">
+              <div class="h1 mb-0 me-2">{{ solicitacoes_aceitas }}</div>
+              <div class="me-auto">
+                <span class="badge bg-success">{{ "%.1f"|format((solicitacoes_aceitas / total_solicitacoes * 100) if total_solicitacoes > 0 else 0) }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-sm-6 col-lg-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="subheader">Rejeitadas</div>
+            </div>
+            <div class="d-flex align-items-baseline">
+              <div class="h1 mb-0 me-2">{{ solicitacoes_rejeitadas }}</div>
+              <div class="me-auto">
+                <span class="badge bg-danger">{{ "%.1f"|format((solicitacoes_rejeitadas / total_solicitacoes * 100) if total_solicitacoes > 0 else 0) }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos e Estatísticas Detalhadas -->
+    <div class="row row-deck row-cards">
+      
+      <!-- Gráfico de Status -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Distribuição por Status</h3>
+          </div>
+          <div class="card-body">
+            <div id="chart-status" style="min-height: 240px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Taxa de Aprovação -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Taxa de Aprovação</h3>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <div class="me-auto">
+                <h4 class="m-0">
+                  {% set taxa_aprovacao = (solicitacoes_aceitas / (solicitacoes_aceitas + solicitacoes_rejeitadas) * 100) if (solicitacoes_aceitas + solicitacoes_rejeitadas) > 0 else 0 %}
+                  {{ "%.1f"|format(taxa_aprovacao) }}%
+                </h4>
+                <div class="text-muted">Solicitações processadas</div>
+              </div>
+              <div class="ms-auto">
+                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-aprovacao"></div>
+              </div>
+            </div>
+            <div class="progress progress-separated mb-3">
+              <div class="progress-bar bg-success" role="progressbar" style="width: {{ (solicitacoes_aceitas / (solicitacoes_aceitas + solicitacoes_rejeitadas) * 100) if (solicitacoes_aceitas + solicitacoes_rejeitadas) > 0 else 0 }}%" title="Aceitas: {{ solicitacoes_aceitas }}"></div>
+              <div class="progress-bar bg-danger" role="progressbar" style="width: {{ (solicitacoes_rejeitadas / (solicitacoes_aceitas + solicitacoes_rejeitadas) * 100) if (solicitacoes_aceitas + solicitacoes_rejeitadas) > 0 else 0 }}%" title="Rejeitadas: {{ solicitacoes_rejeitadas }}"></div>
+            </div>
+            <div class="row">
+              <div class="col-auto d-flex align-items-center pe-2">
+                <span class="legend me-2 bg-success"></span>
+                <span>Aceitas</span>
+                <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ solicitacoes_aceitas }}</span>
+              </div>
+              <div class="col-auto d-flex align-items-center px-2">
+                <span class="legend me-2 bg-danger"></span>
+                <span>Rejeitadas</span>
+                <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ solicitacoes_rejeitadas }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informações Adicionais -->
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Resumo Geral</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <dl class="row">
+                  <dt class="col-5">Total de Solicitações:</dt>
+                  <dd class="col-7">{{ total_solicitacoes }}</dd>
+                  
+                  <dt class="col-5">Em Análise:</dt>
+                  <dd class="col-7">{{ solicitacoes_em_analise }}</dd>
+                  
+                  <dt class="col-5">Processadas:</dt>
+                  <dd class="col-7">{{ solicitacoes_aceitas + solicitacoes_rejeitadas }}</dd>
+                </dl>
+              </div>
+              <div class="col-md-6">
+                <dl class="row">
+                  <dt class="col-5">Taxa de Aprovação:</dt>
+                  <dd class="col-7">{{ "%.1f"|format(taxa_aprovacao) }}%</dd>
+                  
+                  <dt class="col-5">Taxa de Rejeição:</dt>
+                  <dd class="col-7">{{ "%.1f"|format(100 - taxa_aprovacao) if taxa_aprovacao > 0 else "0.0" }}%</dd>
+                  
+                  <dt class="col-5">Pendentes:</dt>
+                  <dd class="col-7">{{ solicitacoes_em_analise }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Gráfico de Status (usando Chart.js ou ApexCharts se disponível)
+  // Aqui você pode adicionar código JavaScript para gráficos interativos
+  
+  console.log('Estatísticas carregadas:', {
+    total: {{ total_solicitacoes }},
+    analise: {{ solicitacoes_em_analise }},
+    aceitas: {{ solicitacoes_aceitas }},
+    rejeitadas: {{ solicitacoes_rejeitadas }}
+  });
+});
+</script>
+{% endblock %}

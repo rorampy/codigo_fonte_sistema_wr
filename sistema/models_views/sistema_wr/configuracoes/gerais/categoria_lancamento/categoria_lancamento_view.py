@@ -21,13 +21,13 @@ def listar_categoria_lancamento():
             estrutura.append(categoria_dict)
 
         return render_template(
-            "sistema_hash/configuracao/gerais/categoria_lancamento/categoria_lancamento.html", estrutura=estrutura
+            "sistema_wr/configuracao/gerais/categoria_lancamento/categoria_lancamento.html", estrutura=estrutura
         )
 
     except Exception as e:
         flash((f"Erro ao carregar plano de contas: {str(e)}", "error"))
         return render_template(
-            "sistema_hash/configuracao/gerais/categoria_lancamento/categoria_lancamento.html", estrutura=[]
+            "sistema_wr/configuracao/gerais/categoria_lancamento/categoria_lancamento.html", estrutura=[]
         )
 
 

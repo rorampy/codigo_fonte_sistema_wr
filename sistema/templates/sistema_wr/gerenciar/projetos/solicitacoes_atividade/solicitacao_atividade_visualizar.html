@@ -1,0 +1,699 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">SOLICITAÇÃO #{{ solicitacao.id }}</div>
+          <h2 class="page-title">{{ solicitacao.titulo }}</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <!-- Botão Editar (apenas para o solicitante e apenas rejeitadas) -->
+            {% if solicitacao.usuario_solicitante_id == current_user.id and solicitacao.situacao_id == 8 %}
+            <a href="{{ url_for('atividade_solicitacao_editar', id=solicitacao.id) }}" class="btn btn-warning">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                <path d="M16 5l3 3" />
+              </svg>
+              Editar
+            </a>
+            {% endif %}
+            
+            <a href="{{ url_for('solicitacoes_atividade_listar') }}" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 12l14 0" />
+                <path d="M5 12l6 6" />
+                <path d="M5 12l6 -6" />
+              </svg>
+              Voltar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+
+      <div class="row row-deck row-cards">
+        
+        <!-- Informações Principais -->
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Detalhes da Solicitação</h3>
+              <div class="card-actions">
+                {% if solicitacao.situacao_id == 7 %}
+                  <span class="badge bg-warning-lt fs-3">Em Análise</span>
+                {% elif solicitacao.situacao_id == 8 %}
+                  <span class="badge bg-danger-lt fs-3">Rejeitada</span>
+                {% elif solicitacao.situacao_id == 3 %}
+                  <span class="badge bg-success-lt fs-3">Aceita</span>
+                {% else %}
+                  <span class="badge bg-secondary-lt fs-3">{{ solicitacao.situacao.nome }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="card-body">
+              
+              <!-- Projeto -->
+              <div class="mb-3">
+                <h4 class="subheader">Projeto</h4>
+                <span class="badge bg-blue-lt fs-4">{{ solicitacao.projeto.nome_projeto }}</span>
+              </div>
+
+              <!-- Título -->
+              <div class="mb-3">
+                <h4 class="subheader">Título</h4>
+                <p class="m-0">{{ solicitacao.titulo }}</p>
+              </div>
+
+              <!-- Descrição -->
+              {% if solicitacao.descricao %}
+              <div class="mb-3">
+                <h4 class="subheader">Descrição</h4>
+                <div class="card card-body bg-light-subtle">
+                  {{ solicitacao.descricao | replace('\n', '<br>') | safe }}
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Motivo da Rejeição -->
+              {% if solicitacao.situacao_id == 8 and solicitacao.motivo_rejeicao %}
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="subheader text-danger mb-0">Motivo da Rejeição</h4>
+                    <!-- Botão para ver histórico completo -->
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="abrirHistoricoRejeicoes()">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M12 8v4l3 3" />
+                        <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                      </svg>
+                      Ver Histórico Completo
+                    </button>
+                  </div>
+                  
+                  <div class="alert alert-danger">
+                    <div class="d-flex">
+                      <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M12 9v4" />
+                          <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                          <path d="M12 16h.01" />
+                        </svg>
+                      </div>
+                      <div class="flex-fill">
+                        <h6 class="alert-title">Última rejeição:</h6>
+                        {{ solicitacao.motivo_rejeicao | replace('\n', '<br>') | safe }}
+                        
+                        <!-- Indicador se há mais rejeições no histórico -->
+                        {% set total_rejeicoes = solicitacao.obter_total_rejeicoes() %}
+                        {% if total_rejeicoes > 1 %}
+                        <div class="mt-2 pt-2 border-top border-danger">
+                          <small class="text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                              <path d="M12 9h.01" />
+                              <path d="M11 12h1v4h1" />
+                            </svg>
+                            Esta solicitação foi rejeitada <strong>{{ total_rejeicoes }} vezes</strong>. 
+                            Clique em "Ver Histórico Completo" para ver todas as rejeições anteriores.
+                          </small>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {% if solicitacao.usuario_solicitante_id == current_user.id %}
+                  <small class="text-secondary">
+                    Você pode editar esta solicitação para corrigir os pontos mencionados acima.
+                  </small>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+              <!-- Anexos -->
+              {% if solicitacao.anexos %}
+              <div class="mb-3">
+                <h4 class="subheader">Anexos ({{ solicitacao.anexos.count() }})</h4>
+                <div class="list-group list-group-flush">
+                  {% for anexo in solicitacao.anexos %}
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                      <span class="me-2">
+                        {% if anexo.tipo_arquivo == 'image' %}📷
+                        {% elif anexo.tipo_arquivo == 'document' %}📄
+                        {% elif anexo.tipo_arquivo == 'compressed' %}📦
+                        {% else %}📎{% endif %}
+                      </span>
+                      <div>
+                        <div class="font-weight-medium">{{ anexo.nome_original }}</div>
+                        <small class="text-secondary">{{ (anexo.tamanho / 1024 / 1024) | round(2) }} MB</small>
+                      </div>
+                    </div>
+                    <a href="{{ url_for('atividade_solicitacao_download_anexo', anexo_id=anexo.id) }}" 
+                      class="btn btn-sm btn-outline-primary">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                        <path d="M7 11l5 5l5 -5" />
+                        <path d="M12 4l0 12" />
+                      </svg>
+                      Download
+                    </a>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+          
+          <!-- Informações do Sistema -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Informações</h3>
+            </div>
+            <div class="card-body">
+              
+              <!-- Solicitante -->
+              <div class="mb-3">
+                <h4 class="subheader">Solicitante</h4>
+                <div class="d-flex align-items-center">
+                  <span class="avatar avatar-sm me-2" 
+                    style="background-image: url({{ url_for('diretorio_uploads_usuarios', filename=solicitacao.usuario_solicitante.foto_perfil.nome) }})">
+                  </span>
+                  <div>
+                    <div class="font-weight-medium">{{ solicitacao.usuario_solicitante.nome }} {{ solicitacao.usuario_solicitante.sobrenome }}</div>
+                    <small class="text-secondary">{{ solicitacao.usuario_solicitante.role.cargo }}</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Data de Criação -->
+              <div class="mb-3">
+                <h4 class="subheader">Data de Criação</h4>
+                <p class="m-0">{{ solicitacao.data_cadastro | formatar_data_hora_para_brl }}</p>
+              </div>
+
+              <!-- Última Atualização -->
+              <div class="mb-3">
+                <h4 class="subheader">Última Atualização</h4>
+                <p class="m-0">{{ solicitacao.data_alteracao | formatar_data_hora_para_brl }}</p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Ações de Gestão (apenas para role.id == 1) -->
+          {% if current_user.role.id == 1 and solicitacao.situacao_id == 7 %}
+          <div class="card mt-3">
+            <div class="card-header">
+              <h3 class="card-title">Ações de Gestão</h3>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <!-- Botão Aceitar -->
+                <form method="POST" action="{{ url_for('atividade_solicitacao_aceitar', id=solicitacao.id) }}" 
+                  onsubmit="return confirm('Tem certeza que deseja aceitar esta solicitação? Ela será convertida em uma atividade.')">
+                  <button type="submit" class="btn btn-success w-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M5 12l5 5l10 -10" />
+                    </svg>
+                    Aceitar Solicitação
+                  </button>
+                </form>
+
+                <!-- Botão Rejeitar -->
+                <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#modal-rejeitar">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M18 6l-12 12" />
+                    <path d="M6 6l12 12" />
+                  </svg>
+                  Rejeitar Solicitação
+                </button>
+              </div>
+              
+              <div class="mt-3">
+                <small class="text-secondary">
+                  <strong>Aceitar:</strong> A solicitação será convertida em uma atividade oficial.<br>
+                  <strong>Rejeitar:</strong> O solicitante poderá editar e reenviar.
+                </small>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+<!-- Modal de Rejeição -->
+{% if current_user.role.id == 1 and solicitacao.situacao_id == 7 %}
+<div class="modal modal-blur fade" id="modal-rejeitar" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Rejeitar Solicitação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label required">Motivo da rejeição</label>
+          <textarea class="form-control" id="motivo-rejeicao" rows="4" 
+            placeholder="Explique o motivo da rejeição para que o solicitante possa fazer os ajustes necessários..."></textarea>
+        </div>
+        <div class="text-secondary">
+          <small>Seja específico sobre o que precisa ser ajustado para que a solicitação possa ser aceita.</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" onclick="rejeitarSolicitacao()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M18 6l-12 12" />
+            <path d="M6 6l12 12" />
+          </svg>
+          Rejeitar Solicitação
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal de Histórico de Rejeições -->
+<div class="modal modal-blur fade" id="modal-historico-rejeicoes" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 8v4l3 3" />
+            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+          </svg>
+          Histórico de Rejeições - Solicitação #{{ solicitacao.id }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="loading-historico" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="mt-2">Carregando histórico...</p>
+        </div>
+        
+        <div id="conteudo-historico" style="display: none;">
+          <div id="info-resumo" class="alert alert-info border-0 shadow-sm mb-3">
+            <div class="d-flex">
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                  <path d="M12 9h.01" />
+                  <path d="M11 12h1v4h1" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="alert-title">Resumo</h4>
+                <p id="resumo-rejeicoes" class="mb-0">Esta solicitação foi rejeitada <strong id="total-rejeicoes">0</strong> vez(es).</p>
+              </div>
+            </div>
+          </div>
+          
+          <div id="lista-historico">
+            <!-- Histórico será carregado aqui via JavaScript -->
+          </div>
+          
+          <div id="sem-historico" style="display: none;" class="text-center text-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-3" width="48" height="48" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+              <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+              <path d="M10 12l4 4m0 -4l-4 4" />
+            </svg>
+            <p>Nenhuma rejeição encontrada.</p>
+          </div>
+        </div>
+        
+        <div id="erro-historico" style="display: none;" class="alert alert-danger">
+          <div class="d-flex">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 9v4" />
+                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                <path d="M12 16h.01" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="alert-title">Erro</h4>
+              <p id="mensagem-erro" class="mb-0">Erro ao carregar histórico de rejeições.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function rejeitarSolicitacao() {
+    const motivo = document.getElementById('motivo-rejeicao').value.trim();
+    
+    if (!motivo) {
+        alert('Por favor, informe o motivo da rejeição.');
+        return;
+    }
+    
+    fetch('{{ url_for("atividade_solicitacao_rejeitar", id=solicitacao.id) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            motivo: motivo
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Solicitação rejeitada com sucesso!');
+            location.reload();
+        } else {
+            alert('Erro: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao rejeitar solicitação.');
+    });
+}
+</script>
+
+<script>
+// JavaScript para carregar histórico de rejeições
+function abrirHistoricoRejeicoes() {
+    const modal = new bootstrap.Modal(document.getElementById('modal-historico-rejeicoes'));
+    
+    // Resetar modal
+    document.getElementById('loading-historico').style.display = 'block';
+    document.getElementById('conteudo-historico').style.display = 'none';
+    document.getElementById('erro-historico').style.display = 'none';
+    
+    modal.show();
+    
+    // Carregar histórico via AJAX
+    fetch('{{ url_for("atividade_solicitacao_ajax_historico_rejeicoes", id=solicitacao.id) }}')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loading-historico').style.display = 'none';
+            
+            if (data.success) {
+                document.getElementById('conteudo-historico').style.display = 'block';
+                document.getElementById('total-rejeicoes').textContent = data.total_rejeicoes;
+                
+                const listaHistorico = document.getElementById('lista-historico');
+                
+                if (data.historico.length > 0) {
+                    let html = '';
+                    
+                    data.historico.forEach((rejeicao, index) => {
+                        const badgeClass = index === 0 ? 'bg-danger' : 'bg-secondary';
+                        
+                        html += `
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        Rejeição #${data.total_rejeicoes - index}
+                                    </h6>
+                                    <div class="card-subtitle text-muted">
+                                        <small>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M12 8v4l3 3" />
+                                                <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                                            </svg>
+                                            ${rejeicao.data_rejeicao}
+                                        </small>
+                                        <small class="ms-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                                <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                            </svg>
+                                            ${rejeicao.usuario_rejeitou}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-danger border-0 mb-0">
+                                        <div class="d-flex">
+                                            <div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <path d="M12 9v4" />
+                                                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                                                    <path d="M12 16h.01" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                ${rejeicao.motivo.replace(/\n/g, '<br>')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    listaHistorico.innerHTML = html;
+                } else {
+                    document.getElementById('sem-historico').style.display = 'block';
+                }
+            } else {
+                document.getElementById('erro-historico').style.display = 'block';
+                document.getElementById('mensagem-erro').textContent = data.message || 'Erro desconhecido.';
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            document.getElementById('loading-historico').style.display = 'none';
+            document.getElementById('erro-historico').style.display = 'block';
+            document.getElementById('mensagem-erro').textContent = 'Erro de conexão.';
+        });
+}
+</script>
+
+{% endif %}
+
+{% if solicitacao.situacao_id == 8 %}
+<div class="modal modal-blur fade" id="modal-historico-rejeicoes" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 8v4l3 3" />
+            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+          </svg>
+          Histórico de Rejeições - Solicitação #{{ solicitacao.id }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="loading-historico" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="mt-2">Carregando histórico...</p>
+        </div>
+        
+        <div id="conteudo-historico" style="display: none;">
+          <div id="info-resumo" class="alert alert-info border-0 shadow-sm mb-3">
+            <div class="d-flex">
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                  <path d="M12 9h.01" />
+                  <path d="M11 12h1v4h1" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="alert-title">Resumo</h4>
+                <p id="resumo-rejeicoes" class="mb-0">Esta solicitação foi rejeitada <strong id="total-rejeicoes">0</strong> vez(es).</p>
+              </div>
+            </div>
+          </div>
+          
+          <div id="lista-historico">
+            <!-- Histórico será carregado aqui via JavaScript -->
+          </div>
+          
+          <div id="sem-historico" style="display: none;" class="text-center text-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-3" width="48" height="48" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+              <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+              <path d="M10 12l4 4m0 -4l-4 4" />
+            </svg>
+            <p>Nenhuma rejeição encontrada.</p>
+          </div>
+        </div>
+        
+        <div id="erro-historico" style="display: none;" class="alert alert-danger">
+          <div class="d-flex">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 9v4" />
+                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                <path d="M12 16h.01" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="alert-title">Erro</h4>
+              <p id="mensagem-erro" class="mb-0">Erro ao carregar histórico de rejeições.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// JavaScript para carregar histórico de rejeições
+function abrirHistoricoRejeicoes() {
+    const modal = new bootstrap.Modal(document.getElementById('modal-historico-rejeicoes'));
+    
+    // Resetar modal
+    document.getElementById('loading-historico').style.display = 'block';
+    document.getElementById('conteudo-historico').style.display = 'none';
+    document.getElementById('erro-historico').style.display = 'none';
+    
+    modal.show();
+    
+    // Carregar histórico via AJAX
+    fetch('{{ url_for("atividade_solicitacao_ajax_historico_rejeicoes", id=solicitacao.id) }}')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loading-historico').style.display = 'none';
+            
+            if (data.success) {
+                document.getElementById('conteudo-historico').style.display = 'block';
+                document.getElementById('total-rejeicoes').textContent = data.total_rejeicoes;
+                
+                const listaHistorico = document.getElementById('lista-historico');
+                
+                if (data.historico.length > 0) {
+                    let html = '';
+                    
+                    data.historico.forEach((rejeicao, index) => {
+                        const labelRecente = index === 0 ? '<span class="badge bg-danger ms-2">Mais recente</span>' : '';
+                        
+                        html += `
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        Rejeição #${data.total_rejeicoes - index}
+                                        ${labelRecente}
+                                    </h6>
+                                    <div class="card-subtitle text-muted">
+                                        <small>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M12 8v4l3 3" />
+                                                <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                                            </svg>
+                                            ${rejeicao.data_rejeicao}
+                                        </small>
+                                        <small class="ms-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                                <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                            </svg>
+                                            ${rejeicao.usuario_rejeitou}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-danger border-0 mb-0">
+                                        <div class="d-flex">
+                                            <div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <path d="M12 9v4" />
+                                                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                                                    <path d="M12 16h.01" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                ${rejeicao.motivo.replace(/\n/g, '<br>')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    listaHistorico.innerHTML = html;
+                } else {
+                    document.getElementById('sem-historico').style.display = 'block';
+                }
+            } else {
+                document.getElementById('erro-historico').style.display = 'block';
+                document.getElementById('mensagem-erro').textContent = data.message || 'Erro desconhecido.';
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            document.getElementById('loading-historico').style.display = 'none';
+            document.getElementById('erro-historico').style.display = 'block';
+            document.getElementById('mensagem-erro').textContent = 'Erro de conexão.';
+        });
+}
+</script>
+{% endif %}
+
+{% endblock conteudo %}

@@ -137,7 +137,7 @@ def cadastrar_cliente():
             return redirect(url_for("listar_clientes"))
     
     return render_template(
-        "sistema_hash/gerenciar/clientes/cliente_cadastrar.html",
+        "sistema_wr/gerenciar/clientes/cliente_cadastrar.html",
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,
         dados_corretos=request.form,
@@ -156,7 +156,7 @@ def listar_clientes():
         )
     else:
         clientes = ClienteModel.listar_clientes()
-    return render_template("sistema_hash/gerenciar/clientes/cliente_listar.html", clientes=clientes, dados_corretos=request.form)
+    return render_template("sistema_wr/gerenciar/clientes/cliente_listar.html", clientes=clientes, dados_corretos=request.form)
 
 
 @app.route("/gerenciar/cliente/editar/<int:id>", methods=["GET", "POST"])
@@ -320,7 +320,7 @@ def editar_cliente(id):
             return redirect(url_for("listar_clientes"))
 
     return render_template(
-        "sistema_hash/gerenciar/clientes/cliente_editar.html",
+        "sistema_wr/gerenciar/clientes/cliente_editar.html",
         cliente=cliente,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,

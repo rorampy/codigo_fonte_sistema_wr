@@ -6,7 +6,7 @@
     </button>
     <div class="navbar-brand navbar-brand-autodark">
       <a href="{{ url_for('principal') }}">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" width="110" height="32" alt="Logomarca"
+        <img src="{{ url_for('static', filename='site_wr/img/logo_wr_sem_fundo.png') }}" width="110" height="32" alt="Logomarca"
           class="navbar-brand-image">
       </a>
     </div>
@@ -141,19 +141,23 @@
         </li>
 
         <li class="nav-item dropdown {% if request.endpoint == 'projetos_listar' or
-                  request.endpoint == 'projeto_detalhes' or
-                  request.endpoint == 'projeto_cadastrar' or
-                  request.endpoint == 'projeto_editar' or
-                  request.endpoint == 'atividades_listar' or
-                  request.endpoint == 'atividade_visualizar' or
-                  request.endpoint == 'atividade_cadastrar' or
-                  request.endpoint == 'atividade_editar' or
-                  request.endpoint == 'lancamento_horas_listar' or
-                  request.endpoint == 'lancamento_horas_cadastrar' or
-                  request.endpoint == 'lancamento_horas_editar' or
-                  request.endpoint == 'kanban_visualizar' or
-                  request.endpoint == 'kanban_detalhes_atividade'
-            %} active {% endif %}">
+                request.endpoint == 'projeto_detalhes' or
+                request.endpoint == 'projeto_cadastrar' or
+                request.endpoint == 'projeto_editar' or
+                request.endpoint == 'atividades_listar' or
+                request.endpoint == 'atividade_visualizar' or
+                request.endpoint == 'atividade_cadastrar' or
+                request.endpoint == 'atividade_editar' or
+                request.endpoint == 'lancamento_horas_listar' or
+                request.endpoint == 'lancamento_horas_cadastrar' or
+                request.endpoint == 'lancamento_horas_editar' or
+                request.endpoint == 'kanban_visualizar' or
+                request.endpoint == 'kanban_detalhes_atividade' or
+                request.endpoint == 'solicitacoes_atividade_listar' or
+                request.endpoint == 'solicitacao_atividade_cadastrar' or
+                request.endpoint == 'solicitacoes_atividade_visualizar' or
+                request.endpoint == 'solicitacao_atividade_editar'
+          %} active {% endif %}">
           <a class="nav-link dropdown-toggle" href="#navbar-fluxodev" data-bs-toggle="dropdown"
             data-bs-auto-close="false" role="button" aria-expanded="false">
             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -182,8 +186,13 @@
                 <a class="dropdown-item" href="{{ url_for('kanban_visualizar') }}">
                   Visualizar Kankan
                 </a>
-                <a class="dropdown-item" href="{{ url_for('projetos_listar') }}">
-                  Projetos
+                {% if current_user.role.id == 1 %}
+                  <a class="dropdown-item" href="{{ url_for('projetos_listar') }}">
+                    Projetos
+                  </a>
+                {% endif %}
+                <a class="dropdown-item" href="{{ url_for('solicitacoes_atividade_listar') }}">
+                  Solicitações de Atividades
                 </a>
                 <a class="dropdown-item" href="{{ url_for('atividades_listar') }}">
                   Atividades

@@ -94,7 +94,7 @@ def kanban_visualizar(projeto_id=None):
     tipo_coluna = modo_visualizacao
     
     return render_template(
-        "sistema_hash/gerenciar/projetos/kanban.html",
+        "sistema_wr/gerenciar/projetos/kanban.html",
         projetos=projetos,
         projeto_atual=projeto_atual,
         colunas=colunas,
