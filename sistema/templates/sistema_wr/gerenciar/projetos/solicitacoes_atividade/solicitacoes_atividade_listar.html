@@ -72,6 +72,7 @@
                     <th>Solicitante</th>
                     <th>Status</th>
                     <th>Data Solicitação</th>
+                    <th>Data Limite</th>
                     <th class="w-1">Ações</th>
                   </tr>
                 </thead>
@@ -82,12 +83,12 @@
                       <span class="text-secondary">#{{ solicitacao.id }}</span>
                     </td>
                     <td>
-                      <span class="badge bg-blue-lt">{{ solicitacao.projeto.nome_projeto }}</span>
+                      <span class="badge bg-blue text-white">{{ solicitacao.projeto.nome_projeto }}</span>
                     </td>
                     <td>
                       <div class="d-flex py-1 align-items-center">
                         <div class="flex-fill">
-                          <div class="font-weight-medium">{{ solicitacao.titulo }}</div>
+                          <div class="fw-bold">{{ solicitacao.titulo }}</div>
                           {% if solicitacao.descricao %}
                           <div class="text-secondary">
                             {{ solicitacao.descricao[:50] }}{% if solicitacao.descricao|length > 50 %}...{% endif %}
@@ -99,24 +100,45 @@
                     <td>
                       <div class="d-flex py-1 align-items-center">
                         <div class="flex-fill">
-                          <div class="font-weight-medium">{{ solicitacao.usuario_solicitante.nome }}</div>
+                          <div class="fw-bold">{{ solicitacao.usuario_solicitante.nome }}</div>
                           <div class="text-secondary">{{ solicitacao.usuario_solicitante.role.cargo }}</div>
                         </div>
                       </div>
                     </td>
                     <td>
                       {% if solicitacao.situacao_id == 7 %}
-                        <span class="badge bg-warning-lt">Em Análise</span>
+                        <span class="badge bg-warning text-white">Em Análise</span>
                       {% elif solicitacao.situacao_id == 8 %}
-                        <span class="badge bg-danger-lt">Rejeitada</span>
+                        <span class="badge bg-danger text-white">Rejeitada</span>
                       {% elif solicitacao.situacao_id == 3 %}
-                        <span class="badge bg-success-lt">Aceita</span>
+                        <span class="badge bg-success text-white">Aceita</span>
                       {% else %}
-                        <span class="badge bg-secondary-lt">{{ solicitacao.situacao.nome }}</span>
+                        <span class="badge bg-secondary text-white">{{ solicitacao.situacao.nome }}</span>
                       {% endif %}
                     </td>
                     <td>
                       {{ solicitacao.data_cadastro | formatar_data_hora_para_brl }}
+                    </td>
+                    <!-- Data Limite: data_alteracao + 48 horas -->
+                    <td>
+                      {% set data_limite = solicitacao.data_alteracao | adicionar_horas(48) %}
+                      {% set prazo_vencido = solicitacao.data_alteracao | prazo_vencido %}
+                      
+                      {% if prazo_vencido and solicitacao.situacao_id == 7 %}
+                        <span class="text-danger fw-bold" title="Prazo para resposta vencido!">
+                          {{ data_limite | formatar_data_hora_para_brl }}
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm ms-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M12 9v4" />
+                            <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                            <path d="M12 16h.01" />
+                          </svg>
+                        </span>
+                      {% else %}
+                        <span class="text-secondary">
+                          {{ data_limite | formatar_data_hora_para_brl }}
+                        </span>
+                      {% endif %}
                     </td>
                     <td>
                       <div class="btn-list flex-nowrap">
@@ -133,8 +155,8 @@
                           </svg>
                         </a>
 
-                        <!-- Botão Editar (apenas para o solicitante e apenas rejeitadas) -->
-                        {% if solicitacao.usuario_solicitante_id == current_user.id and solicitacao.situacao_id == 8 %}
+                        <!-- Botão Editar (apenas para o solicitante ou root, e apenas rejeitadas) -->
+                        {% if (solicitacao.usuario_solicitante_id == current_user.id or current_user.role.id == 1) and solicitacao.situacao_id == 8 %}
                         <a href="{{ url_for('atividade_solicitacao_editar', id=solicitacao.id) }}"
                           class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip"
                           data-bs-placement="top" title="Editar Solicitação">
@@ -149,30 +171,48 @@
                         </a>
                         {% endif %}
 
-                        <!-- Botão Excluir (apenas para o solicitante) -->
-                        {% if solicitacao.usuario_solicitante_id == current_user.id and solicitacao.situacao_id in [7, 8] %}
-                        <a href="{{ url_for('atividade_solicitacao_excluir', id=solicitacao.id) }}"
-                          class="btn btn-icon btn-outline-danger" data-bs-toggle="tooltip"
-                          data-bs-placement="top" title="Excluir Solicitação"
-                          onclick="return confirm('Tem certeza que deseja excluir esta solicitação?')">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M4 7l16 0" />
-                            <path d="M10 11l0 6" />
-                            <path d="M14 11l0 6" />
-                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                          </svg>
-                        </a>
+                        <!-- Botão Excluir com validação de permissões -->
+                        {% if solicitacao.situacao_id in [7, 8] %}
+                          {% if solicitacao.usuario_solicitante_id == current_user.id or current_user.role.id == 1 %}
+                            <!-- Usuário pode excluir: Mostrar botão ativo -->
+                            <button type="button" class="btn btn-icon btn-outline-danger" 
+                              data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Solicitação"
+                              onclick="abrirModalExclusao({{ solicitacao.id }}, '{{ solicitacao.titulo }}')">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M4 7l16 0" />
+                                <path d="M10 11l0 6" />
+                                <path d="M14 11l0 6" />
+                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                              </svg>
+                            </button>
+                          {% else %}
+                            <!-- Usuário não pode excluir: Mostrar botão desabilitado -->
+                            <button type="button" class="btn btn-icon btn-outline-secondary disabled" 
+                              data-bs-toggle="tooltip" data-bs-placement="top" title="Você não tem permissão para excluir esta solicitação"
+                              disabled>
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M4 7l16 0" />
+                                <path d="M10 11l0 6" />
+                                <path d="M14 11l0 6" />
+                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                              </svg>
+                            </button>
+                          {% endif %}
                         {% endif %}
                       </div>
                     </td>
                   </tr>
                   {% else %}
                   <tr>
-                    <td colspan="7" class="text-center text-secondary">
+                    <td colspan="8" class="text-center text-secondary">
                       <div class="empty">
                         <div class="empty-img">
                           <img src="{{ url_for('static', filename='tabler/img/undraw_printing_invoices_5r4r.svg') }}"
@@ -288,12 +328,117 @@
   </div>
 </div>
 
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal modal-blur fade" id="modal-excluir" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon text-danger me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 9v4" />
+            <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+            <path d="M12 16h.01" />
+          </svg>
+          Confirmar Exclusão
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger border-0">
+          <div class="d-flex">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" />
+                <path d="M12 9v4" />
+                <path d="M12 17h.01" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="alert-title">Atenção!</h4>
+              <div class="text-secondary">
+                Você tem certeza que deseja excluir esta solicitação?
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <strong>Solicitação:</strong> <span id="titulo-solicitacao"></span>
+        </div>
+        
+        <div class="text-muted">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+            <path d="M12 9h.01" />
+            <path d="M11 12h1v4h1" />
+          </svg>
+          <small>Esta ação não pode ser desfeita. A solicitação será permanentemente removida do sistema.</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M18 6l-12 12" />
+            <path d="M6 6l12 12" />
+          </svg>
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-danger" id="confirmar-exclusao">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M4 7l16 0" />
+            <path d="M10 11l0 6" />
+            <path d="M14 11l0 6" />
+            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+          </svg>
+          Sim, Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-// Inicializar tooltips
+// Variável global para armazenar o ID da solicitação a ser excluída
+let solicitacaoIdParaExcluir = null;
+
+// Função para abrir o modal de exclusão
+function abrirModalExclusao(id, titulo) {
+    solicitacaoIdParaExcluir = id;
+    document.getElementById('titulo-solicitacao').textContent = titulo;
+    
+    const modal = new bootstrap.Modal(document.getElementById('modal-excluir'));
+    modal.show();
+}
+
+// Função para confirmar a exclusão
+function confirmarExclusao() {
+    if (solicitacaoIdParaExcluir) {
+        const urlBase = '{{ url_for("atividade_solicitacao_excluir", id=1) }}';
+        const urlFinal = urlBase.replace('/1', '/' + solicitacaoIdParaExcluir);
+        window.location.href = urlFinal;
+    }
+}
+
+// Inicializar eventos quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Adicionar evento ao botão de confirmação de exclusão
+    document.getElementById('confirmar-exclusao').addEventListener('click', confirmarExclusao);
+    
+    // Limpar variável quando modal for fechado
+    document.getElementById('modal-excluir').addEventListener('hidden.bs.modal', function () {
+        solicitacaoIdParaExcluir = null;
     });
 });
 </script>

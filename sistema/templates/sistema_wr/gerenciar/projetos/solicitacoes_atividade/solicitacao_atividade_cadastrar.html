@@ -20,15 +20,15 @@
     <div class="container-xl">
       {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
-      <form method="POST" enctype="multipart/form-data">
-        <div class="row row-deck row-cards">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Informações da Solicitação</h3>
-              </div>
-              <div class="card-body">
-                
+      <div class="col-12">
+        <form class="card" method="POST" enctype="multipart/form-data">
+          <div class="card-body">
+            
+            <!-- Informações da Solicitação -->
+            <h3 class="text-primary mb-3">Informações da Solicitação</h3>
+            
+            <div class="row">
+              <div class="col-md-12">
                 <!-- Projeto -->
                 <div class="mb-3">
                   <label class="form-label required">Projeto</label>
@@ -54,7 +54,7 @@
                 <div class="mb-3">
                   <label class="form-label required">Título da Solicitação</label>
                   <input type="text" class="form-control {% if 'titulo' in campos_obrigatorios %}is-invalid{% endif %}" 
-                    name="titulo" placeholder="Ex: Implementar sistema de notificações por email" 
+                    name="titulo" placeholder="Ex: Implementar relatório de visualização..." 
                     value="{{ dados_corretos.titulo or '' }}" maxlength="200" required>
                   {% if 'titulo' in campos_obrigatorios %}
                   <div class="invalid-feedback">{{ campos_obrigatorios.get('titulo') }}</div>
@@ -91,13 +91,12 @@
                   <h6>Arquivos selecionados:</h6>
                   <div id="lista-anexos" class="list-group"></div>
                 </div>
-
               </div>
             </div>
 
             <!-- Informações Adicionais -->
-            <div class="card mt-3">
-              <div class="card-body">
+            <div class="row mt-3">
+              <div class="col-md-12">
                 <div class="alert alert-info border-0 shadow-sm">
                   <div class="d-flex">
                     <div>
@@ -150,9 +149,8 @@
               Enviar Solicitação
             </button>
           </div>
-
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
 

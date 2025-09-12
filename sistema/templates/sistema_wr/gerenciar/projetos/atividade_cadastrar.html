@@ -61,21 +61,56 @@
             <!-- Atribuição e Status -->
             <h3 class="text-primary mb-3 mt-4">Atribuição e Status</h3>
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="mb-3">
-                  <label class="form-label">Responsável</label>
-                  <select name="usuarioExecucaoId" class="form-select">
-                    <option value="">Não atribuído</option>
+                  <label class="form-label">Usuário Solicitante</label>
+                  <select name="usuarioSolicitanteId" class="form-select">
+                    <option value="">Não informado</option>
                     {% for usuario in usuarios %}
                     <option value="{{ usuario.id }}" 
-                      {% if dados_corretos.get('usuarioExecucaoId') | string == usuario.id | string %}selected{% endif %}>
+                      {% if dados_corretos.get('usuarioSolicitanteId') | string == usuario.id | string %}selected{% endif %}>
                       {{ usuario.nome }}
                     </option>
                     {% endfor %}
                   </select>
+                  <small class="form-hint">Usuário que solicitou esta atividade</small>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Supervisor</label>
+                  <select name="supervisorId" class="form-select">
+                    <option value="">Não atribuído</option>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" 
+                      {% if dados_corretos.get('supervisorId') | string == usuario.id | string %}selected{% endif %}>
+                      {{ usuario.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <small class="form-hint">Responsável por supervisionar e aprovar a atividade</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Desenvolvedor</label>
+                  <select name="desenvolvedorId" class="form-select">
+                    <option value="">Não atribuído</option>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" 
+                      {% if dados_corretos.get('desenvolvedorId') | string == usuario.id | string %}selected{% endif %}>
+                      {{ usuario.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <small class="form-hint">Responsável por executar e desenvolver a atividade</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Status e Prioridade -->
+            <div class="row">
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label required">Prioridade</label>
                   <select name="prioridadeId" 
@@ -93,7 +128,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label required">Situação</label>
                   <select name="situacaoId" 
@@ -152,7 +187,7 @@
               </div>
             </div>
 
-            <!-- Descricao '-->
+            <!-- Descrição -->
             <div class="row">
               <div class="col-md-12">
                 <div class="mb-3">
@@ -326,6 +361,26 @@ $(document).ready(function() {
     // Se houver projeto na URL, selecionar automaticamente
     {% if projeto_id_url %}
     $('select[name="projetoId"]').val('{{ projeto_id_url }}');
+    {% endif %}
+
+    // Se veio de uma solicitação de atividade, destacar com alerta
+    {% if solicitacao_id %}
+    var alertaSolicitacao = $('<div class="alert alert-success alert-dismissible mb-3">' +
+        '<div class="d-flex">' +
+            '<div>' +
+                '<svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">' +
+                    '<path stroke="none" d="M0 0h24v24H0z" fill="none"/>' +
+                    '<path d="M5 12l5 5l10 -10" />' +
+                '</svg>' +
+            '</div>' +
+            '<div>' +
+                '<h4 class="alert-title">Atividade criada a partir de solicitação</h4>' +
+                '<div class="text-secondary">Esta atividade está sendo criada com base na solicitação #{{ solicitacao_id }}. Alguns campos já foram pré-preenchidos.</div>' +
+            '</div>' +
+            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+        '</div>' +
+    '</div>');
+    $('.container-xl .col-12').prepend(alertaSolicitacao);
     {% endif %}
     
     // Converter vírgula para ponto em campos numéricos

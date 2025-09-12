@@ -12,7 +12,6 @@ class AtividadeModel(BaseModel):
     projeto_id = db.Column(db.Integer, db.ForeignKey('proj_projeto.id'), nullable=False)
     titulo = db.Column(db.String(200), nullable=False)
     descricao = db.Column(db.Text(length=4294967295), nullable=True)
-    usuario_execucao_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
     horas_necessarias = db.Column(db.Float, default=0.0)
     horas_utilizadas = db.Column(db.Float, default=0.0)
     data_prazo_conclusao = db.Column(db.Date, nullable=True)
@@ -20,21 +19,29 @@ class AtividadeModel(BaseModel):
     prioridade_id = db.Column(db.Integer, db.ForeignKey('z_sys_prioridade_atividade.id'), nullable=False)
     situacao_id = db.Column(db.Integer, db.ForeignKey('z_sys_andamento_atividade.id'), nullable=False)
     
-    # Relacionamentos
+    supervisor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
+    desenvolvedor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
+    usuario_solicitante_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
+
+    # Relacionamentos    
+    supervisor = db.relationship('UsuarioModel', foreign_keys=[supervisor_id], backref='atividades_supervisionadas')
+    desenvolvedor = db.relationship('UsuarioModel', foreign_keys=[desenvolvedor_id], backref='atividades_desenvolvimento')
+    usuario_solicitante = db.relationship('UsuarioModel', foreign_keys=[usuario_solicitante_id], backref='atividades_solicitadas')
     projeto = db.relationship('ProjetoModel', backref='proj_atividade')
-    usuario_execucao = db.relationship('UsuarioModel', backref='atividades_execucao')
     prioridade = db.relationship('PrioridadeAtividadeModel', backref='proj_atividade')
     situacao = db.relationship('AndamentoAtividadeModel', backref='proj_atividade')
     anexos = db.relationship('AtividadeAnexoModel', backref='proj_atividade', lazy='dynamic', cascade='all, delete-orphan')
 
 
     def __init__(self, projeto_id, titulo, prioridade_id, situacao_id, descricao=None, 
-                 usuario_execucao_id=None, horas_necessarias=0.0, horas_utilizadas=0.0,
-                 data_prazo_conclusao=None, valor_atividade_100=0):
+                 supervisor_id=None, desenvolvedor_id=None, usuario_solicitante_id=None,
+                 horas_necessarias=0.0, horas_utilizadas=0.0, data_prazo_conclusao=None, valor_atividade_100=0):
         self.projeto_id = projeto_id
         self.titulo = titulo
         self.descricao = descricao
-        self.usuario_execucao_id = usuario_execucao_id
+        self.supervisor_id = supervisor_id
+        self.desenvolvedor_id = desenvolvedor_id
+        self.usuario_solicitante_id = usuario_solicitante_id
         self.horas_necessarias = horas_necessarias
         self.horas_utilizadas = horas_utilizadas
         self.data_prazo_conclusao = data_prazo_conclusao

@@ -52,20 +52,68 @@
             </div>
             <div class="card-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="mb-3">
                     <label class="form-label text-muted">Projeto</label>
                     <div class="fw-bold">{{ atividade.projeto.nome_projeto }}</div>
                   </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
                   <div class="mb-3">
-                    <label class="form-label text-muted">Responsável</label>
+                    <label class="form-label text-muted">Usuário Solicitante</label>
                     <div class="fw-bold">
-                      {% if atividade.usuario_execucao %}
-                        {{ atividade.usuario_execucao.nome }}
+                      {% if atividade.usuario_solicitante %}
+                        <div class="d-flex align-items-center">
+                          <span class="avatar avatar-sm me-2">
+                            {{ atividade.usuario_solicitante.nome[0].upper() }}
+                          </span>
+                          {{ atividade.usuario_solicitante.nome }}
+                        </div>
+                      {% else %}
+                        <span class="text-muted">Não informado</span>
+                      {% endif %}
+                    </div>
+                    <small class="text-muted">Usuário que solicitou a atividade</small>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted">Supervisor</label>
+                    <div class="fw-bold">
+                      {% if atividade.supervisor %}
+                        <div class="d-flex align-items-center">
+                          <span class="avatar avatar-sm me-2">
+                            {{ atividade.supervisor.nome[0].upper() }}
+                          </span>
+                          {{ atividade.supervisor.nome }}
+                        </div>
                       {% else %}
                         <span class="text-muted">Não atribuído</span>
                       {% endif %}
                     </div>
+                    <small class="text-muted">Responsável pela supervisão</small>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted">Desenvolvedor</label>
+                    <div class="fw-bold">
+                      {% if atividade.desenvolvedor %}
+                        <div class="d-flex align-items-center">
+                          <span class="avatar avatar-sm me-2">
+                            {{ atividade.desenvolvedor.nome[0].upper() }}
+                          </span>
+                          {{ atividade.desenvolvedor.nome }}
+                        </div>
+                      {% else %}
+                        <span class="text-muted">Não atribuído</span>
+                      {% endif %}
+                    </div>
+                    <small class="text-muted">Responsável pelo desenvolvimento</small>
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -77,6 +125,10 @@
                       </span>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
                   <div class="mb-3">
                     <label class="form-label text-muted">Situação</label>
                     <div>

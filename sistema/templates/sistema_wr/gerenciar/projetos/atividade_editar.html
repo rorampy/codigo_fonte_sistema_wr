@@ -62,21 +62,56 @@
             <!-- Atribuição e Status -->
             <h3 class="text-primary mb-3 mt-4">Atribuição e Status</h3>
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="mb-3">
-                  <label class="form-label">Responsável</label>
-                  <select name="usuarioExecucaoId" class="form-select">
-                    <option value="">Não atribuído</option>
+                  <label class="form-label">Usuário Solicitante</label>
+                  <select name="usuarioSolicitanteId" class="form-select">
+                    <option value="">Não informado</option>
                     {% for usuario in usuarios %}
                     <option value="{{ usuario.id }}" 
-                      {% if dados_corretos.get('usuarioExecucaoId')|string == usuario.id|string %}selected{% endif %}>
+                      {% if dados_corretos.get('usuarioSolicitanteId')|string == usuario.id|string %}selected{% endif %}>
                       {{ usuario.nome }}
                     </option>
                     {% endfor %}
                   </select>
+                  <small class="form-hint">Usuário que solicitou esta atividade</small>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Supervisor</label>
+                  <select name="supervisorId" class="form-select">
+                    <option value="">Não atribuído</option>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" 
+                      {% if dados_corretos.get('supervisorId')|string == usuario.id|string %}selected{% endif %}>
+                      {{ usuario.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <small class="form-hint">Responsável por supervisionar e aprovar a atividade</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Desenvolvedor</label>
+                  <select name="desenvolvedorId" class="form-select">
+                    <option value="">Não atribuído</option>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" 
+                      {% if dados_corretos.get('desenvolvedorId')|string == usuario.id|string %}selected{% endif %}>
+                      {{ usuario.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <small class="form-hint">Responsável por executar e desenvolver a atividade</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Status e Prioridade -->
+            <div class="row">
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label required">Prioridade</label>
                   <select name="prioridadeId" 
@@ -94,7 +129,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label required">Situação</label>
                   <select name="situacaoId" 

@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user
 from mapeamento_roles import mapeamento_roles
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from config import *
 
@@ -137,7 +137,6 @@ def obter_url_absoluta_de_imagem(nome_imagem):
     image_path = os.path.join(static_folder, 'images', nome_imagem)
     
     return image_path
-
 
 # funções para front
 # Função para formatar valores em Real Brasileiro (BRL)

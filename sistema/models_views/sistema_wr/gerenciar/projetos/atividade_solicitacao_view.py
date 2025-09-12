@@ -8,7 +8,7 @@ from sistema.models_views.sistema_wr.gerenciar.projetos.projeto_model import Pro
 from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_andamento_model import AndamentoAtividadeModel
 from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioModel
 from sistema._utilitarios import *
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from werkzeug.utils import secure_filename
 
@@ -383,24 +383,24 @@ def atividade_solicitacao_editar(id):
                 for arquivo in anexos:
                     if arquivo and arquivo.filename and allowed_file(arquivo.filename):
                         try:
-                            resultado_upload = upload_arquivo(
-                                arquivo, 
-                                'solicitacoes_atividades', 
-                                secure_filename(arquivo.filename)
+                            # Usar a função upload_arquivo existente
+                            arquivo_model = upload_arquivo(
+                                arquivo=arquivo,
+                                pasta_destino='UPLOADED_ANEXOS_SOLICITACOES',
+                                nome_referencia=f"solic_{solicitacao.id}"
                             )
                             
-                            if resultado_upload['sucesso']:
+                            if arquivo_model:
+                                # Criar registro na tabela de anexos da solicitação
                                 anexo = SolicitacaoAtividadeAnexoModel(
                                     solicitacao_id=solicitacao.id,
-                                    nome_arquivo=resultado_upload['nome_arquivo'],
+                                    nome_arquivo=arquivo_model.nome,
                                     nome_original=arquivo.filename,
-                                    caminho_arquivo=resultado_upload['caminho_completo'],
+                                    caminho_arquivo=arquivo_model.caminho,
                                     tipo_arquivo=get_file_type(arquivo.filename),
-                                    tamanho=len(arquivo.read()),
-                                    mime_type=arquivo.mimetype
+                                    tamanho=int(arquivo_model.tamanho),
+                                    mime_type=arquivo.content_type
                                 )
-                                
-                                arquivo.seek(0)  # Reset file pointer
                                 db.session.add(anexo)
                                 anexos_processados += 1
                             else:
@@ -447,7 +447,7 @@ def atividade_solicitacao_editar(id):
 @app.route("/gerenciar/solicitacoes-atividades/excluir/<int:id>", methods=["GET", "POST"])
 @login_required
 def atividade_solicitacao_excluir(id):
-    """Exclui uma solicitação de atividade (apenas pelo solicitante e em situações específicas)"""
+    """Exclui uma solicitação de atividade (apenas pelo solicitante ou root, e em situações específicas)"""
     
     solicitacao = SolicitacaoAtividadeModel.obter_solicitacao_por_id(id)
     
@@ -455,8 +455,7 @@ def atividade_solicitacao_excluir(id):
         flash(("Solicitação não encontrada!", "warning"))
         return redirect(url_for("solicitacoes_atividade_listar"))
     
-    # Verificar permissões: apenas o solicitante pode excluir
-    if solicitacao.usuario_solicitante_id != current_user.id:
+    if solicitacao.usuario_solicitante_id != current_user.id and current_user.role.id != 1:
         flash(("Você não tem permissão para excluir esta solicitação!", "warning"))
         return redirect(url_for("solicitacoes_atividade_listar"))
     
@@ -513,14 +512,16 @@ def atividade_solicitacao_aceitar(id):
         nova_atividade = AtividadeModel(
             projeto_id=solicitacao.projeto_id,
             titulo=solicitacao.titulo,
+            prioridade_id=2,  # Prioridade média como padrão
+            situacao_id=1,    # Não iniciada
             descricao=solicitacao.descricao,
-            usuario_execucao_id=None,  # Será definido posteriormente
+            supervisor_id=None,  # Será definido posteriormente
+            desenvolvedor_id=None,  # Será definido posteriormente  
+            usuario_solicitante_id=solicitacao.usuario_solicitante_id,  # Definir o solicitante
             horas_necessarias=0.0,
             horas_utilizadas=0.0,
             data_prazo_conclusao=None,
-            valor_atividade_100=0,
-            prioridade_id=2,  # Prioridade média como padrão
-            situacao_id=1     # Não iniciada
+            valor_atividade_100=0
         )
         
         db.session.add(nova_atividade)
@@ -814,3 +815,19 @@ def atividade_solicitacao_buscar_por_motivo():
             'success': False,
             'message': f'Erro ao buscar: {str(e)}'
         }), 500
+
+
+@app.template_filter('adicionar_horas')
+def adicionar_horas_filter(data, horas):
+    """Filtro para adicionar horas a uma data"""
+    if data:
+        return data + timedelta(hours=horas)
+    return None
+
+@app.template_filter('prazo_vencido')
+def prazo_vencido_filter(data_alteracao, horas=48):
+    """Verifica se o prazo foi vencido (data_alteracao + horas < agora)"""
+    if data_alteracao:
+        data_limite = data_alteracao + timedelta(hours=horas)
+        return datetime.now() > data_limite
+    return False

@@ -220,7 +220,7 @@ def atividades_listar(projeto_id=None):
         atividades = atividades.filter(AtividadeModel.titulo.ilike(f"%{filtro_titulo}%"))
     
     atividades = atividades.order_by(
-        AtividadeModel.prioridade_id.desc(),
+        AtividadeModel.id.desc(),
         AtividadeModel.data_cadastro.desc()
     ).all()
     
@@ -277,7 +277,8 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
                 "titulo": solicitacao.titulo,
                 "descricao": solicitacao.descricao or "",
                 "prioridadeId": "2",  # Prioridade média como padrão
-                "situacaoId": "1"     # Não iniciada como padrão
+                "situacaoId": "1",    # Não iniciada como padrão
+                "usuarioSolicitanteId": str(solicitacao.usuario_solicitante_id)  # Pré-preencher solicitante
             }
             projeto_id = solicitacao.projeto_id
         else:
@@ -288,12 +289,14 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
         projeto_id = request.form["projetoId"]
         titulo = request.form["titulo"]
         descricao = request.form["descricao"]
-        usuario_execucao_id = request.form.get("usuarioExecucaoId")
         horas_necessarias = request.form.get("horasNecessarias")
         data_prazo_conclusao = request.form.get("dataPrazoConclusao")
         valor_atividade = request.form.get("valorAtividade")
         prioridade_id = request.form["prioridadeId"]
         situacao_id = request.form["situacaoId"]
+        supervisor_id = request.form.get("supervisorId")
+        desenvolvedor_id = request.form.get("desenvolvedorId")
+        usuario_solicitante_id = request.form.get("usuarioSolicitanteId")
 
         campos = {
             "projetoId": ["Projeto", projeto_id],
@@ -373,8 +376,10 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
                 atividade = AtividadeModel(
                     projeto_id=projeto_id,
                     titulo=titulo,
-                    descricao=descricao,  # imagens vai ser guardadas em base64, mudar no futuro
-                    usuario_execucao_id=usuario_execucao_id if usuario_execucao_id else None,
+                    descricao=descricao,
+                    supervisor_id=supervisor_id if supervisor_id else None,
+                    desenvolvedor_id=desenvolvedor_id if desenvolvedor_id else None,
+                    usuario_solicitante_id=usuario_solicitante_id if usuario_solicitante_id else None,
                     horas_necessarias=horas_processadas,
                     horas_utilizadas=0,
                     data_prazo_conclusao=data_prazo,
@@ -493,6 +498,9 @@ def atividade_editar(atividade_id):
         valor_atividade = request.form.get("valorAtividade")
         prioridade_id = request.form.get("prioridadeId")
         situacao_id = request.form.get("situacaoId")
+        supervisor_id = request.form.get("supervisorId")
+        desenvolvedor_id = request.form.get("desenvolvedorId")
+        usuario_solicitante_id = request.form.get("usuarioSolicitanteId")
 
         campos = {
             "projetoId": ["Projeto", projeto_id],
@@ -588,7 +596,10 @@ def atividade_editar(atividade_id):
                 atividade.valor_atividade_100 = valor_atividade_100
                 atividade.prioridade_id = prioridade_id
                 atividade.situacao_id = situacao_id
-                
+                atividade.supervisor_id = supervisor_id if supervisor_id else None
+                atividade.desenvolvedor_id = desenvolvedor_id if desenvolvedor_id else None
+                atividade.usuario_solicitante_id = usuario_solicitante_id if usuario_solicitante_id else None
+
                 # Processa novos anexos (se houver)
                 anexos_adicionados = 0
                 for arquivo in anexos_validos:
@@ -641,12 +652,14 @@ def atividade_editar(atividade_id):
             'projetoId': str(atividade.projeto_id),
             'titulo': atividade.titulo,
             'descricao': atividade.descricao or '',
-            'usuarioExecucaoId': str(atividade.usuario_execucao_id) if atividade.usuario_execucao_id else '',
             'horasNecessarias': str(atividade.horas_necessarias).replace('.', ','),
             'dataPrazoConclusao': atividade.data_prazo_conclusao.strftime('%Y-%m-%d') if atividade.data_prazo_conclusao else '',
             'valorAtividade': f"R$ {atividade.valor_atividade_100 / 100:.2f}".replace('.', ',') if atividade.valor_atividade_100 else 0,
             'prioridadeId': str(atividade.prioridade_id),
-            'situacaoId': str(atividade.situacao_id)
+            'situacaoId': str(atividade.situacao_id),
+            'supervisorId': str(atividade.supervisor_id) if atividade.supervisor_id else '',
+            'desenvolvedorId': str(atividade.desenvolvedor_id) if atividade.desenvolvedor_id else '',
+            'usuarioSolicitanteId': str(atividade.usuario_solicitante_id) if atividade.usuario_solicitante_id else ''
         }
 
     return render_template(
@@ -740,7 +753,8 @@ def atividade_duplicar(id):
             data_prazo_conclusao=atividade_original.data_prazo_conclusao,
             valor_atividade_100=atividade_original.valor_atividade_100,
             prioridade_id=atividade_original.prioridade_id,
-            situacao_id=atividade_original.situacao_id
+            situacao_id=atividade_original.situacao_id,
+            usuario_solicitante_id=atividade_original.usuario_solicitante_id
         )
         
         db.session.add(nova_atividade)

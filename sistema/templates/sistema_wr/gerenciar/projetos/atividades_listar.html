@@ -117,28 +117,22 @@
             <table class="table table-vcenter card-table" style="margin-bottom: 0 !important;">
               <thead>
                 <tr>
-                  <th>PROJETO</th>
-                  <th>TÍTULO</th>
-                  <th style="text-align: center;">PRIORIDADE</th>
-                  <th style="text-align: center;">SITUAÇÃO</th>
-                  <th>RESPONSÁVEL</th>
-                  <th style="text-align: center;">PRAZO</th>
-                  <th style="text-align: center;">PROGRESSO</th>
-                  <th style="text-align: right;">VALOR</th>
-                  <th style="text-align: center;">AÇÕES</th>
+                  <th style="width: 35%;">TÍTULO</th>
+                  <th style="text-align: center; width: 10%;">PRIORIDADE</th>
+                  <th style="text-align: center; width: 10%;">SITUAÇÃO</th>
+                  <th style="text-align: center; width: 10%;">PRAZO</th>
+                  <th style="text-align: center; width: 10%;">SOLICITANTE</th>
+                  <th style="text-align: center; width: 10%;">SUPERVISOR</th>
+                  <th style="text-align: center; width: 10%;">DEV</th>
+                  <th style="text-align: center; width: 15%;">AÇÕES</th>
                 </tr>
               </thead>
               <tbody>
                 {% for atividade in atividades %}
                 <tr>
                   <td>
-                    <div class="text-secondary">
-                      {{ atividade.projeto.nome_projeto[:35] }}{% if atividade.projeto.nome_projeto | length > 35 %}...{% endif %}
-                    </div>
-                  </td>
-                  <td>
                     <div>
-                      <strong>{{ atividade.titulo[:64] }}{% if atividade.titulo | length > 64 %}...{% endif %}</strong>
+                      <strong>{{ atividade.titulo[:50] }}{% if atividade.titulo | length > 50 %}...{% endif %}</strong>
                     </div>
                     {% set total_anexos = atividade.anexos.filter_by(deletado=False).count() %}
                     {% if total_anexos > 0 %}
@@ -168,20 +162,6 @@
                   <td style="text-align: center;">
                     <span class="badge badge-outline">{{ atividade.situacao.nome }}</span>
                   </td>
-                  <td>
-                    {% if atividade.usuario_execucao %}
-                      <div class="d-flex align-items-center">
-                        <span class="avatar avatar-xs me-2">
-                          {{ atividade.usuario_execucao.nome[0].upper() }}
-                        </span>
-                        <div>
-                          <div>{{ atividade.usuario_execucao.nome }}</div>
-                        </div>
-                      </div>
-                    {% else %}
-                      <span class="text-muted">Não atribuído</span>
-                    {% endif %}
-                  </td>
                   <td style="text-align: center;">
                     {% if atividade.situacao.id in [4, 5] %}
                       ---
@@ -194,34 +174,50 @@
                     {% endif %}
                   </td>
                   <td style="text-align: center;">
-                    {% if atividade.horas_necessarias > 0 %}
+                    {% if atividade.usuario_solicitante %}
                       <div class="d-flex align-items-center justify-content-center">
-                        <div style="width: 100px;">
-                          <div class="progress progress-sm">
-                            <div class="progress-bar" style="width: {{ atividade.percentual_horas }}%" 
-                              role="progressbar" aria-valuenow="{{ atividade.percentual_horas }}" 
-                              aria-valuemin="0" aria-valuemax="100">
-                            </div>
-                          </div>
-                          <small class="text-muted">
-                            {{ atividade.horas_utilizadas }}h / {{ atividade.horas_necessarias }}h
-                          </small>
+                        <span class="avatar avatar-sm me-2">
+                          {{ atividade.usuario_solicitante.nome[0].upper() }}
+                        </span>
+                        <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.usuario_solicitante.nome }}">
+                          {{ atividade.usuario_solicitante.nome[:15] }}{% if atividade.usuario_solicitante.nome | length > 15 %}...{% endif %}
                         </div>
                       </div>
                     {% else %}
                       <span class="text-muted">-</span>
                     {% endif %}
                   </td>
-                  <td style="text-align: right;">
-                    {% if atividade.valor_atividade_100 > 0 %}
-                      <strong>{{ atividade.valor_formatado }}</strong>
+                  <td style="text-align: center;">
+                    {% if atividade.supervisor %}
+                      <div class="d-flex align-items-center justify-content-center">
+                        <span class="avatar avatar-sm me-2">
+                          {{ atividade.supervisor.nome[0].upper() }}
+                        </span>
+                        <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.supervisor.nome }}">
+                          {{ atividade.supervisor.nome[:15] }}{% if atividade.supervisor.nome | length > 15 %}...{% endif %}
+                        </div>
+                      </div>
+                    {% else %}
+                      <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                  <td style="text-align: center;">
+                    {% if atividade.desenvolvedor %}
+                      <div class="d-flex align-items-center justify-content-center">
+                        <span class="avatar avatar-sm me-2">
+                          {{ atividade.desenvolvedor.nome[0].upper() }}
+                        </span>
+                        <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.desenvolvedor.nome }}">
+                          {{ atividade.desenvolvedor.nome[:15] }}{% if atividade.desenvolvedor.nome | length > 15 %}...{% endif %}
+                        </div>
+                      </div>
                     {% else %}
                       <span class="text-muted">-</span>
                     {% endif %}
                   </td>
                   <td>
                     <div class="btn-list flex-nowrap" style="justify-content: center; gap: 8px;">
-                      <!-- Botão Lançar Horas -->
+                      <!-- Botão Lançar Horas: Habilitado apenas para supervisor ou desenvolvedor -->
                       {% if atividade.situacao_id in [4, 5] %}
                       <span class="btn btn-icon btn-outline-secondary disabled" title="Atividade concluída - não é possível lançar horas">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -231,7 +227,7 @@
                           <path d="M12 7v5l3 3" />
                         </svg>
                       </span>
-                      {% else %}
+                      {% elif current_user.id == atividade.supervisor_id or current_user.id == atividade.desenvolvedor_id %}
                       <a href="{{ url_for('lancamento_horas_cadastrar', atividade_id=atividade.id) }}" class="btn btn-icon btn-outline-success" title="Lançar Horas">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                           viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
@@ -240,9 +236,18 @@
                           <path d="M12 7v5l3 3" />
                         </svg>
                       </a>
+                      {% else %}
+                      <span class="btn btn-icon btn-outline-secondary disabled" title="Apenas supervisor ou desenvolvedor podem lançar horas">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                          <path d="M12 7v5l3 3" />
+                        </svg>
+                      </span>
                       {% endif %}
                       
-                      <!-- Botão Visualizar (sempre ativo) -->
+                      <!-- Botão Visualizar: Sempre ativo para todos -->
                       <a href="{{ url_for('atividade_visualizar', atividade_id=atividade.id) }}" class="btn btn-icon btn-outline-info" title="Visualizar Detalhes">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                           viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
@@ -252,7 +257,7 @@
                         </svg>
                       </a>
 
-                      <!-- Botão Editar -->
+                      <!-- Botão Editar: Habilitado apenas para supervisor -->
                       {% if atividade.situacao_id in [4, 5] %}
                       <span class="btn btn-icon btn-outline-secondary disabled" title="Atividade concluída - não é possível editar">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -263,7 +268,7 @@
                           <path d="M16 5l3 3"></path>
                         </svg>
                       </span>
-                      {% else %}
+                      {% elif current_user.id == atividade.supervisor_id %}
                       <a href="{{ url_for('atividade_editar', atividade_id=atividade.id) }}"
                         class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Editar Atividade">
@@ -275,9 +280,20 @@
                           <path d="M16 5l3 3"></path>
                         </svg>
                       </a>
+                      {% else %}
+                      <span class="btn btn-icon btn-outline-secondary disabled" title="Apenas supervisor pode editar a atividade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                          <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                          <path d="M16 5l3 3"></path>
+                        </svg>
+                      </span>
                       {% endif %}
 
-                      <!-- Botão Duplicar (sempre ativo) -->
+                      <!-- Botão Duplicar: Habilitado apenas para supervisor -->
+                      {% if current_user.id == atividade.supervisor_id %}
                       <a href="#" onclick="duplicarAtividade({{ atividade.id }})"
                         class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Duplicar Atividade">
@@ -288,8 +304,18 @@
                           <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path>
                         </svg>
                       </a>
+                      {% else %}
+                      <span class="btn btn-icon btn-outline-secondary disabled" title="Apenas supervisor pode duplicar a atividade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path>
+                          <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path>
+                        </svg>
+                      </span>
+                      {% endif %}
 
-                      <!-- Botão Excluir -->
+                      <!-- Botão Excluir: Habilitado apenas para supervisor -->
                       {% if atividade.situacao_id in [4, 5] %}
                       <span class="btn btn-icon btn-outline-secondary disabled" title="Atividade concluída - não é possível excluir">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -302,7 +328,7 @@
                           <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
                         </svg>
                       </span>
-                      {% else %}
+                      {% elif current_user.id == atividade.supervisor_id %}
                       <a href="{{ url_for('atividade_excluir', id=atividade.id) }}" class="btn btn-icon btn-outline-red" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Excluir Atividade">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -315,6 +341,18 @@
                           <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
                         </svg>
                       </a>
+                      {% else %}
+                      <span class="btn btn-icon btn-outline-secondary disabled" title="Apenas supervisor pode excluir a atividade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M4 7l16 0"></path>
+                          <path d="M10 11l0 6"></path>
+                          <path d="M14 11l0 6"></path>
+                          <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                          <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                        </svg>
+                      </span>
                       {% endif %}
                     </div>
                   </td>

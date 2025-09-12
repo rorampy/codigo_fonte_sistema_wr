@@ -1,5 +1,5 @@
 from sistema.models_views.base_model import BaseModel, db
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class SolicitacaoAtividadeModel(BaseModel):
