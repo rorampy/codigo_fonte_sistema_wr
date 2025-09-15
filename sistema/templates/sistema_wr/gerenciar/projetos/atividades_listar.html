@@ -227,7 +227,7 @@
                           <path d="M12 7v5l3 3" />
                         </svg>
                       </span>
-                      {% elif current_user.id == atividade.supervisor_id or current_user.id == atividade.desenvolvedor_id %}
+                      {% elif current_user.id == atividade.supervisor_id or current_user.id == atividade.desenvolvedor_id or current_user.role.id == 1 %}
                       <a href="{{ url_for('lancamento_horas_cadastrar', atividade_id=atividade.id) }}" class="btn btn-icon btn-outline-success" title="Lançar Horas">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                           viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
@@ -268,7 +268,7 @@
                           <path d="M16 5l3 3"></path>
                         </svg>
                       </span>
-                      {% elif current_user.id == atividade.supervisor_id %}
+                      {% elif current_user.id == atividade.supervisor_id or current_user.role.id == 1 %}
                       <a href="{{ url_for('atividade_editar', atividade_id=atividade.id) }}"
                         class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Editar Atividade">
