@@ -747,14 +747,15 @@ def atividade_duplicar(id):
             projeto_id=atividade_original.projeto_id,
             titulo=f"{atividade_original.titulo} (Cópia)",
             descricao=atividade_original.descricao,
-            usuario_execucao_id=atividade_original.usuario_execucao_id,
+            supervisor_id=atividade_original.supervisor_id,  # Corrigido
+            desenvolvedor_id=atividade_original.desenvolvedor_id,  # Corrigido
+            usuario_solicitante_id=atividade_original.usuario_solicitante_id,  # Corrigido
             horas_necessarias=atividade_original.horas_necessarias,
             horas_utilizadas=0,  # Zerar horas utilizadas
             data_prazo_conclusao=atividade_original.data_prazo_conclusao,
             valor_atividade_100=atividade_original.valor_atividade_100,
             prioridade_id=atividade_original.prioridade_id,
-            situacao_id=atividade_original.situacao_id,
-            usuario_solicitante_id=atividade_original.usuario_solicitante_id
+            situacao_id=atividade_original.situacao_id
         )
         
         db.session.add(nova_atividade)
