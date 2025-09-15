@@ -125,7 +125,7 @@
                     <option value="">Selecione um cargo</option>
                     
                     {% for role in roles %}
-                      {% if role.id != 1 and role.id != 7 %}
+                      {% if role.id != 1 %}
                         {% if 'cargoUsuario' in dados_corretos and role.id == dados_corretos['cargoUsuario']|int %}
                           <option value="{{ role.id }}" selected>{{ role.cargo }}</option>
                         {% else %}

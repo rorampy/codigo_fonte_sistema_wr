@@ -293,7 +293,7 @@
                       {% endif %}
 
                       <!-- Botão Duplicar: Habilitado apenas para supervisor -->
-                      {% if current_user.id == atividade.supervisor_id %}
+                      {% if current_user.id == atividade.supervisor_id or current_user.role.id == 1 %}
                       <a href="#" onclick="duplicarAtividade({{ atividade.id }})"
                         class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Duplicar Atividade">
@@ -328,7 +328,7 @@
                           <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
                         </svg>
                       </span>
-                      {% elif current_user.id == atividade.supervisor_id %}
+                      {% elif current_user.id == atividade.supervisor_id or current_user.role.id == 1 %}
                       <a href="{{ url_for('atividade_excluir', id=atividade.id) }}" class="btn btn-icon btn-outline-red" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Excluir Atividade">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
