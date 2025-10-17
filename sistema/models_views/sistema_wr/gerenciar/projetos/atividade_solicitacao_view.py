@@ -137,6 +137,11 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
         projeto_id = request.form["projetoId"]
         titulo = request.form["titulo"]
         descricao = request.form.get("descricao", "")
+
+        if len(titulo) > 100:
+            validacao_campos_erros["titulo"] = "Título deve ter no máximo 100 caracteres"
+            gravar_banco = False
+            flash(("Verifique os campos destacados em vermelho!", "warning"))
         
         # Campos obrigatórios
         campos = {

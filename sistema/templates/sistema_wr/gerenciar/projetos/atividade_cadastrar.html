@@ -50,9 +50,9 @@
                   <input type="text" name="titulo"
                     value="{{ dados_corretos.get('titulo', '') }}"
                     class="form-control {% if 'titulo' in campos_obrigatorios %}is-invalid{% endif %}"
-                    placeholder="Título da atividade">
-                  <div class="invalid-feedback">
-                    {{ campos_obrigatorios.get('titulo') }}
+                    placeholder="Título da atividade"
+                    maxlength="100"
+                    id="titulo">              
                   </div>
                 </div>
               </div>

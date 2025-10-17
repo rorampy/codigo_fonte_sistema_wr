@@ -51,16 +51,25 @@
                 </div>
 
                 <!-- Título -->
-                <div class="mb-3">
-                  <label class="form-label required">Título da Solicitação</label>
-                  <input type="text" class="form-control {% if 'titulo' in campos_obrigatorios %}is-invalid{% endif %}" 
-                    name="titulo" placeholder="Ex: Implementar relatório de visualização..." 
-                    value="{{ dados_corretos.titulo or '' }}" maxlength="200" required>
+              <div class="mb-3">
+                <label class="form-label required">Título da Solicitação</label>
+                <input type="text" 
+                  class="form-control {% if 'titulo' in campos_obrigatorios or 'titulo' in campos_erros %}is-invalid{% endif %}" 
+                  name="titulo" 
+                  placeholder="Ex: Implementar relatório de visualização..." 
+                  value="{{ dados_corretos.get('titulo', '') }}"
+                  maxlength="100">
+                
+                <div class="invalid-feedback">
                   {% if 'titulo' in campos_obrigatorios %}
-                  <div class="invalid-feedback">{{ campos_obrigatorios.get('titulo') }}</div>
+                    {{ campos_obrigatorios['titulo'] }}
+                  {% elif 'titulo' in campos_erros %}
+                    {{ campos_erros['titulo'] }}
                   {% endif %}
-                  <small class="form-hint">Seja claro e específico sobre o que precisa ser desenvolvido.</small>
                 </div>
+                
+                <small class="form-hint">Seja claro e específico sobre o que precisa ser desenvolvido.</small>
+              </div>
 
                 <!-- Descrição -->
                 <div class="mb-3">

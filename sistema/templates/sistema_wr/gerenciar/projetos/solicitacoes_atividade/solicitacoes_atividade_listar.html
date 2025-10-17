@@ -88,7 +88,11 @@
                     <td>
                       <div class="d-flex py-1 align-items-center">
                         <div class="flex-fill">
-                          <div class="fw-bold">{{ solicitacao.titulo }}</div>
+                          {% if solicitacao.titulo %}
+                          <div class="fw-bold">
+                          {{ solicitacao.titulo[:50] }}{% if solicitacao.titulo|length > 50 %}...{% endif %}
+                          </div>
+                          {% endif %}
                           {% if solicitacao.descricao %}
                           <div class="text-secondary">
                             {{ solicitacao.descricao[:50] }}{% if solicitacao.descricao|length > 50 %}...{% endif %}
@@ -177,7 +181,7 @@
                             <!-- Usuário pode excluir: Mostrar botão ativo -->
                             <button type="button" class="btn btn-icon btn-outline-danger" 
                               data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Solicitação"
-                              onclick="abrirModalExclusao({{ solicitacao.id }}, '{{ solicitacao.titulo }}')">
+                              onclick="abrirModalExclusao('{{ solicitacao.id }}', '{{ solicitacao.titulo }}')">
                               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">
