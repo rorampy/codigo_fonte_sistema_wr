@@ -10,7 +10,7 @@ class SolicitacaoAtividadeModel(BaseModel):
     
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     projeto_id = db.Column(db.Integer, db.ForeignKey('proj_projeto.id'), nullable=False)
-    titulo = db.Column(db.String(200), nullable=False)
+    titulo = db.Column(db.String(200), nullable=False) 
     descricao = db.Column(db.Text(length=4294967295), nullable=True)
     situacao_id = db.Column(db.Integer, db.ForeignKey('z_sys_andamento_atividade.id'), nullable=False, default=7)  # 7 = Em Análise
     usuario_solicitante_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
