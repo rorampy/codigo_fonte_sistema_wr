@@ -53,19 +53,25 @@
                 <!-- Título -->
               <div class="mb-3">
                 <label class="form-label required">Título da Solicitação</label>
-                <input type="text" 
+                <input type="text"
+                  id="inputTitulo" 
                   class="form-control {% if 'titulo' in campos_obrigatorios or 'titulo' in campos_erros %}is-invalid{% endif %}" 
                   name="titulo" 
                   placeholder="Ex: Implementar relatório de visualização..." 
                   value="{{ dados_corretos.get('titulo', '') }}"
-                  maxlength="100">
+                  maxlength="100"
+                  >
                 
-                <div class="invalid-feedback">
+                <div class="invalid-feedback"> 
                   {% if 'titulo' in campos_obrigatorios %}
                     {{ campos_obrigatorios['titulo'] }}
                   {% elif 'titulo' in campos_erros %}
                     {{ campos_erros['titulo'] }}
                   {% endif %}
+                </div>
+
+                <div class="char-counter">
+                  <span id="charCountTitulo">0</span> / 100
                 </div>
                 
                 <small class="form-hint">Seja claro e específico sobre o que precisa ser desenvolvido.</small>
@@ -168,6 +174,73 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Efeito shake e contador de caracteres para o Titulo
+    const inputTitulo = document.getElementById('inputTitulo');
+    const charCountTitulo = document.getElementById('charCountTitulo');
+    const counterTitulo = inputTitulo?.closest('.mb-3')?.querySelector('.char-counter');
+    const maxLength = 100;
+
+    // Valida se existe os elementos antes de adicionar o evento
+    if(inputTitulo && charCountTitulo && counterTitulo){
+      // Função que verifica e atualiza o contador de caracteres de forma dinamica
+      function updateCounter() {
+        const length = inputTitulo.value.length;
+        charCountTitulo.textContent = length;
+
+        counterTitulo.classList.remove('warning', 'limit');
+
+        // Muda a cor direto no estilo
+        if (length >= maxLength){
+          counterTitulo.style.color = '#d63939';
+          counterTitulo.style.fontWeight = '600';
+        } else if (length >= maxLength * 0.9){
+          counterTitulo.style.color = '#f76707';
+          counterTitulo.style.fontWeight = '600'; 
+        } else {
+          counterTitulo.style.color = 'black';
+          counterTitulo.style.fontWeight = 'normal';
+        }
+      }
+
+    // Função que realiza o feedback visual de shake no input 
+
+    function shakeInput() {
+    inputTitulo.style.transition = 'transform 0.1s ease-in-out, border-color 0.3s';
+    inputTitulo.style.borderColor = '#d63939';
+    
+    const positions = [-8, 8, -6, 6, -4, 4, -2, 2, 0];
+    let index = 0;
+    
+    const interval = setInterval(() => {
+        if (index < positions.length) {
+            inputTitulo.style.transform = `translateX(${positions[index]}px)`;
+            index++;
+        } else {
+            clearInterval(interval);
+            inputTitulo.style.transform = 'translateX(0)';
+            inputTitulo.style.borderColor = '';
+            inputTitulo.style.transition = '';
+        }
+    }, 70);
+}
+
+      inputTitulo.addEventListener('input', updateCounter);
+
+      inputTitulo.addEventListener('keydown',(e) => {
+        const length = inputTitulo.value.length;
+        if (length >= maxLength) {
+          const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'CapsLock']
+          if (!allowedKeys.includes(e.key) && !e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            shakeInput();
+          }
+        }
+      });
+    }
+  
+
+
     // Preview de anexos
     const inputAnexos = document.querySelector('input[name="anexos[]"]');
     const previewAnexos = document.getElementById('preview-anexos');
@@ -220,5 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return icons[ext] || '📎';
     }
 });
+
+
 </script>
 {% endblock conteudo %}
