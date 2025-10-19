@@ -214,7 +214,7 @@ def atividades_listar(projeto_id=None):
         atividades = atividades.filter(AtividadeModel.situacao_id == filtro_situacao)
     
     if filtro_responsavel:
-        atividades = atividades.filter(AtividadeModel.usuario_execucao_id == filtro_responsavel)
+        atividades = atividades.filter(AtividadeModel.desenvolvedor_id == filtro_responsavel)
     
     if filtro_titulo:
         atividades = atividades.filter(AtividadeModel.titulo.ilike(f"%{filtro_titulo}%"))

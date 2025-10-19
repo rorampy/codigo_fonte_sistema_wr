@@ -71,7 +71,8 @@
                 </div>
 
                 <div class="char-counter">
-                  <span id="charCountTitulo">0</span> / 100
+                  <span id="charCountTitulo" style="margin-left:.8rem;">0</span> 
+                  <span>/ 100</span>
                 </div>
                 
                 <small class="form-hint">Seja claro e específico sobre o que precisa ser desenvolvido.</small>
@@ -230,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
       inputTitulo.addEventListener('keydown',(e) => {
         const length = inputTitulo.value.length;
         if (length >= maxLength) {
-          const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'CapsLock']
+          const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'CapsLock', 'F5', 'Home', 'End'];
           if (!allowedKeys.includes(e.key) && !e.ctrlKey && !e.metaKey) {
             e.preventDefault();
             shakeInput();
