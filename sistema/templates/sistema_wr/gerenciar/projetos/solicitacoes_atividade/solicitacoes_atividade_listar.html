@@ -262,9 +262,33 @@
         <h5 class="modal-title">Filtrar Solicitações</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+
       <form method="GET" action="{{ url_for('solicitacoes_atividade_listar') }}">
         <div class="modal-body">
           <div class="row">
+            <!-- Data Inicio-->
+             <div class="col-md-6 mb-3">
+              <div class="mb-3">
+                <label class="form-label">Data de Conclusão (Início)</label>
+                <input type="date" class="form-control" name="data_conclusao_inicio" 
+                value="{{request.args.get('data_conclusao_inicio', '')}}">
+                </select>
+              </div>
+            </div>
+            <!--Data de Conclusão (Fim)-->
+
+            <!-- Data Inicio-->
+             <div class="col-md-6 mb-3">
+              <div class="mb-3">
+                <label class="form-label">Data de Conclusão (Fim)</label>
+                <input type="date" class="form-control" name="data_limite_fim" 
+                value="{{request.args.get('data_limite_fim', '')}}">
+                </select>
+              </div>
+            </div>
+            <!--Data de Conclusão (Fim)-->
+
+            <!--Código Original-->
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">Projeto</label>
