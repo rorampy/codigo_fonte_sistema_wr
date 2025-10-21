@@ -415,7 +415,9 @@
                 <input type="date" name="data_conclusao_fim" class="form-control" 
                       value="{{ filtros.data_conclusao_fim or '' }}">
               </div>
-              <div class="col-md-6 mb-3">
+
+              <!-- Projetos com 4 colunas-->
+              <div class="col-md-4 mb-3">
                 <label class="form-label">Projeto</label>
                 <select name="projeto_id" class="form-select">
                   <option value="">Todos os projetos</option>
@@ -426,7 +428,9 @@
                   {% endfor %}
                 </select>
               </div>
-              <div class="col-md-6 mb-3">
+
+            <!-- Prioridade com 4 colunas-->
+              <div class="col-md-4 mb-3">
                 <label class="form-label">Prioridade</label>
                 <select name="prioridade_id" class="form-select">
                   <option value="">Todas as prioridades</option>
@@ -437,7 +441,8 @@
                   {% endfor %}
                 </select>
               </div>
-              <div class="col-md-6 mb-3">
+              <!-- Situação com 4 colunas-->
+              <div class="col-md-4 mb-3">
                 <label class="form-label">Situação</label>
                 <select name="situacao_id" class="form-select">
                   <option value="">Todas as situações</option>
@@ -448,10 +453,44 @@
                   {% endfor %}
                 </select>
               </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Responsável</label>
+              <!--FIM de situação-->
+
+              <!-- Solicitante com 4 colunas-->
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Solicitante</label>
+                <select name="solicitante_id" class="form-select">
+                  <option value="">Todos os solicitantes</option>
+                  {% for usuario in usuarios %}
+                  <option value="{{ usuario.id }}" {% if filtros.solicitante_id|string == usuario.id|string %}selected{% endif %}>
+                    {{ usuario.nome }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+
+              <!--FIM de Solicitante-->
+              <!--Inicio Supervisor-->
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Supervisor</label>
+                <select name="supervisor_id" class="form-select">
+                  <option value="">Todos os supervisores</option>
+                  {% for usuario in usuarios %}
+                  <option value="{{ usuario.id }}" 
+                  {% if filtros.supervisor_id|string == usuario.id|string %}selected{% endif %}>
+                    {{ usuario.nome }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!--Fim-->
+
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Dev</label>
                 <select name="responsavel_id" class="form-select">
-                  <option value="">Todos os responsáveis</option>
+                  <option value="">Todos os devs</option>
                   {% for usuario in usuarios %}
                   <option value="{{ usuario.id }}" {% if filtros.responsavel_id|string == usuario.id|string %}selected{% endif %}>
                     {{ usuario.nome }}

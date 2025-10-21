@@ -185,6 +185,11 @@ def atividades_listar(projeto_id=None):
     filtro_situacao = request.args.get('situacao_id')
     filtro_responsavel = request.args.get('responsavel_id')
     filtro_titulo = request.args.get('titulo')
+
+    #Alterações João
+    filtro_solicitante = request.args.get('solicitante_id')
+    filtro_supervisor = request.args.get('supervisor_id')
+    filtro_dev = request.args.get('dev_id')
     
     atividades = AtividadeModel.query.filter(
         AtividadeModel.deletado == False
@@ -218,6 +223,15 @@ def atividades_listar(projeto_id=None):
     
     if filtro_titulo:
         atividades = atividades.filter(AtividadeModel.titulo.ilike(f"%{filtro_titulo}%"))
+    #Adicionado para atender a task do filtro
+    if filtro_solicitante:
+        atividades = atividades.filter(AtividadeModel.usuario_solicitante_id == filtro_solicitante)
+    
+    if filtro_supervisor:
+        atividades = atividades.filter(AtividadeModel.supervisor_id == filtro_supervisor)
+    
+    if filtro_dev:
+        atividades = atividades.filtrer(AtividadeModel.desenvolvedor_id == filtro_dev)
     
     atividades = atividades.order_by(
         AtividadeModel.id.desc(),
