@@ -104,10 +104,22 @@ def solicitacoes_atividade_listar():
     
     if filtro_data_limite_fim:
         try:
-            data_limite_obj = datetime.strptime(filtro_data_limite_fim, '%Y-%m-%d')
-            data_limite_obj = data_limite_obj.replace(hour=23, minute=59, second=59)
-            data_alteracao_maxima = data_limite_obj - timedelta(hours=48)
-            atividades = atividades.filter(SolicitacaoAtividadeModel.data_alteracao <= data_alteracao_maxima)
+            data_limite_selecionada = datetime.strptime(filtro_data_limite_fim, '%Y-%m-%d')
+            
+            # Início do dia limite (00:00:00)
+            inicio_limite = data_limite_selecionada.replace(hour=0, minute=0, second=0)
+            
+            # Fim do dia limite (23:59:59)
+            fim_limite = data_limite_selecionada.replace(hour=23, minute=59, second=59)
+            
+            # data_alteracao deve estar entre (limite - 48h) para resultar no dia desejado
+            data_alteracao_min = inicio_limite - timedelta(hours=48)
+            data_alteracao_max = fim_limite - timedelta(hours=48)
+            
+            atividades = atividades.filter(
+                SolicitacaoAtividadeModel.data_alteracao >= data_alteracao_min,
+                SolicitacaoAtividadeModel.data_alteracao <= data_alteracao_max
+            )
         except ValueError:
             flash(f"Erro no formato data fim")
 
