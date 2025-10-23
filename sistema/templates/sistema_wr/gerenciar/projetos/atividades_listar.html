@@ -102,7 +102,7 @@
               <span class="badge badge-outline">Título: {{ filtros.titulo }}</span>
               {% endif %}
             </div>
-            <a href="{{ url_for('atividades_listar') }}" class="btn btn-sm btn-link ms-auto">
+            <a href="{{ url_for('atividades_listar') }}"  class="btn btn-sm btn-link ms-auto" id="btnLimparFiltros">
               Limpar filtros
             </a>
           </div>
@@ -529,6 +529,76 @@
 </div>
 
 <script>
+
+// Salvar filtros no sessionStorage ao aplicar
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form'); // Seu formulário de filtros
+    
+    // Restaurar filtros salvos
+    const filtrosSalvos = sessionStorage.getItem('filtrosAtividades');
+    if (filtrosSalvos && !window.location.search) {
+        const filtros = JSON.parse(filtrosSalvos);
+        Object.keys(filtros).forEach(key => {
+            const input = document.querySelector(`[name="${key}"]`);
+            if (input) input.value = filtros[key];
+        });
+        form.submit();
+    }
+    
+    // Salvar filtros ao submeter
+    if (form) {
+        form.addEventListener('submit', function() {
+            const formData = new FormData(form);
+            const filtros = {};
+            for (let [key, value] of formData.entries()) {
+                if (value) filtros[key] = value;
+            }
+            sessionStorage.setItem('filtrosAtividades', JSON.stringify(filtros));
+        });
+    }
+    
+    // Salvar estado atual dos filtros da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.toString()) {
+        const filtros = {};
+        for (let [key, value] of urlParams.entries()) {
+            filtros[key] = value;
+        }
+        sessionStorage.setItem('filtrosAtividades', JSON.stringify(filtros));
+    }
+
+    const btnLimpar = document.querySelector('#btnLimparFiltros');
+    
+    if (btnLimpar) {
+        btnLimpar.addEventListener('click', function(e) {
+            e.preventDefault(); // Previne o comportamento padrão do link
+            
+            console.log('🗑️ Limpando filtros...');
+            
+            // 1. Remove do sessionStorage
+            sessionStorage.removeItem('filtrosAtividades');
+            
+            // 2. Limpa todos os campos do formulário
+            if (form) {
+                // Limpa inputs de texto e date
+                form.querySelectorAll('input[type="text"], input[type="date"]').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Reseta selects para a primeira opção (geralmente "Todos")
+                form.querySelectorAll('select').forEach(select => {
+                    select.selectedIndex = 0;
+                });
+            }
+            
+            // 3. Redireciona para a página sem parâmetros
+            window.location.href = window.location.pathname;
+            
+            console.log('✅ Filtros limpos!');
+        });
+    }
+});
+
 function verDetalhesAtividade(atividadeId) {
     fetch(`/kanban/detalhes/${atividadeId}`)
         .then(response => response.json())

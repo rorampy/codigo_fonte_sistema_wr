@@ -13,6 +13,16 @@
         </div>
         <div class="col-auto ms-auto d-print-none">
           <div class="btn-list">
+            {% if current_user.role_id == 1 %}
+              <a href="{{ url_for('lancamento_horas_cadastrar', atividade_id=atividade.id) }}" class="btn btn-outline-success" title="Lançar Horas">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                  <path d="M12 7v5l3 3" />
+                </svg>
+                Lançar Horas
+              </a>
+            {% endif %}
             <a href="{{ url_for('atividade_editar', atividade_id=atividade.id) }}" class="btn btn-primary">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
