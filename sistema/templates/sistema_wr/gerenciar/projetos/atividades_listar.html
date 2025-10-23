@@ -130,21 +130,30 @@
               <tbody>
                 {% for atividade in atividades %}
                 <tr>
+                  <!-- Implementado um Tooltip para o poder visualizar a descrição sem precisar abrir a tarefa-->
                   <td>
-                    <div>
-                      <strong>{{ atividade.titulo[:50] }}{% if atividade.titulo | length > 50 %}...{% endif %}</strong>
-                    </div>
-                    {% set total_anexos = atividade.anexos.filter_by(deletado=False).count() %}
-                    {% if total_anexos > 0 %}
-                    <div class="text-muted small">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24" 
-                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
-                      </svg>
-                      {{ total_anexos }} anexo(s)
-                    </div>
-                    {% endif %}
+                      <div>
+                          <strong 
+                              data-bs-toggle="tooltip" 
+                              data-bs-placement="right" 
+                              data-bs-html="true"
+                              data-bs-custom-class="tooltip-atividade-descricao"
+                              title="{{ atividade.descricao|striptags|truncate(500) if atividade.descricao and atividade.descricao|trim != '' else 'Sem descrição disponível' }}"
+                              style="cursor: default; border-bottom: 1px #999;">
+                              {{ atividade.titulo[:50] }}{% if atividade.titulo | length > 50 %}...{% endif %}
+                          </strong>
+                      </div>
+                      {% set total_anexos = atividade.anexos.filter_by(deletado=False).count() %}
+                      {% if total_anexos > 0 %}
+                      <div class="text-muted small">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24" 
+                              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
+                          </svg>
+                          {{ total_anexos }} anexo(s)
+                      </div>
+                      {% endif %}
                   </td>
                   <td style="text-align: center;">
                     {% if atividade.prioridade.nome.lower() == 'baixa' %}
@@ -529,75 +538,6 @@
 </div>
 
 <script>
-
-// Salvar filtros no sessionStorage ao aplicar
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form'); // Seu formulário de filtros
-    
-    // Restaurar filtros salvos
-    const filtrosSalvos = sessionStorage.getItem('filtrosAtividades');
-    if (filtrosSalvos && !window.location.search) {
-        const filtros = JSON.parse(filtrosSalvos);
-        Object.keys(filtros).forEach(key => {
-            const input = document.querySelector(`[name="${key}"]`);
-            if (input) input.value = filtros[key];
-        });
-        form.submit();
-    }
-    
-    // Salvar filtros ao submeter
-    if (form) {
-        form.addEventListener('submit', function() {
-            const formData = new FormData(form);
-            const filtros = {};
-            for (let [key, value] of formData.entries()) {
-                if (value) filtros[key] = value;
-            }
-            sessionStorage.setItem('filtrosAtividades', JSON.stringify(filtros));
-        });
-    }
-    
-    // Salvar estado atual dos filtros da URL
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.toString()) {
-        const filtros = {};
-        for (let [key, value] of urlParams.entries()) {
-            filtros[key] = value;
-        }
-        sessionStorage.setItem('filtrosAtividades', JSON.stringify(filtros));
-    }
-
-    const btnLimpar = document.querySelector('#btnLimparFiltros');
-    
-    if (btnLimpar) {
-        btnLimpar.addEventListener('click', function(e) {
-            e.preventDefault(); // Previne o comportamento padrão do link
-            
-            console.log('🗑️ Limpando filtros...');
-            
-            // 1. Remove do sessionStorage
-            sessionStorage.removeItem('filtrosAtividades');
-            
-            // 2. Limpa todos os campos do formulário
-            if (form) {
-                // Limpa inputs de texto e date
-                form.querySelectorAll('input[type="text"], input[type="date"]').forEach(input => {
-                    input.value = '';
-                });
-                
-                // Reseta selects para a primeira opção (geralmente "Todos")
-                form.querySelectorAll('select').forEach(select => {
-                    select.selectedIndex = 0;
-                });
-            }
-            
-            // 3. Redireciona para a página sem parâmetros
-            window.location.href = window.location.pathname;
-            
-            console.log('✅ Filtros limpos!');
-        });
-    }
-});
 
 function verDetalhesAtividade(atividadeId) {
     fetch(`/kanban/detalhes/${atividadeId}`)

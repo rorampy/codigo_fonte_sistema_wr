@@ -1,11 +1,13 @@
 import os
-from sistema import app, db, requires_roles
+from sistema import app, db, requires_roles, obter_url_absoluta_de_imagem
 from flask import render_template, request, redirect, url_for, flash, session
 from flask_login import login_required, current_user
 from sistema.models_views.sistema_wr.financeiro.movimentacao_financeira.movimentacao_financeira_model import MovimentacaoFinanceiraModel
 from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento.categoria_lancamento_view import inicializar_categorias_padrao, obter_subcategorias_recursivo
 from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento.categoria_lancamento_model import CategoriaLancamentoModel
 from sistema._utilitarios import *
+from sistema.models_views.sistema_wr.parametrizacao.changelog_model import ChangelogModel
+from sistema.models_views.upload_arquivo.upload_arquivo_view import upload_arquivo
 
 
 @app.route('/movimentacao-financeira/listagem', methods=['GET'])
@@ -62,3 +64,41 @@ def movimentacao_financeira():
         dados_corretos=dados_corretos,
         filtros_ativos=bool(filtros)
     )
+
+@app.route('/relatorios/relatorios-financeiros/exportar/movimentacao-financeira', methods=['GET','POST'])
+@requires_roles
+@login_required
+def exportar_movimentacao_financeira():
+    try: 
+        changelog = ChangelogModel.obter_numero_versao_changelog_mais_recente()
+        dataHoje = DataHora.obter_data_atual_padrao_br()
+
+        dataInicio = request.args.get('data_inicio_financeiro')
+        dataFim = request.args.get('data_final_financeiro')
+        
+        filtro_movimentacao = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira(data_inicio=dataInicio, data_fim=dataFim)
+        saldoEntrada = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_entrada(data_inicio=dataInicio, data_fim=dataFim)
+        print('Saldo entrada:', saldoEntrada)
+        saldoSaida = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_saida(data_inicio=dataInicio, data_fim=dataFim)
+        print('Saldo entrada:', saldoSaida)
+        saldoLiquido = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_liquido(data_inicio=dataInicio, data_fim=dataFim)
+        
+        logo_path = obter_url_absoluta_de_imagem("/logo_wr_sem_fundo.png")
+
+        html=render_template(
+            "relatorios/relatorios_financeiros/relatorio_movimentacao_financeira.html",
+            changelog = changelog, dataHoje = dataHoje, filtro_movimentacao = filtro_movimentacao, saldoEntrada = saldoEntrada,
+            saldoSaida = saldoSaida, saldoLiquido = saldoLiquido, logo_path = logo_path
+        )
+
+        nome_arquivo_saida = f"relatorio_movimentacao_financeira-{dataHoje}"
+
+        pdf = ManipulacaoArquivos.gerar_pdf_from_html(html, nome_arquivo_saida)
+
+        return pdf
+
+    except Exception as e:
+        print('Algo deu errao ao exportar o relatório', e)
+        flash(("Não foi possível gerar o relatório financeiro! Contate o suporte.", "warning"))
+    
+        return redirect(url_for("principal")) 
