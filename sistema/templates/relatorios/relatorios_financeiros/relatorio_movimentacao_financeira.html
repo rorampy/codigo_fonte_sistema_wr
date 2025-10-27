@@ -1,0 +1,472 @@
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background-color: #F9F9F9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .container {
+        margin: 20px auto;
+        background-color: #FFFFFF;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        border-radius: 6px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .watermark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999999999;
+        opacity: 0.03;
+        pointer-events: none;
+    }
+
+    .watermark img {
+        width: 70%;
+    }
+
+    .content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eaeaea6b;
+    }
+
+    .header img {
+        width: 200px;
+        height: auto;
+        max-width: 200px;
+        object-fit: contain; 
+    }
+
+    .system-info {
+        text-align: right;
+        font-size: 13px;
+        color: #777;
+    }
+
+    h1,
+    h2,
+    h3 {
+        color: #00204E;
+        margin-top: 0;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 18px;
+        text-align: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eaeaea6b;
+        padding-bottom: 10px;
+    }
+
+    .dados-registro {
+        background-color: #f6f8f6;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid #00204E;
+    }
+
+    .dados-registro p {
+        margin: 5px 0;
+        font-size: 13px;
+    }
+
+    .dados-registro .label {
+        font-weight: 600;
+        color: #00204E;
+    }
+
+    .status-relatorio {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    th {
+        text-align: left;
+        padding: 12px 10px;
+        color: #00204E;
+        font-weight: 600;
+        border-bottom: 2px solid #00204E;
+        font-size: 13px;
+    }
+
+    td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+        font-size: 13px;
+        color: #333;
+    }
+
+    tr:nth-child(even) {
+        background-color: #fafafa;
+    }
+
+    .section-title {
+        color: #00204E;
+        font-weight: 600;
+        font-size: 15px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #e7f0e7;
+        padding-bottom: 5px;
+        page-break-after: avoid;
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 12px;
+        color: #777;
+        border-top: 1px solid #eaeaea6b;
+        padding-top: 10px;
+    }
+
+    .filtros-title {
+        color: #00204E;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #e7f0e7;
+    }
+
+    .relatorio-title {
+        text-align: center;
+        font-size: 20px;
+        color: #00204E;
+        margin: 15px 0;
+        font-weight: 700;
+    }
+
+    .no-break {
+        page-break-inside: avoid;
+    }
+
+    .entrada {
+        color: #2b8a3e;
+        font-weight: 600;
+    }
+
+    .saida {
+        color: #c92a2a;
+        font-weight: 600;
+    }
+
+    .resumo-financeiro {
+        width: 100%;
+        display: table;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 15px 0;
+    }
+
+    .resumo-financeiro .card-resumo {
+        display: table-cell;
+        width: 33.333%;
+        vertical-align: top;
+    }
+
+    .card-resumo {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 12px;
+        padding: 25px 20px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        border: 1px solid #e9ecef;
+        transition: transform 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        min-height: 120px;
+        box-sizing: border-box;
+    }
+
+    .card-resumo::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: #00204E;
+    }
+
+    .card-resumo.entradas::before {
+        background: linear-gradient(90deg, #2b8a3e, #51cf66);
+    }
+
+    .card-resumo.saidas::before {
+        background: linear-gradient(90deg, #c92a2a, #ff6b6b);
+    }
+
+    .card-resumo.saldo::before {
+        background: linear-gradient(90deg, #00204E, #69db7c);
+    }
+
+    .card-resumo h4 {
+        color: #495057;
+        margin: 0 0 12px 0;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .card-resumo .valor {
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .card-resumo.entradas .valor {
+        color: #2b8a3e;
+    }
+
+    .card-resumo.saidas .valor {
+        color: #c92a2a;
+    }
+
+    .card-resumo.saldo .valor {
+        color: #00204E;
+    }
+
+    .card-resumo:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    @media print {
+        body {
+            background-color: #fff;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        @page {
+            margin: 0.5cm;
+            size: portrait;
+        }
+
+        .watermark {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .dados-registro,
+        th,
+        .card-resumo {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-size: 12px;
+        }
+
+        h2 {
+            font-size: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+        }
+
+        * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .resumo-financeiro {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 10px !important;
+            margin: 15px 0 !important;
+        }
+
+        .resumo-financeiro .card-resumo {
+            flex: 1 !important;
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="page body">
+        <div class="container">
+            <div class="content">
+                <div class="header no-break">
+                    <img src="{{logo_path}}" alt="Logo WR Software" />
+                    <div class="system-info">
+                        <div><strong>WR Software</strong></div>
+                        <div><strong>Versão</strong> {{changelog.versao}}</div>
+                        <div><strong>Data:</strong> {{dataHoje}}</div>
+                    </div>
+                </div>
+
+                <div class="relatorio-title">Relatório de Movimentações Financeiras</div>
+
+                <!-- Resumo Financeiro -->
+                <div class="section-title no-break" style="margin-top: 25px;">
+                    Resumo Financeiro do Período
+                </div>
+
+                <div class="resumo-financeiro no-break">
+                    <div class="card-resumo entradas">
+                        <h4>Total de Entradas</h4>
+                        <p class="valor">{{ saldoEntrada | formatar_float_para_brl }}</p>
+                        <small style="color: #6c757d; font-size: 11px;">Receitas e créditos</small>
+                    </div>
+                    <div class="card-resumo saidas">
+                        <h4>Total de Saídas</h4>
+                        <p class="valor">{{ saldoSaida | formatar_float_para_brl }}</p>
+                        <small style="color: #6c757d; font-size: 11px;">Despesas e débitos</small>
+                    </div>
+                    <div class="card-resumo saldo">
+                        <h4>Saldo Líquido</h4>
+                        <p class="valor">{{ saldoLiquido | formatar_float_para_brl }}</p>
+                        <small style="color: #6c757d; font-size: 11px;">Resultado do período</small>
+                    </div>
+                </div>
+
+                {% if filtro_movimentacao %}
+                <!-- Tabela de movimentações -->
+                <div class="section-title no-break">
+                    Histórico de Movimentações
+                    <span style="float: right; font-weight: normal; font-size: 12px;">
+                        Total: {{ filtro_movimentacao|length }} movimentações
+                    </span>
+                </div>
+
+                <table style="page-break-before: auto;">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Data</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Descrição</th>
+                            <th class="text-center">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movimentacao in filtro_movimentacao %}
+                        <tr>
+                            <td class="text-center">
+                                {% if movimentacao.data_movimentacao %}
+                                {{ movimentacao.data_movimentacao.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if movimentacao.tipo_movimentacao == 1 %}
+                                <span class="entrada">Entrada</span>
+                                {% else %}
+                                <span class="saida">Saída</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if movimentacao.lancamento and movimentacao.lancamento.descricao %}
+                                {{ movimentacao.lancamento.descricao }}
+                                {% else %}
+                                Movimentação financeira
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if movimentacao.valor_movimentacao_100 %}
+                                {% if movimentacao.tipo_movimentacao == 1 %}
+                                <span class="entrada">{{ movimentacao.valor_movimentacao_100 | formatar_float_para_brl
+                                    }}</span>
+                                {% else %}
+                                <span class="saida">{{ movimentacao.valor_movimentacao_100 | formatar_float_para_brl
+                                    }}</span>
+                                {% endif %}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        <!-- Linha de Total -->
+                        <tr style="background-color: #e7eef0; border-top: 2px solid #00204E; font-weight: bold;">
+                            <td colspan="3" class="text-center" style="color: #00204E; font-weight: bold;">TOTAIS GERAIS
+                            </td>
+                            <td class="text-center" style="color: #00204E; font-weight: bold;">
+                                {{ saldoLiquido | formatar_float_para_brl }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="no-break" style="margin-top: 20px; text-align: center; padding: 40px;">
+                    <div style="color: #666; font-size: 16px;">
+                        <strong>Nenhuma movimentação encontrada para os filtros aplicados.</strong>
+                    </div>
+                    <div style="color: #999; font-size: 14px; margin-top: 10px;">
+                        Verifique se existem movimentações financeiras cadastradas no período selecionado.
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="footer">
+                    <p><strong>WR Software &copy; 2025</strong> - Todos os
+                        direitos reservados</p>
+                    <p><strong>WR Software</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

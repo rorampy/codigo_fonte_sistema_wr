@@ -1,4 +1,7 @@
 from sistema.models_views.base_model import BaseModel, db
+from datetime import date, timedelta
+from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_model import AtividadeModel
+from sqlalchemy import desc
 
 
 class LancamentoHorasModel(BaseModel):
@@ -13,6 +16,7 @@ class LancamentoHorasModel(BaseModel):
     data_lancamento = db.Column(db.Date, nullable=False)
     descricao = db.Column(db.Text, nullable=False)
     horas_gastas = db.Column(db.Float, nullable=False)
+
     
     # Relacionamentos
     atividade = db.relationship('AtividadeModel', backref='proj_lancamentos_horas')
@@ -25,6 +29,7 @@ class LancamentoHorasModel(BaseModel):
         self.data_lancamento = data_lancamento
         self.descricao = descricao
         self.horas_gastas = horas_gastas
+    
     
     
     @staticmethod
@@ -116,7 +121,6 @@ class LancamentoHorasModel(BaseModel):
         """Retorna a data formatada para exibição"""
         return self.data_lancamento.strftime('%d/%m/%Y')
     
-    
     def save(self):
         """Override do save para atualizar automaticamente as horas da atividade"""
         db.session.add(self)
@@ -132,3 +136,35 @@ class LancamentoHorasModel(BaseModel):
         db.session.flush()
         self.atualizar_horas_atividade()
         db.session.commit()
+
+    @staticmethod
+    def filtrar_horas_dev(dataInicio, dataFim, nomeDev, projetoDev):
+        from sistema.models_views.sistema_wr.gerenciar.projetos.projeto_model import ProjetoModel
+
+        if not dataInicio and not dataFim:
+            dataInicio = date.today() - timedelta(days=30)
+            dataFim = date.today()
+            
+        query = (
+            db.session.query(LancamentoHorasModel)
+                .join(AtividadeModel, LancamentoHorasModel.atividade_id == AtividadeModel.id)
+                .join(ProjetoModel, AtividadeModel.projeto_id == ProjetoModel.id)
+                .filter(LancamentoHorasModel.deletado == False)
+        )
+
+        if dataInicio and dataFim:
+            query = query.filter(LancamentoHorasModel.data_lancamento.between(dataInicio, dataFim))
+        
+        if dataInicio:
+            query = query.filter(LancamentoHorasModel.data_lancamento >= dataInicio)
+        elif dataFim:
+            query = query.filter(LancamentoHorasModel.data_lancamento <= dataFim)
+        
+        if projetoDev:
+            query = query.filter(AtividadeModel.projeto_id == projetoDev)
+        if nomeDev:
+            query = query.filter(LancamentoHorasModel.usuario_id == nomeDev)
+
+        return query.order_by(desc(LancamentoHorasModel.id)).all()
+    
+        

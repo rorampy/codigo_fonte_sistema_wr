@@ -3,6 +3,7 @@ from sistema.models_views.sistema_wr.gerenciar.clientes.cliente_model import Cli
 from sistema.models_views.sistema_wr.financeiro.lancamento.lancamento_model import LancamentoModel
 from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento.categoria_lancamento_model import CategoriaLancamentoModel
 from sqlalchemy import desc
+from datetime import date, timedelta
 
 class MovimentacaoFinanceiraModel(BaseModel):
     """
@@ -174,3 +175,65 @@ class MovimentacaoFinanceiraModel(BaseModel):
             )
         
         return query.order_by(MovimentacaoFinanceiraModel.data_movimentacao.desc()).all()
+    
+    def filtrar_movimentacao_financeira(data_inicio, data_fim):
+        if not data_inicio and not data_fim:
+            data_inicio = date.today()-timedelta(days=30)
+            data_fim = date.today()
+        
+        query = db.session.query(MovimentacaoFinanceiraModel).filter(MovimentacaoFinanceiraModel.ativo == True)
+        
+        
+        if data_inicio and data_fim:
+            query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao.between(data_inicio, data_fim))
+            
+        if data_inicio:
+            query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao >= data_inicio)
+        elif data_fim:
+            query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao <= data_fim)
+        
+        return query.order_by(desc(MovimentacaoFinanceiraModel.id)).all()
+    
+    def filtrar_movimentacao_financeira_saldo_entrada(data_inicio, data_fim):
+        if not data_inicio and not data_fim:
+            data_inicio = date.today()-timedelta(days=30)
+            data_fim = date.today()
+        
+        query = db.session.query(MovimentacaoFinanceiraModel).filter(MovimentacaoFinanceiraModel.ativo == True,
+                                                                     MovimentacaoFinanceiraModel.tipo_movimentacao == 1)
+
+        if data_inicio and data_fim:
+            query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao.between(data_inicio, data_fim))
+        if data_inicio:
+            query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao >= data_inicio)
+        elif data_fim:
+            query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao <= data_fim)
+        
+        return sum(
+            q.valor_movimentacao_100
+            for q in query ) or 0
+    
+    def filtrar_movimentacao_financeira_saldo_saida(data_inicio, data_fim):
+        if not data_inicio and not data_fim:
+            data_inicio = date.today()-timedelta(days=30)
+            data_fim = date.today()
+
+        query = db.session.query(MovimentacaoFinanceiraModel).filter(MovimentacaoFinanceiraModel.ativo == True,
+                                                                     MovimentacaoFinanceiraModel.tipo_movimentacao.in_([2, 3, 4]))
+        if data_inicio and data_fim:
+            query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao.between(data_inicio, data_fim))
+        if data_inicio:
+            query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao >= data_inicio)
+        elif data_fim:
+            query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao <= data_fim)
+
+        return sum(
+            q.valor_movimentacao_100
+            for q in query ) or 0
+    
+    def filtrar_movimentacao_financeira_liquido(data_inicio, data_fim):
+        entradas = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_entrada(data_inicio=data_inicio, data_fim=data_fim)
+        saidas = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_saida(data_inicio=data_inicio, data_fim=data_fim)
+
+        return entradas - saidas          
+        

@@ -255,6 +255,10 @@ from sistema.models_views.sistema_wr.gerenciar.projetos import lancamento_horas_
 from sistema.models_views.sistema_wr.gerenciar.projetos import kanban_view
 from sistema.models_views.sistema_wr.gerenciar.projetos import atividade_solicitacao_view
 
+# RelatóriosS
+from sistema.models_views.sistema_wr.relatorios.relatorio_horas_dev import relatorio_horas_dev_view
+
+
 # Financeiro
 from sistema.models_views.sistema_wr.financeiro.lancamento import lancamento_model
 from sistema.models_views.sistema_wr.financeiro.lancamento import lancamento_view

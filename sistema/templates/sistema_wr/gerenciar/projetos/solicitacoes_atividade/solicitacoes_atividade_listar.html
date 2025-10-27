@@ -19,9 +19,8 @@
         <div class="col-12 col-md-auto ms-auto d-print-none">
           <div class="d-flex gap-2">
             <a href="{{ url_for('solicitacao_atividade_cadastrar') }}" class="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                 <path d="M12 5l0 14" />
                 <path d="M5 12l14 0" />
@@ -29,11 +28,11 @@
               Nova Solicitação
             </a>
             <button class="btn" data-bs-toggle="modal" data-bs-target="#modal-filtros">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+                <path
+                  d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
               </svg>
               Filtros
             </button>
@@ -43,9 +42,79 @@
     </div>
   </div>
 
+
   <!-- Page body -->
   <div class="page-body">
     <div class="container-xl">
+      <!-- Filtros ativos -->
+      {% if filtros and (filtros.projeto_id or filtros.situacao_id or filtros.usuario_id or filtros.titulo or
+      filtros.data_inicio or filtros.data_fim or filtros.tipo_filtro) %}
+
+      <div class="card mb-3">
+        <div class="card-body py-2">
+          <div class="d-flex align-items-center">
+            <span class="text-muted me-2">Filtros ativos:</span>
+            <div class="d-flex gap-2 flex-wrap">
+
+              {% if filtros.tipo_filtro %}
+              {% if filtros.tipo_filtro == "solicitacao" %}
+              <span class="badge badge-outline">Tipo: Data de Solicitação</span>
+              {% elif filtros.tipo_filtro == "limite" %}
+              <span class="badge badge-outline">Tipo: Data Limite</span>
+              {% endif %}
+              {% endif %}
+
+              {% if filtros.data_inicio %}
+              <span class="badge badge-outline">Data início: {{ filtros.data_inicio[8:10] }}/{{
+                filtros.data_inicio[5:7] }}/{{ filtros.data_inicio[0:4] }}</span>
+              {% endif %}
+
+              {% if filtros.data_fim %}
+              <span class="badge badge-outline">Data limite: {{ filtros.data_fim[8:10] }}/{{
+                filtros.data_fim[5:7]}}/{{ filtros.data_fim[0:4]}}</span>
+              {% endif %}
+
+              {% if filtros.projeto_id %}
+              {% for projeto in projetos %}
+              {% if projeto.id|string == filtros.projeto_id|string %}
+              <span class="badge badge-outline">Projeto: {{ projeto.nome_projeto[:20] }}{% if projeto.nome_projeto |
+                length > 20 %}...{% endif %}</span>
+              {% endif %}
+              {% endfor %}
+              {% endif %}
+
+              {% if filtros.situacao_id %}
+              {% if filtros.situacao_id == "7" %}
+              <span class="badge badge-outline">Status: Em Análise</span>
+              {% elif filtros.situacao_id == "8" %}
+              <span class="badge badge-outline">Status: Rejeitada</span>
+              {% elif filtros.situacao_id == "3" %}
+              <span class="badge badge-outline">Status: Aceita</span>
+              {% endif %}
+              {% endif %}
+
+              {% if filtros.usuario_id %}
+              {% for usuario in usuarios %}
+              {% if usuario.id|string == filtros.usuario_id|string %}
+              <span class="badge badge-outline">Solicitante: {{ usuario.nome }} {{ usuario.sobrenome }}</span>
+              {% endif %}
+              {% endfor %}
+              {% endif %}
+
+              {% if filtros.titulo %}
+              <span class="badge badge-outline">Título: "{{ filtros.titulo }}"</span>
+              {% endif %}
+
+            </div>
+            <a id="btnLimparFiltrosCard" href="{{ url_for('solicitacoes_atividade_listar') }}"
+              class="btn btn-sm btn-link ms-auto">
+              Limpar filtros
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
       {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
       <div class="row row-deck row-cards">
@@ -90,7 +159,7 @@
                         <div class="flex-fill">
                           {% if solicitacao.titulo %}
                           <div class="fw-bold">
-                          {{ solicitacao.titulo[:50] }}{% if solicitacao.titulo|length > 50 %}...{% endif %}
+                            {{ solicitacao.titulo[:50] }}{% if solicitacao.titulo|length > 50 %}...{% endif %}
                           </div>
                           {% endif %}
                           {% if solicitacao.descricao %}
@@ -111,13 +180,13 @@
                     </td>
                     <td>
                       {% if solicitacao.situacao_id == 7 %}
-                        <span class="badge bg-warning text-white">Em Análise</span>
+                      <span class="badge bg-warning text-white">Em Análise</span>
                       {% elif solicitacao.situacao_id == 8 %}
-                        <span class="badge bg-danger text-white">Rejeitada</span>
+                      <span class="badge bg-danger text-white">Rejeitada</span>
                       {% elif solicitacao.situacao_id == 3 %}
-                        <span class="badge bg-success text-white">Aceita</span>
+                      <span class="badge bg-success text-white">Aceita</span>
                       {% else %}
-                        <span class="badge bg-secondary text-white">{{ solicitacao.situacao.nome }}</span>
+                      <span class="badge bg-secondary text-white">{{ solicitacao.situacao.nome }}</span>
                       {% endif %}
                     </td>
                     <td>
@@ -127,43 +196,47 @@
                     <td>
                       {% set data_limite = solicitacao.data_alteracao | adicionar_horas(48) %}
                       {% set prazo_vencido = solicitacao.data_alteracao | prazo_vencido %}
-                      
+
                       {% if prazo_vencido and solicitacao.situacao_id == 7 %}
-                        <span class="text-danger fw-bold" title="Prazo para resposta vencido!">
-                          {{ data_limite | formatar_data_hora_para_brl }}
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm ms-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M12 9v4" />
-                            <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
-                            <path d="M12 16h.01" />
-                          </svg>
-                        </span>
+                      <span class="text-danger fw-bold" title="Prazo para resposta vencido!">
+                        {{ data_limite | formatar_data_hora_para_brl }}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm ms-1" width="16" height="16"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M12 9v4" />
+                          <path
+                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                          <path d="M12 16h.01" />
+                        </svg>
+                      </span>
                       {% else %}
-                        <span class="text-secondary">
-                          {{ data_limite | formatar_data_hora_para_brl }}
-                        </span>
+                      <span class="text-secondary">
+                        {{ data_limite | formatar_data_hora_para_brl }}
+                      </span>
                       {% endif %}
                     </td>
                     <td>
                       <div class="btn-list flex-nowrap">
                         <!-- Botão Visualizar -->
                         <a href="{{ url_for('atividade_solicitacao_visualizar', id=solicitacao.id) }}"
-                          class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip"
-                          data-bs-placement="top" title="Visualizar Detalhes">
+                          class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="Visualizar Detalhes">
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                             stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                            <path d="M21 12c-2.4 3.6 -6 6 -9 6c-3 0 -6.6 -2.4 -9 -6c2.4 -3.6 6 -6 9 -6c3 0 6.6 2.4 9 6" />
+                            <path
+                              d="M21 12c-2.4 3.6 -6 6 -9 6c-3 0 -6.6 -2.4 -9 -6c2.4 -3.6 6 -6 9 -6c3 0 6.6 2.4 9 6" />
                           </svg>
                         </a>
 
                         <!-- Botão Editar (apenas para o solicitante ou root, e apenas rejeitadas) -->
-                        {% if (solicitacao.usuario_solicitante_id == current_user.id or current_user.role.id == 1) and solicitacao.situacao_id == 8 %}
+                        {% if (solicitacao.usuario_solicitante_id == current_user.id or current_user.role.id == 1) and
+                        solicitacao.situacao_id == 8 %}
                         <a href="{{ url_for('atividade_solicitacao_editar', id=solicitacao.id) }}"
-                          class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip"
-                          data-bs-placement="top" title="Editar Solicitação">
+                          class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="Editar Solicitação">
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                             stroke-linecap="round" stroke-linejoin="round">
@@ -177,39 +250,39 @@
 
                         <!-- Botão Excluir com validação de permissões -->
                         {% if solicitacao.situacao_id in [7, 8] %}
-                          {% if solicitacao.usuario_solicitante_id == current_user.id or current_user.role.id == 1 %}
-                            <!-- Usuário pode excluir: Mostrar botão ativo -->
-                            <button type="button" class="btn btn-icon btn-outline-danger" 
-                              data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Solicitação"
-                              onclick="abrirModalExclusao('{{ solicitacao.id }}', '{{ solicitacao.titulo }}')">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M4 7l16 0" />
-                                <path d="M10 11l0 6" />
-                                <path d="M14 11l0 6" />
-                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                              </svg>
-                            </button>
-                          {% else %}
-                            <!-- Usuário não pode excluir: Mostrar botão desabilitado -->
-                            <button type="button" class="btn btn-icon btn-outline-secondary disabled" 
-                              data-bs-toggle="tooltip" data-bs-placement="top" title="Você não tem permissão para excluir esta solicitação"
-                              disabled>
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M4 7l16 0" />
-                                <path d="M10 11l0 6" />
-                                <path d="M14 11l0 6" />
-                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                              </svg>
-                            </button>
-                          {% endif %}
+                        {% if solicitacao.usuario_solicitante_id == current_user.id or current_user.role.id == 1 %}
+                        <!-- Usuário pode excluir: Mostrar botão ativo -->
+                        <button type="button" class="btn btn-icon btn-outline-danger" data-bs-toggle="tooltip"
+                          data-bs-placement="top" title="Excluir Solicitação"
+                          onclick="abrirModalExclusao('{{ solicitacao.id }}', '{{ solicitacao.titulo }}')">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M4 7l16 0" />
+                            <path d="M10 11l0 6" />
+                            <path d="M14 11l0 6" />
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                          </svg>
+                        </button>
+                        {% else %}
+                        <!-- Usuário não pode excluir: Mostrar botão desabilitado -->
+                        <button type="button" class="btn btn-icon btn-outline-secondary disabled"
+                          data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="Você não tem permissão para excluir esta solicitação" disabled>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M4 7l16 0" />
+                            <path d="M10 11l0 6" />
+                            <path d="M14 11l0 6" />
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                          </svg>
+                        </button>
+                        {% endif %}
                         {% endif %}
                       </div>
                     </td>
@@ -262,16 +335,73 @@
         <h5 class="modal-title">Filtrar Solicitações</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form method="GET" action="{{ url_for('solicitacoes_atividade_listar') }}">
+
+      <form id="form-filtros-solicitacoes" class="form-solicitacoes" method="GET"
+        action="{{ url_for('solicitacoes_atividade_listar') }}">
         <div class="modal-body">
           <div class="row">
+            <label class="form-label mb-3sou">Tipo de Data a Filtrar</label>
+            <!--Botões Radio-->
+            <div class="col-6 mb-3">
+              <label class="form-selectgroup-item flex-fill">
+                <input type="radio" name="tipo_filtro" value="solicitacao" id="radio-solicitacao"
+                  class="form-selectgroup-input" {% if request.args.get('tipo_filtro') != 'limite' %}checked{%
+                  endif %}>
+                <div class="form-selectgroup-label d-flex align-items-center p-3">
+                  <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </div>
+                  <div>
+                    <strong>Filtro Data Solicitação</strong>
+                    <div class="text-muted">Filtrar por solicitação</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div class="col-6 mb-3">
+              <label class="form-selectgroup-item flex-fill">
+                <input type="radio" name="tipo_filtro" value="limite" id="radio-limite" class="form-selectgroup-input"
+                  {% if request.args.get('tipo_filtro') == 'limite' %}checked{% endif %}>
+                <div class="form-selectgroup-label d-flex align-items-center p-3">
+                  <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </div>
+                  <div>
+                    <strong>Filtro por Data Limite</strong>
+                    <div class="text-muted">Filtrar por data limite</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Data Inicio-->
+            <div class="col-md-6 mb-3">
+              <div class="mb-3">
+                <label class="form-label">Data Início</label>
+                <input type="date" class="form-control" name="data_inicio"
+                  value="{{request.args.get('data_inicio', '')}}">
+              </div>
+            </div>
+
+            <!-- Data Limite-->
+            <div class="col-md-6 mb-3">
+              <div class="mb-3">
+                <label class="form-label">Data Fim</label>
+                <input type="date" class="form-control" name="data_fim"
+                  value="{{request.args.get('data_fim', '')}}">
+              </div>
+            </div>
+
+            <!--Código Original-->
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">Projeto</label>
                 <select class="form-select" name="projeto_id">
                   <option value="">Todos os projetos</option>
                   {% for projeto in projetos %}
-                  <option value="{{ projeto.id }}" {% if dados_corretos.projeto_id == projeto.id|string %}selected{% endif %}>
+                  <option value="{{ projeto.id }}" {% if dados_corretos.projeto_id==projeto.id|string %}selected{% endif
+                    %}>
                     {{ projeto.nome_projeto }}
                   </option>
                   {% endfor %}
@@ -283,9 +413,9 @@
                 <label class="form-label">Status</label>
                 <select class="form-select" name="situacao_id">
                   <option value="">Todos os status</option>
-                  <option value="7" {% if dados_corretos.situacao_id == "7" %}selected{% endif %}>Em Análise</option>
-                  <option value="8" {% if dados_corretos.situacao_id == "8" %}selected{% endif %}>Rejeitada</option>
-                  <option value="3" {% if dados_corretos.situacao_id == "3" %}selected{% endif %}>Aceita</option>
+                  <option value="7" {% if dados_corretos.situacao_id=="7" %}selected{% endif %}>Em Análise</option>
+                  <option value="8" {% if dados_corretos.situacao_id=="8" %}selected{% endif %}>Rejeitada</option>
+                  <option value="3" {% if dados_corretos.situacao_id=="3" %}selected{% endif %}>Aceita</option>
                 </select>
               </div>
             </div>
@@ -297,7 +427,8 @@
                 <select class="form-select" name="usuario_id">
                   <option value="">Todos os usuários</option>
                   {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}" {% if dados_corretos.usuario_id == usuario.id|string %}selected{% endif %}>
+                  <option value="{{ usuario.id }}" {% if dados_corretos.usuario_id==usuario.id|string %}selected{% endif
+                    %}>
                     {{ usuario.nome }} {{ usuario.sobrenome }}
                   </option>
                   {% endfor %}
@@ -307,22 +438,23 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">Título</label>
-                <input type="text" class="form-control" name="titulo" 
-                  value="{{ dados_corretos.titulo or '' }}" placeholder="Buscar por título...">
+                <input type="text" class="form-control" name="titulo" value="{{ dados_corretos.titulo or '' }}"
+                  placeholder="Buscar por título...">
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <a href="{{ url_for('solicitacoes_atividade_listar') }}" class="btn btn-link link-secondary">
+          <a id="btnLimparFiltrosModal" href="{{ url_for('solicitacoes_atividade_listar') }}"
+            class="btn btn-link link-secondary">
             Limpar filtros
           </a>
           <button type="submit" class="btn btn-primary ms-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-              stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+              <path
+                d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
             </svg>
             Aplicar Filtros
           </button>
@@ -338,10 +470,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon text-danger me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon text-danger me-2" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M12 9v4" />
-            <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+            <path
+              d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
             <path d="M12 16h.01" />
           </svg>
           Confirmar Exclusão
@@ -352,9 +486,11 @@
         <div class="alert alert-danger border-0">
           <div class="d-flex">
             <div>
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" />
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path
+                  d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" />
                 <path d="M12 9v4" />
                 <path d="M12 17h.01" />
               </svg>
@@ -367,15 +503,16 @@
             </div>
           </div>
         </div>
-        
+
         <div class="mb-3">
-          <strong>Solicitação:</strong> 
+          <strong>Solicitação:</strong>
           <span id="titulo-solicitacao" style="display: block; word-wrap: break-word; word-break: break-word;"></span>
         </div>
-        
+
         <div class="text-muted">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24"
+            stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
             <path d="M12 9h.01" />
             <path d="M11 12h1v4h1" />
@@ -385,16 +522,18 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="16" height="16" viewBox="0 0 24 24"
+            stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M18 6l-12 12" />
             <path d="M6 6l12 12" />
           </svg>
           Cancelar
         </button>
         <button type="button" class="btn btn-danger" id="confirmar-exclusao">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="16" height="16" viewBox="0 0 24 24"
+            stroke-width="2" stroke="currentColor" fill="none">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M4 7l16 0" />
             <path d="M10 11l0 6" />
             <path d="M14 11l0 6" />
@@ -409,42 +548,122 @@
 </div>
 
 <script>
-// Variável global para armazenar o ID da solicitação a ser excluída
-let solicitacaoIdParaExcluir = null;
 
-// Função para abrir o modal de exclusão
-function abrirModalExclusao(id, titulo) {
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const storageKey = 'filtrosSolicitacoes'; // chave exclusiva desta tela
+    const form = document.querySelector('#form-filtros-solicitacoes');
+    const btnLimparCard = document.querySelector('#btnLimparFiltrosCard');
+    const btnLimparModal = document.querySelector('#btnLimparFiltrosModal');
+
+    // Restaurar filtros salvos (apenas preencher, sem enviar automaticamente)
+    const filtrosSalvos = sessionStorage.getItem(storageKey);
+    if (form && filtrosSalvos && !window.location.search) {
+      const filtros = JSON.parse(filtrosSalvos);
+      Object.keys(filtros).forEach(key => {
+        const input = form.querySelector(`[name="${key}"]`);
+        if (!input) return;
+        input.value = filtros[key]
+      });
+      form.submit(); // Aplica os filtros salvos
+    }
+
+    // Salvar filtros ao submeter
+    if (form) {
+      form.addEventListener('submit', function () {
+        const formData = new FormData(form);
+        const filtros = {};
+        for (let [key, value] of formData.entries()) {
+          if (value) filtros[key] = value;
+        }
+        sessionStorage.setItem(storageKey, JSON.stringify(filtros));
+      });
+    }
+
+    // Salvar estado atual da URL (quando entra com query string)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.toString()) {
+      const filtros = {};
+      for (let [key, value] of urlParams.entries()) filtros[key] = value;
+      sessionStorage.setItem(storageKey, JSON.stringify(filtros))
+    }
+
+    // Botões de limpar (card e modal) – limpam só esta tela e recarregam sem parâmetros
+
+    if (btnLimparCard) {
+      btnLimparCard.addEventListener('click', function (e) {
+        e.preventDefault();
+        sessionStorage.removeItem(storageKey);
+        window.location.href = this.href || window.location.pathname;
+      });
+    }
+
+
+    if (btnLimparModal) {
+      btnLimparModal.addEventListener('click', function (e) {
+        e.preventDefault();
+        sessionStorage.removeItem(storageKey);
+        if (form) {
+          form.querySelectorAll('input[type="text"], input[type="date"]').forEach(i => i.value = '');
+          form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+        }
+        window.location.href = this.href || window.location.pathname;
+      });
+    }
+  });
+
+
+  // Variável global para armazenar o ID da solicitação a ser excluída
+  let solicitacaoIdParaExcluir = null;
+
+  // Função para abrir o modal de exclusão
+  function abrirModalExclusao(id, titulo) {
     solicitacaoIdParaExcluir = id;
     document.getElementById('titulo-solicitacao').textContent = titulo;
-    
+
     const modal = new bootstrap.Modal(document.getElementById('modal-excluir'));
     modal.show();
-}
+  }
 
-// Função para confirmar a exclusão
-function confirmarExclusao() {
+  // Função para confirmar a exclusão
+  function confirmarExclusao() {
     if (solicitacaoIdParaExcluir) {
-        const urlBase = '{{ url_for("atividade_solicitacao_excluir", id=1) }}';
-        const urlFinal = urlBase.replace('/1', '/' + solicitacaoIdParaExcluir);
-        window.location.href = urlFinal;
+      const urlBase = '{{ url_for("atividade_solicitacao_excluir", id=1) }}';
+      const urlFinal = urlBase.replace('/1', '/' + solicitacaoIdParaExcluir);
+      window.location.href = urlFinal;
     }
-}
+  }
 
-// Inicializar eventos quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+
+  // Função para aplicar filtros ao formulário
+  function aplicarFiltrosNoForm(filtros) {
+    Object.keys(filtros).forEach(key => {
+      const input = form.querySelector(`[name="${key}"]`);
+      if (input) {
+        if (input.tagName === 'SELECT') {
+          // Para selects, encontrar a option com o valor correto
+          const option = input.querySelector(`option[value="${filtros[key]}"]`);
+          if (option) {
+            input.value = filtros[key];
+          }
+        } else if (input.type === 'checkbox' || input.type === 'radio') {
+          input.checked = input.value === filtros[key];
+        } else {
+          input.value = filtros[key];
+        }
+      }
     });
-    
-    // Adicionar evento ao botão de confirmação de exclusão
-    document.getElementById('confirmar-exclusao').addEventListener('click', confirmarExclusao);
-    
-    // Limpar variável quando modal for fechado
-    document.getElementById('modal-excluir').addEventListener('hidden.bs.modal', function () {
-        solicitacaoIdParaExcluir = null;
-    });
-});
+  }
+
+  // Inicializar tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+
+  // Adicionar evento ao botão de confirmação de exclusão
+  document.getElementById('confirmar-exclusao').addEventListener('click', confirmarExclusao);
+
+  // Limpar variável quando modal for fechado
+  document.getElementById('modal-excluir').addEventListener('hidden.bs.modal', function () {
+    solicitacaoIdParaExcluir = null;
+  });
 </script>
 {% endblock conteudo %}
