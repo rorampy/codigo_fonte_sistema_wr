@@ -177,7 +177,7 @@ class MovimentacaoFinanceiraModel(BaseModel):
         return query.order_by(MovimentacaoFinanceiraModel.data_movimentacao.desc()).all()
     
     def filtrar_movimentacao_financeira(data_inicio, data_fim):
-        if not data_inicio or not data_fim:
+        if not data_inicio and not data_fim:
             data_inicio = date.today()-timedelta(days=30)
             data_fim = date.today()
         
@@ -186,7 +186,8 @@ class MovimentacaoFinanceiraModel(BaseModel):
         
         if data_inicio and data_fim:
             query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao.between(data_inicio, data_fim))
-        elif data_inicio:
+            
+        if data_inicio:
             query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao >= data_inicio)
         elif data_fim:
             query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao <= data_fim)
@@ -194,7 +195,7 @@ class MovimentacaoFinanceiraModel(BaseModel):
         return query.order_by(desc(MovimentacaoFinanceiraModel.id)).all()
     
     def filtrar_movimentacao_financeira_saldo_entrada(data_inicio, data_fim):
-        if not data_inicio or not data_fim:
+        if not data_inicio and not data_fim:
             data_inicio = date.today()-timedelta(days=30)
             data_fim = date.today()
         
@@ -203,7 +204,7 @@ class MovimentacaoFinanceiraModel(BaseModel):
 
         if data_inicio and data_fim:
             query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao.between(data_inicio, data_fim))
-        elif data_inicio:
+        if data_inicio:
             query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao >= data_inicio)
         elif data_fim:
             query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao <= data_fim)
@@ -213,7 +214,7 @@ class MovimentacaoFinanceiraModel(BaseModel):
             for q in query ) or 0
     
     def filtrar_movimentacao_financeira_saldo_saida(data_inicio, data_fim):
-        if not data_inicio or not data_fim:
+        if not data_inicio and not data_fim:
             data_inicio = date.today()-timedelta(days=30)
             data_fim = date.today()
 
@@ -221,7 +222,7 @@ class MovimentacaoFinanceiraModel(BaseModel):
                                                                      MovimentacaoFinanceiraModel.tipo_movimentacao.in_([2, 3, 4]))
         if data_inicio and data_fim:
             query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao.between(data_inicio, data_fim))
-        elif data_inicio:
+        if data_inicio:
             query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao >= data_inicio)
         elif data_fim:
             query = query.filter(MovimentacaoFinanceiraModel.data_movimentacao <= data_fim)

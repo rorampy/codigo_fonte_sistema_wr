@@ -258,6 +258,8 @@ def atividades_listar(projeto_id=None):
             'prioridade_id': filtro_prioridade,
             'situacao_id': filtro_situacao,
             'responsavel_id': filtro_responsavel,
+            'solicitante_id': filtro_solicitante,
+            'supervisor_id': filtro_supervisor,
             'titulo': filtro_titulo
         }
     )

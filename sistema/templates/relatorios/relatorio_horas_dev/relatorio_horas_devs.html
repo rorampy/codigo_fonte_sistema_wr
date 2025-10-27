@@ -53,7 +53,7 @@
         width: 200px;
         height: auto;
         max-width: 200px;
-        object-fit: contain; 
+        object-fit: contain;
     }
 
     .system-info {
@@ -357,106 +357,68 @@
                     </div>
                 </div>
 
-                <div class="relatorio-title">Relatório de Movimentações Financeiras</div>
+                <div class="relatorio-title">Relatório de Horas Devs</div>
 
                 <!-- Resumo Financeiro -->
                 <div class="section-title no-break" style="margin-top: 25px;">
-                    Resumo Financeiro do Período
+                    Resumo de Horas Gastas Devs
                 </div>
 
                 <div class="resumo-financeiro no-break">
-                    <div class="card-resumo entradas">
-                        <h4>Total de Entradas</h4>
-                        <p class="valor">{{ saldoEntrada | formatar_float_para_brl }}</p>
-                        <small style="color: #6c757d; font-size: 11px;">Receitas e créditos</small>
-                    </div>
-                    <div class="card-resumo saidas">
-                        <h4>Total de Saídas</h4>
-                        <p class="valor">{{ saldoSaida | formatar_float_para_brl }}</p>
-                        <small style="color: #6c757d; font-size: 11px;">Despesas e débitos</small>
-                    </div>
                     <div class="card-resumo saldo">
-                        <h4>Saldo Líquido</h4>
-                        <p class="valor">{{ saldoLiquido | formatar_float_para_brl }}</p>
-                        <small style="color: #6c757d; font-size: 11px;">Resultado do período</small>
+                        <h4>Total de Horas Gastas</h4>
+                        <p class="valor">{{ historicoHoras|sum(attribute='horas_gastas')}} Horas</p>
+                        <small style="color: #6c757d; font-size: 11px;">Soma total de Horas</small>
                     </div>
                 </div>
 
-                {% if filtro_movimentacao %}
-                <!-- Tabela de movimentações -->
-                <div class="section-title no-break">
-                    Histórico de Movimentações
-                    <span style="float: right; font-weight: normal; font-size: 12px;">
-                        Total: {{ filtro_movimentacao|length }} movimentações
+                {% if historicoHoras %}
+                <!-- Tabela de Horas -->
+                <div class="section-title no-break"
+                    style="display:  flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    Banco de Horas Gastas
+                    <span
+                        style="float: right; font-weight: normal; font-size: 12px; margin-right: 0; max-width: 200px;">
+                        Total: {{ historicoHoras|length }} de registros
                     </span>
                 </div>
 
                 <table style="page-break-before: auto;">
                     <thead>
                         <tr>
-                            <th class="text-center">Data</th>
-                            <th class="text-center">Tipo</th>
-                            <th class="text-center">Descrição</th>
-                            <th class="text-center">Valor</th>
+                            <th style="text-align: center;">Data de Lançamento</th>
+                            <th style="text-align: center;">Projeto</th>
+                            <th style="text-align: center;">Descrição</th>
+                            <th style="text-align: center;">Horas Gastas</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for movimentacao in filtro_movimentacao %}
+                        {% for historico in historicoHoras %}
                         <tr>
-                            <td class="text-center">
-                                {% if movimentacao.data_movimentacao %}
-                                {{ movimentacao.data_movimentacao.strftime('%d/%m/%Y') }}
-                                {% else %}
-                                -
-                                {% endif %}
+                            <td style="text-align: center;" >
+                                {{ historico.data_lancamento.strftime('%d/%m/%Y') if historico.data_lancamento else '-'}}
                             </td>
-                            <td class="text-center">
-                                {% if movimentacao.tipo_movimentacao == 1 %}
-                                <span class="entrada">Entrada</span>
-                                {% else %}
-                                <span class="saida">Saída</span>
-                                {% endif %}
+                            <td>
+                                 {{(historico.atividade.projeto.nome_projeto | default('-')) | truncate(20, True, '...')}}
                             </td>
-                            <td class="text-center">
-                                {% if movimentacao.lancamento and movimentacao.lancamento.descricao %}
-                                {{ movimentacao.lancamento.descricao }}
-                                {% else %}
-                                Movimentação financeira
-                                {% endif %}
+                            <td>
+                                {{ historico.descricao | truncate(50, '...') or '-' }}
                             </td>
-                            <td class="text-center">
-                                {% if movimentacao.valor_movimentacao_100 %}
-                                {% if movimentacao.tipo_movimentacao == 1 %}
-                                <span class="entrada">{{ movimentacao.valor_movimentacao_100 | formatar_float_para_brl
-                                    }}</span>
-                                {% else %}
-                                <span class="saida">{{ movimentacao.valor_movimentacao_100 | formatar_float_para_brl
-                                    }}</span>
-                                {% endif %}
-                                {% else %}
-                                -
-                                {% endif %}
+                            <td style="text-align: center;">
+                                {{ historico.horas_gastas or 0 }}h
                             </td>
                         </tr>
                         {% endfor %}
 
-                        <!-- Linha de Total -->
-                        <tr style="background-color: #e7eef0; border-top: 2px solid #00204E; font-weight: bold;">
-                            <td colspan="3" class="text-center" style="color: #00204E; font-weight: bold;">TOTAIS GERAIS
-                            </td>
-                            <td class="text-center" style="color: #00204E; font-weight: bold;">
-                                {{ saldoLiquido | formatar_float_para_brl }}
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
                 {% else %}
                 <div class="no-break" style="margin-top: 20px; text-align: center; padding: 40px;">
                     <div style="color: #666; font-size: 16px;">
-                        <strong>Nenhuma movimentação encontrada para os filtros aplicados.</strong>
+                        <strong>Nenhum relatorio de hora encontrado para os filtros aplicados.</strong>
                     </div>
                     <div style="color: #999; font-size: 14px; margin-top: 10px;">
-                        Verifique se existem movimentações financeiras cadastradas no período selecionado.
+                        Verifique se existe horas cadastradas no período selecionado.
                     </div>
                 </div>
                 {% endif %}

@@ -19,9 +19,8 @@
         <div class="col-12 col-md-auto ms-auto d-print-none">
           <div class="d-flex gap-2">
             <a href="{{ url_for('kanban_visualizar') }}" class="btn btn-info">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                 <path d="M4 4h6v6h-6z" />
                 <path d="M14 4h6v6h-6z" />
@@ -31,24 +30,23 @@
               Visualizar Kanban
             </a>
             {% if current_user.role.id == 1 %}
-              <a href="{{ url_for('atividade_cadastrar') }}" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <path d="M12 5l0 14" />
-                  <path d="M5 12l14 0" />
-                </svg>
-                Nova Atividade
-              </a>
+            <a href="{{ url_for('atividade_cadastrar') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Nova Atividade
+            </a>
             {% endif %}
             <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-filtros">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round"
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="icon icon-tabler icons-tabler-outline icon-tabler-filter">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+                <path
+                  d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
               </svg>
               Filtrar
             </a>
@@ -64,45 +62,84 @@
       {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
       <!-- Filtros ativos -->
-      {% if filtros and (filtros.projeto_id or filtros.prioridade_id or filtros.situacao_id or filtros.responsavel_id or filtros.titulo) %}
+      {% if filtros and (filtros.projeto_id or filtros.prioridade_id or filtros.situacao_id or filtros.responsavel_id or
+      filtros.titulo or filtros.solicitante_id or filtros.supervisor_id
+      or filtros.data_conclusao_inicio or filtros.data_conclusao_fim) %}
       <div class="card mb-3">
         <div class="card-body py-2">
           <div class="d-flex align-items-center">
             <span class="text-muted me-2">Filtros ativos:</span>
             <div class="d-flex gap-2 flex-wrap">
+
+              {% if filtros.data_conclusao_inicio %}
+              <span class="badge badge-outline">
+                Data Início: {{ filtros.data_conclusao_inicio[8:10]}}/{{ filtros.data_conclusao_inicio[5:7] }}/{{
+                filtros.data_conclusao_inicio[0:4] }}
+              </span>
+              {% endif %}
+
+              {% if filtros.data_conclusao_fim %}
+              <span class="badge badge-outline">
+                Data Fim: {{ filtros.data_conclusao_fim[8:10] }}/{{ filtros.data_conclusao_fim[5:7] }}/{{
+                filtros.data_conclusao_fim[0:4] }}
+              </span>
+              {% endif %}
+
+
               {% if filtros.projeto_id %}
-                {% for projeto in projetos %}
-                  {% if projeto.id|string == filtros.projeto_id|string %}
-                  <span class="badge badge-outline">Projeto: {{ projeto.nome_projeto[:35] }}{% if projeto.nome_projeto | length > 35 %}...{% endif %}</span>
-                  {% endif %}
-                {% endfor %}
+              {% for projeto in projetos %}
+              {% if projeto.id|string == filtros.projeto_id|string %}
+              <span class="badge badge-outline">Projeto: {{ projeto.nome_projeto[:20] }}
+                {% if projeto.nome_projeto | length > 20 %}...{% endif %}</span>
               {% endif %}
+              {% endfor %}
+              {% endif %}
+
               {% if filtros.prioridade_id %}
-                {% for prioridade in prioridades %}
-                  {% if prioridade.id|string == filtros.prioridade_id|string %}
-                  <span class="badge badge-outline">Prioridade: {{ prioridade.nome }}</span>
-                  {% endif %}
-                {% endfor %}
+              {% for prioridade in prioridades %}
+              {% if prioridade.id|string == filtros.prioridade_id|string %}
+              <span class="badge badge-outline">Prioridade: {{ prioridade.nome }}</span>
               {% endif %}
+              {% endfor %}
+              {% endif %}
+
               {% if filtros.situacao_id %}
-                {% for situacao in situacoes %}
-                  {% if situacao.id|string == filtros.situacao_id|string %}
-                  <span class="badge badge-outline">Situação: {{ situacao.nome }}</span>
-                  {% endif %}
-                {% endfor %}
+              {% for situacao in situacoes %}
+              {% if situacao.id|string == filtros.situacao_id|string %}
+              <span class="badge badge-outline">Situação: {{ situacao.nome }}</span>
               {% endif %}
+              {% endfor %}
+              {% endif %}
+
+              {% if filtros.solicitante_id %}
+              {% for usuario in usuarios %}
+              {% if usuario.id|string == filtros.solicitante_id|string %}
+              <span class="badge badge-outline">Solicitante: {{ usuario.nome }}</span>
+              {% endif %}
+              {% endfor %}
+              {% endif %}
+
+              {% if filtros.supervisor_id %}
+              {% for usuario in usuarios %}
+              {% if usuario.id|string == filtros.supervisor_id|string %}
+              <span class="badge badge-outline">Supervisor: {{ usuario.nome }}</span>
+              {% endif %}
+              {% endfor %}
+              {% endif %}
+
               {% if filtros.responsavel_id %}
-                {% for usuario in usuarios %}
-                  {% if usuario.id|string == filtros.responsavel_id|string %}
-                  <span class="badge badge-outline">Responsável: {{ usuario.nome }}</span>
-                  {% endif %}
-                {% endfor %}
+              {% for usuario in usuarios %}
+              {% if usuario.id|string == filtros.responsavel_id|string %}
+              <span class="badge badge-outline">Responsável: {{ usuario.nome }}</span>
               {% endif %}
+              {% endfor %}
+              {% endif %}
+
               {% if filtros.titulo %}
               <span class="badge badge-outline">Título: {{ filtros.titulo }}</span>
               {% endif %}
             </div>
-            <a href="{{ url_for('atividades_listar') }}"  class="btn btn-sm btn-link ms-auto" id="btnLimparFiltros">
+            <a href="{{ url_for('atividades_listar') }}" class="btn btn-sm btn-link ms-auto" id="btnLimparFiltros">
               Limpar filtros
             </a>
           </div>
@@ -132,40 +169,38 @@
                 <tr>
                   <!-- Implementado um Tooltip para o poder visualizar a descrição sem precisar abrir a tarefa-->
                   <td>
-                      <div>
-                          <strong 
-                              data-bs-toggle="tooltip" 
-                              data-bs-placement="right" 
-                              data-bs-html="true"
-                              data-bs-custom-class="tooltip-atividade-descricao"
-                              title="{{ atividade.descricao|striptags|truncate(500) if atividade.descricao and atividade.descricao|trim != '' else 'Sem descrição disponível' }}"
-                              style="cursor: default; border-bottom: 1px #999;">
-                              {{ atividade.titulo[:50] }}{% if atividade.titulo | length > 50 %}...{% endif %}
-                          </strong>
-                      </div>
-                      {% set total_anexos = atividade.anexos.filter_by(deletado=False).count() %}
-                      {% if total_anexos > 0 %}
-                      <div class="text-muted small">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24" 
-                              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                              <path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
-                          </svg>
-                          {{ total_anexos }} anexo(s)
-                      </div>
-                      {% endif %}
+                    <div>
+                      <strong data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true"
+                        data-bs-custom-class="tooltip-atividade-descricao"
+                        title="{{ atividade.descricao|striptags|truncate(500) if atividade.descricao and atividade.descricao|trim != '' else 'Sem descrição disponível' }}"
+                        style="cursor: default; border-bottom: 1px #999;">
+                        {{ atividade.titulo[:50] }}{% if atividade.titulo | length > 50 %}...{% endif %}
+                      </strong>
+                    </div>
+                    {% set total_anexos = atividade.anexos.filter_by(deletado=False).count() %}
+                    {% if total_anexos > 0 %}
+                    <div class="text-muted small">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24"
+                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path
+                          d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
+                      </svg>
+                      {{ total_anexos }} anexo(s)
+                    </div>
+                    {% endif %}
                   </td>
                   <td style="text-align: center;">
                     {% if atividade.prioridade.nome.lower() == 'baixa' %}
-                      <span class="badge bg-green text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge bg-green text-white">{{ atividade.prioridade.nome }}</span>
                     {% elif atividade.prioridade.nome.lower() == 'média' %}
-                      <span class="badge bg-yellow text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge bg-yellow text-white">{{ atividade.prioridade.nome }}</span>
                     {% elif atividade.prioridade.nome.lower() == 'alta' %}
-                      <span class="badge bg-orange text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge bg-orange text-white">{{ atividade.prioridade.nome }}</span>
                     {% elif atividade.prioridade.nome.lower() == 'urgente' %}
-                      <span class="badge bg-red text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge bg-red text-white">{{ atividade.prioridade.nome }}</span>
                     {% else %}
-                      <span class="badge bg-blue text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge bg-blue text-white">{{ atividade.prioridade.nome }}</span>
                     {% endif %}
                   </td>
                   <td style="text-align: center;">
@@ -173,93 +208,102 @@
                   </td>
                   <td style="text-align: center;">
                     {% if atividade.situacao.id in [4, 5] %}
-                      ---
+                    ---
                     {% elif atividade.data_prazo_conclusao %}
-                      <span class="{% if atividade.esta_atrasada %}text-danger{% endif %}">
-                        {{ atividade.data_prazo_conclusao.strftime('%d/%m/%Y') }}
-                      </span>
+                    <span class="{% if atividade.esta_atrasada %}text-danger{% endif %}">
+                      {{ atividade.data_prazo_conclusao.strftime('%d/%m/%Y') }}
+                    </span>
                     {% else %}
-                      <span class="text-muted">-</span>
+                    <span class="text-muted">-</span>
                     {% endif %}
                   </td>
                   <td style="text-align: center;">
                     {% if atividade.usuario_solicitante %}
-                      <div class="d-flex align-items-center justify-content-center">
-                        <span class="avatar avatar-sm me-2">
-                          {{ atividade.usuario_solicitante.nome[0].upper() }}
-                        </span>
-                        <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.usuario_solicitante.nome }}">
-                          {{ atividade.usuario_solicitante.nome[:15] }}{% if atividade.usuario_solicitante.nome | length > 15 %}...{% endif %}
-                        </div>
+                    <div class="d-flex align-items-center justify-content-center">
+                      <span class="avatar avatar-sm me-2">
+                        {{ atividade.usuario_solicitante.nome[0].upper() }}
+                      </span>
+                      <div class="text-truncate" style="max-width: 100px;"
+                        title="{{ atividade.usuario_solicitante.nome }}">
+                        {{ atividade.usuario_solicitante.nome[:15] }}{% if atividade.usuario_solicitante.nome | length >
+                        15 %}...{% endif %}
                       </div>
+                    </div>
                     {% else %}
-                      <span class="text-muted">-</span>
+                    <span class="text-muted">-</span>
                     {% endif %}
                   </td>
                   <td style="text-align: center;">
                     {% if atividade.supervisor %}
-                      <div class="d-flex align-items-center justify-content-center">
-                        <span class="avatar avatar-sm me-2">
-                          {{ atividade.supervisor.nome[0].upper() }}
-                        </span>
-                        <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.supervisor.nome }}">
-                          {{ atividade.supervisor.nome[:15] }}{% if atividade.supervisor.nome | length > 15 %}...{% endif %}
-                        </div>
+                    <div class="d-flex align-items-center justify-content-center">
+                      <span class="avatar avatar-sm me-2">
+                        {{ atividade.supervisor.nome[0].upper() }}
+                      </span>
+                      <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.supervisor.nome }}">
+                        {{ atividade.supervisor.nome[:15] }}{% if atividade.supervisor.nome | length > 15 %}...{% endif
+                        %}
                       </div>
+                    </div>
                     {% else %}
-                      <span class="text-muted">-</span>
+                    <span class="text-muted">-</span>
                     {% endif %}
                   </td>
                   <td style="text-align: center;">
                     {% if atividade.desenvolvedor %}
-                      <div class="d-flex align-items-center justify-content-center">
-                        <span class="avatar avatar-sm me-2">
-                          {{ atividade.desenvolvedor.nome[0].upper() }}
-                        </span>
-                        <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.desenvolvedor.nome }}">
-                          {{ atividade.desenvolvedor.nome[:15] }}{% if atividade.desenvolvedor.nome | length > 15 %}...{% endif %}
-                        </div>
+                    <div class="d-flex align-items-center justify-content-center">
+                      <span class="avatar avatar-sm me-2">
+                        {{ atividade.desenvolvedor.nome[0].upper() }}
+                      </span>
+                      <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.desenvolvedor.nome }}">
+                        {{ atividade.desenvolvedor.nome[:15] }}{% if atividade.desenvolvedor.nome | length > 15 %}...{%
+                        endif %}
                       </div>
+                    </div>
                     {% else %}
-                      <span class="text-muted">-</span>
+                    <span class="text-muted">-</span>
                     {% endif %}
                   </td>
                   <td>
                     <div class="btn-list flex-nowrap" style="justify-content: center; gap: 8px;">
                       <!-- Botão Lançar Horas: Habilitado apenas para supervisor ou desenvolvedor -->
                       {% if atividade.situacao_id in [4, 5] %}
-                      <span class="btn btn-icon btn-outline-secondary disabled" title="Atividade concluída - não é possível lançar horas">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <span class="btn btn-icon btn-outline-secondary disabled"
+                        title="Atividade concluída - não é possível lançar horas">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                           <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                           <path d="M12 7v5l3 3" />
                         </svg>
                       </span>
-                      {% elif current_user.id == atividade.supervisor_id or current_user.id == atividade.desenvolvedor_id or current_user.role.id == 1 %}
-                      <a href="{{ url_for('lancamento_horas_cadastrar', atividade_id=atividade.id) }}" class="btn btn-icon btn-outline-success" title="Lançar Horas">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      {% elif current_user.id == atividade.supervisor_id or current_user.id ==
+                      atividade.desenvolvedor_id or current_user.role.id == 1 %}
+                      <a href="{{ url_for('lancamento_horas_cadastrar', atividade_id=atividade.id) }}"
+                        class="btn btn-icon btn-outline-success" title="Lançar Horas">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                           <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                           <path d="M12 7v5l3 3" />
                         </svg>
                       </a>
                       {% else %}
-                      <span class="btn btn-icon btn-outline-secondary disabled" title="Apenas supervisor ou desenvolvedor podem lançar horas">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <span class="btn btn-icon btn-outline-secondary disabled"
+                        title="Apenas supervisor ou desenvolvedor podem lançar horas">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                           <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                           <path d="M12 7v5l3 3" />
                         </svg>
                       </span>
                       {% endif %}
-                      
+
                       <!-- Botão Visualizar: Sempre ativo para todos -->
-                      <a href="{{ url_for('atividade_visualizar', atividade_id=atividade.id) }}" class="btn btn-icon btn-outline-info" title="Visualizar Detalhes">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <a href="{{ url_for('atividade_visualizar', atividade_id=atividade.id) }}"
+                        class="btn btn-icon btn-outline-info" title="Visualizar Detalhes">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
                           <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
@@ -268,9 +312,10 @@
 
                       <!-- Botão Editar: Habilitado apenas para supervisor -->
                       {% if atividade.situacao_id in [4, 5] %}
-                      <span class="btn btn-icon btn-outline-secondary disabled" title="Atividade concluída - não é possível editar">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <span class="btn btn-icon btn-outline-secondary disabled"
+                        title="Atividade concluída - não é possível editar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
                           <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
@@ -279,10 +324,10 @@
                       </span>
                       {% elif current_user.id == atividade.supervisor_id or current_user.role.id == 1 %}
                       <a href="{{ url_for('atividade_editar', atividade_id=atividade.id) }}"
-                        class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip"
-                        data-bs-placement="top" title="Editar Atividade">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                        class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Editar Atividade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
                           <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
@@ -290,9 +335,10 @@
                         </svg>
                       </a>
                       {% else %}
-                      <span class="btn btn-icon btn-outline-secondary disabled" title="Apenas supervisor pode editar a atividade">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <span class="btn btn-icon btn-outline-secondary disabled"
+                        title="Apenas supervisor pode editar a atividade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
                           <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
@@ -304,31 +350,41 @@
                       <!-- Botão Duplicar: Habilitado apenas para supervisor -->
                       {% if current_user.id == atividade.supervisor_id or current_user.role.id == 1 %}
                       <a href="#" onclick="duplicarAtividade({{ atividade.id }})"
-                        class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip"
-                        data-bs-placement="top" title="Duplicar Atividade">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                        class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Duplicar Atividade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path>
-                          <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path>
+                          <path
+                            d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z">
+                          </path>
+                          <path
+                            d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1">
+                          </path>
                         </svg>
                       </a>
                       {% else %}
-                      <span class="btn btn-icon btn-outline-secondary disabled" title="Apenas supervisor pode duplicar a atividade">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <span class="btn btn-icon btn-outline-secondary disabled"
+                        title="Apenas supervisor pode duplicar a atividade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path>
-                          <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path>
+                          <path
+                            d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z">
+                          </path>
+                          <path
+                            d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1">
+                          </path>
                         </svg>
                       </span>
                       {% endif %}
 
                       <!-- Botão Excluir: Habilitado apenas para supervisor -->
                       {% if atividade.situacao_id in [4, 5] %}
-                      <span class="btn btn-icon btn-outline-secondary disabled" title="Atividade concluída - não é possível excluir">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <span class="btn btn-icon btn-outline-secondary disabled"
+                        title="Atividade concluída - não é possível excluir">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M4 7l16 0"></path>
                           <path d="M10 11l0 6"></path>
@@ -338,10 +394,10 @@
                         </svg>
                       </span>
                       {% elif current_user.id == atividade.supervisor_id or current_user.role.id == 1 %}
-                      <a href="{{ url_for('atividade_excluir', id=atividade.id) }}" class="btn btn-icon btn-outline-red" data-bs-toggle="tooltip"
-                        data-bs-placement="top" title="Excluir Atividade">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <a href="{{ url_for('atividade_excluir', id=atividade.id) }}" class="btn btn-icon btn-outline-red"
+                        data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Atividade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M4 7l16 0"></path>
                           <path d="M10 11l0 6"></path>
@@ -351,9 +407,10 @@
                         </svg>
                       </a>
                       {% else %}
-                      <span class="btn btn-icon btn-outline-secondary disabled" title="Apenas supervisor pode excluir a atividade">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <span class="btn btn-icon btn-outline-secondary disabled"
+                        title="Apenas supervisor pode excluir a atividade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M4 7l16 0"></path>
                           <path d="M10 11l0 6"></path>
@@ -374,9 +431,9 @@
         {% else %}
         <div class="empty">
           <div class="empty-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" 
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3v-13" />
               <path d="M9 4v13" />
               <path d="M15 7v13" />
@@ -388,9 +445,9 @@
           </p>
           <div class="empty-action">
             <a href="{{ url_for('atividade_cadastrar') }}" class="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" 
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                 <path d="M12 5l0 14" />
                 <path d="M5 12l14 0" />
               </svg>
@@ -406,7 +463,7 @@
   <!-- Modal de Filtros -->
   <div class="modal modal-blur fade" id="modal-filtros" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-      <form action="{{ url_for('atividades_listar') }}" method="GET">
+      <form id="form-filtros-atividades" action="{{ url_for('atividades_listar') }}" method="GET">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Filtrar atividades</h5>
@@ -416,13 +473,13 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label">Data de Conclusão (Início)</label>
-                <input type="date" name="data_conclusao_inicio" class="form-control" 
-                      value="{{ filtros.data_conclusao_inicio or '' }}">
+                <input type="date" name="data_conclusao_inicio" class="form-control"
+                  value="{{ filtros.data_conclusao_inicio or '' }}">
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">Data de Conclusão (Fim)</label>
-                <input type="date" name="data_conclusao_fim" class="form-control" 
-                      value="{{ filtros.data_conclusao_fim or '' }}">
+                <input type="date" name="data_conclusao_fim" class="form-control"
+                  value="{{ filtros.data_conclusao_fim or '' }}">
               </div>
 
               <!-- Projetos com 4 colunas-->
@@ -431,20 +488,22 @@
                 <select name="projeto_id" class="form-select">
                   <option value="">Todos os projetos</option>
                   {% for projeto in projetos %}
-                  <option value="{{ projeto.id }}" {% if filtros.projeto_id|string == projeto.id|string %}selected{% endif %}>
+                  <option value="{{ projeto.id }}" {% if filtros.projeto_id|string==projeto.id|string %}selected{% endif
+                    %}>
                     {{ projeto.nome_projeto }}
                   </option>
                   {% endfor %}
                 </select>
               </div>
 
-            <!-- Prioridade com 4 colunas-->
+              <!-- Prioridade com 4 colunas-->
               <div class="col-md-4 mb-3">
                 <label class="form-label">Prioridade</label>
                 <select name="prioridade_id" class="form-select">
                   <option value="">Todas as prioridades</option>
                   {% for prioridade in prioridades %}
-                  <option value="{{ prioridade.id }}" {% if filtros.prioridade_id|string == prioridade.id|string %}selected{% endif %}>
+                  <option value="{{ prioridade.id }}" {% if filtros.prioridade_id|string==prioridade.id|string
+                    %}selected{% endif %}>
                     {{ prioridade.nome }}
                   </option>
                   {% endfor %}
@@ -456,7 +515,8 @@
                 <select name="situacao_id" class="form-select">
                   <option value="">Todas as situações</option>
                   {% for situacao in situacoes %}
-                  <option value="{{ situacao.id }}" {% if filtros.situacao_id|string == situacao.id|string %}selected{% endif %}>
+                  <option value="{{ situacao.id }}" {% if filtros.situacao_id|string==situacao.id|string %}selected{%
+                    endif %}>
                     {{ situacao.nome }}
                   </option>
                   {% endfor %}
@@ -470,7 +530,8 @@
                 <select name="solicitante_id" class="form-select">
                   <option value="">Todos os solicitantes</option>
                   {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}" {% if filtros.solicitante_id|string == usuario.id|string %}selected{% endif %}>
+                  <option value="{{ usuario.id }}" {% if filtros.solicitante_id|string==usuario.id|string %}selected{%
+                    endif %}>
                     {{ usuario.nome }}
                   </option>
                   {% endfor %}
@@ -485,8 +546,8 @@
                 <select name="supervisor_id" class="form-select">
                   <option value="">Todos os supervisores</option>
                   {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}" 
-                  {% if filtros.supervisor_id|string == usuario.id|string %}selected{% endif %}>
+                  <option value="{{ usuario.id }}" {% if filtros.supervisor_id|string==usuario.id|string %}selected{%
+                    endif %}>
                     {{ usuario.nome }}
                   </option>
                   {% endfor %}
@@ -501,7 +562,8 @@
                 <select name="responsavel_id" class="form-select">
                   <option value="">Todos os devs</option>
                   {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}" {% if filtros.responsavel_id|string == usuario.id|string %}selected{% endif %}>
+                  <option value="{{ usuario.id }}" {% if filtros.responsavel_id|string==usuario.id|string %}selected{%
+                    endif %}>
                     {{ usuario.nome }}
                   </option>
                   {% endfor %}
@@ -509,20 +571,18 @@
               </div>
               <div class="col-md-12 mb-3">
                 <label class="form-label">Título</label>
-                <input type="text" name="titulo" class="form-control" 
-                  value="{{ filtros.titulo or '' }}"
+                <input type="text" name="titulo" class="form-control" value="{{ filtros.titulo or '' }}"
                   placeholder="Buscar no título da atividade...">
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <a href="{{ url_for('atividades_listar') }}" class="btn btn-link link-secondary">
+            <a href="{{ url_for('atividades_listar') }}" class="btn btn-link link-secondary" id="btnLimparFiltrosModal">
               Limpar Filtros
             </a>
             <button type="submit" class="btn btn-primary ms-auto">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" class="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                 <path d="M12 5l0 14" />
                 <path d="M5 12l14 0" />
               </svg>
@@ -539,25 +599,111 @@
 
 <script>
 
-function verDetalhesAtividade(atividadeId) {
-    fetch(`/kanban/detalhes/${atividadeId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                mostrarDetalhesModal(data.atividade);
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-        });
-}
+  // Salvar filtros no sessionStorage ao aplicar
+  document.addEventListener('DOMContentLoaded', function () {
+    const storageKey = 'filtrosAtividades'; //Chave exclusiva dessa tela
+    const form = document.querySelector('#form-filtros-atividades'); // Seu formulário de filtros
 
-function mostrarDetalhesModal(atividade) {
+
+    // Salvar filtros ao submeter
+    if (form) {
+      form.addEventListener('submit', function () {
+        const formData = new FormData(form);
+        const filtros = {};
+        for (let [key, value] of formData.entries()) {
+          if (value) filtros[key] = value;
+        }
+        sessionStorage.setItem(storageKey, JSON.stringify(filtros));
+      });
+    }
+
+    // Salvar estado atual dos filtros da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.toString()) {
+      const filtros = {};
+      for (let [key, value] of urlParams.entries()) {
+        filtros[key] = value;
+      }
+      sessionStorage.setItem(storageKey, JSON.stringify(filtros));
+    }
+
+    const btnLimpar = document.querySelector('#btnLimparFiltros');
+
+    if (btnLimpar) {
+      btnLimpar.addEventListener('click', function (e) {
+        e.preventDefault(); // Previne o comportamento padrão do link
+
+        console.log('🗑️ Limpando filtros...');
+
+        // 1. Remove do sessionStorage
+        sessionStorage.removeItem(storageKey);
+        window.location.href = this.href || window.location.pathname;
+
+        // 2. Limpa todos os campos do formulário
+        if (form) {
+          // Limpa inputs de texto e date
+          form.querySelectorAll('input[type="text"], input[type="date"]').forEach(input => {
+            input.value = '';
+          });
+
+          // Reseta selects para a primeira opção (geralmente "Todos")
+          form.querySelectorAll('select').forEach(select => {
+            select.selectedIndex = 0;
+          });
+        }
+
+        // 3. Redireciona para a página sem parâmetros
+
+        console.log('✅ Filtros limpos!');
+      });
+    }
+
+    //Limpar filtros pelo modal
+    const btnLimparModal = document.querySelector('#btnLimparFiltrosModal');
+    if (btnLimparModal) {
+      btnLimparModal.addEventListener('click', function (e) {
+        e.preventDefault();
+        sessionStorage.removeItem(storageKey);
+        if (form) {
+          form.querySelectorAll('input[type="text"], input[type="date"]').forEach(i => i.value = '');
+          form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+        }
+        window.location.href = this.href || window.location.pathname;
+      })
+    }
+
+    // Restaurar filtros salvos
+    const filtrosSalvos = sessionStorage.getItem(storageKey);
+    if (filtrosSalvos && !window.location.search) {
+      const filtros = JSON.parse(filtrosSalvos);
+      Object.keys(filtros).forEach(key => {
+        const el = document.querySelector(`[name="${key}"]`);
+        if (el) el.value = filtros[key];
+      });
+      form.submit();
+    }
+
+  });
+
+  function verDetalhesAtividade(atividadeId) {
+    fetch(`/kanban/detalhes/${atividadeId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          mostrarDetalhesModal(data.atividade);
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+      });
+  }
+
+  function mostrarDetalhesModal(atividade) {
     const modal = new bootstrap.Modal(document.getElementById('modal-detalhes'));
     const conteudo = document.getElementById('modal-detalhes-conteudo');
-    
+
     document.getElementById('modal-detalhes-titulo').textContent = atividade.titulo;
-    
+
     conteudo.innerHTML = `
         <div class="row">
             <div class="col-md-8">
@@ -602,41 +748,41 @@ function mostrarDetalhesModal(atividade) {
             </div>
         </div>
     `;
-    
-    document.getElementById('btn-editar-atividade').href = `/gerenciar/atividades/editar/${atividade.id}`;
-    
-    modal.show();
-}
 
-function duplicarAtividade(atividadeId) {
+    document.getElementById('btn-editar-atividade').href = `/gerenciar/atividades/editar/${atividade.id}`;
+
+    modal.show();
+  }
+
+  function duplicarAtividade(atividadeId) {
     if (confirm('Deseja duplicar esta atividade?')) {
-        fetch(`/gerenciar/atividades/duplicar/${atividadeId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
+      fetch(`/gerenciar/atividades/duplicar/${atividadeId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert(data.message);
-            }
+          if (data.success) {
+            location.reload();
+          } else {
+            alert(data.message);
+          }
         })
         .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao duplicar atividade');
+          console.error('Erro:', error);
+          alert('Erro ao duplicar atividade');
         });
     }
-}
+  }
 
-// Inicializar tooltips
-document.addEventListener('DOMContentLoaded', function() {
+  // Inicializar tooltips
+  document.addEventListener('DOMContentLoaded', function () {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+      return new bootstrap.Tooltip(tooltipTriggerEl);
     });
-});
+  });
 </script>
 {% endblock conteudo %}

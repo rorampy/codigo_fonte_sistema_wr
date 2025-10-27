@@ -70,32 +70,33 @@ def movimentacao_financeira():
 @login_required
 def exportar_movimentacao_financeira():
     try: 
-        changelog = ChangelogModel.obter_numero_versao_changelog_mais_recente()
-        dataHoje = DataHora.obter_data_atual_padrao_br()
+        if request.method == 'GET':
+            changelog = ChangelogModel.obter_numero_versao_changelog_mais_recente()
+            dataHoje = DataHora.obter_data_atual_padrao_br()
 
-        dataInicio = request.args.get('data_inicio_financeiro')
-        dataFim = request.args.get('data_final_financeiro')
-        
-        filtro_movimentacao = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira(data_inicio=dataInicio, data_fim=dataFim)
-        saldoEntrada = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_entrada(data_inicio=dataInicio, data_fim=dataFim)
-        print('Saldo entrada:', saldoEntrada)
-        saldoSaida = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_saida(data_inicio=dataInicio, data_fim=dataFim)
-        print('Saldo entrada:', saldoSaida)
-        saldoLiquido = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_liquido(data_inicio=dataInicio, data_fim=dataFim)
-        
-        logo_path = obter_url_absoluta_de_imagem("/logo_wr_sem_fundo.png")
+            dataInicio = request.args.get('data_inicio_financeiro')
+            dataFim = request.args.get('data_final_financeiro')
+            
+            filtro_movimentacao = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira(data_inicio=dataInicio, data_fim=dataFim)
+            saldoEntrada = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_entrada(data_inicio=dataInicio, data_fim=dataFim)
+            print('Saldo entrada:', saldoEntrada)
+            saldoSaida = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_saida(data_inicio=dataInicio, data_fim=dataFim)
+            print('Saldo entrada:', saldoSaida)
+            saldoLiquido = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_liquido(data_inicio=dataInicio, data_fim=dataFim)
+            
+            logo_path = obter_url_absoluta_de_imagem("logo_relatorios.png")
 
-        html=render_template(
-            "relatorios/relatorios_financeiros/relatorio_movimentacao_financeira.html",
-            changelog = changelog, dataHoje = dataHoje, filtro_movimentacao = filtro_movimentacao, saldoEntrada = saldoEntrada,
-            saldoSaida = saldoSaida, saldoLiquido = saldoLiquido, logo_path = logo_path
-        )
+            html=render_template(
+                "relatorios/relatorios_financeiros/relatorio_movimentacao_financeira.html",
+                changelog = changelog, dataHoje = dataHoje, filtro_movimentacao = filtro_movimentacao, saldoEntrada = saldoEntrada,
+                saldoSaida = saldoSaida, saldoLiquido = saldoLiquido, logo_path = logo_path
+            )
 
-        nome_arquivo_saida = f"relatorio_movimentacao_financeira-{dataHoje}"
+            nome_arquivo_saida = f"relatorio_movimentacao_financeira-{dataHoje}"
 
-        pdf = ManipulacaoArquivos.gerar_pdf_from_html(html, nome_arquivo_saida)
+            pdf = ManipulacaoArquivos.gerar_pdf_from_html(html, nome_arquivo_saida)
 
-        return pdf
+            return pdf
 
     except Exception as e:
         print('Algo deu errao ao exportar o relatório', e)
