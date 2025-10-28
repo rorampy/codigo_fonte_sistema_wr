@@ -494,7 +494,43 @@ def atividade_editar(atividade_id):
     if not atividade:
         flash(("Atividade não encontrada!", "warning"))
         return redirect(url_for("atividades_listar"))
+    
+    #Opção de Marcar como concluído pelo usuário solicitante
 
+    if request.method == 'POST':
+        acao = request.form.get('acao')
+
+        # Se a ação for de concluir
+        if acao == 'concluir':
+            # Confirmar que o usuário é o solicitante ou o supervisor
+            if current_user.id == atividade.usuario_solicitante_id or current_user.id == atividade.supervisor_id:
+                #Verifica se houve lançamento de horas
+                from sistema.models_views.sistema_wr.gerenciar.projetos.lancamento_horas_model import LancamentoHorasModel
+                
+                total_lancamentos = LancamentoHorasModel.query.filter(
+                    LancamentoHorasModel.atividade_id == atividade_id,
+                    LancamentoHorasModel.deletado == False
+                ).count()
+
+                if total_lancamentos > 0:
+                    try:
+                        atividade.situacao_id = 4 #ID 4 = Concluída
+                        atividade.data_alteracao = datetime.now()
+                        db.session.commit()
+
+                        flash(('Atividade marcada como concluída!', 'success'))
+                        return redirect(url_for('atividade_visualizar', atividade_id = atividade_id))
+                    except Exception as e:
+                        db.session.rollback()
+                        flash((f'Erro ao concluir atividade: {str(e)}', 'error'))
+                else:
+                    flash(('A atividade deve ter pelo menos 1 lançamento de hora para ser concluída.', 'warning'))
+            else:
+                flash(('Apenas o solicitante ou supervisor pode concluir a atividade.', 'error'))
+            
+            # Redirecionar de volta para a edição se houve erro
+            return redirect(url_for('atividade_editar', atividade_id=atividade_id))
+        
     validacao_campos_obrigatorios = {}
     validacao_campos_erros = {}
     gravar_banco = True
