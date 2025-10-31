@@ -10,7 +10,6 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 200px;
 }
 
 body {
@@ -119,6 +118,7 @@ section {
   color: var(--color-white);
   text-align: center;
   position: relative;
+  z-index: 100;
 }
 
 .hero-background {
@@ -139,7 +139,7 @@ section {
 .bg-img-1 {
   width: 100%;
   height: 100%;
-  top: -88px;
+  top: -5px;
   left: 0;
   filter: brightness(.7);
 }
@@ -353,7 +353,7 @@ section {
   align-items: center;
   gap: 80px;
   z-index: 10;
-  scroll-margin-top: 150px;
+
 }
 
 .solutions-bg-pattern {
@@ -403,20 +403,19 @@ section {
 }
 
 .feature-bar-item--blue {
-  background: radial-gradient(180% 100% at 50% 0%, 
-  rgba(255, 255, 255, 0) 0%, 
-  #024ab4 30%, 
-  #024ab4 100%);
+  background: radial-gradient(180% 100% at 50% 0%,
+      rgba(255, 255, 255, 0) 0%,
+      #024ab4 30%,
+      #024ab4 100%);
   border-radius: 20px 0 0 20px;
   flex: 1;
 }
 
 .feature-bar-item--orange {
-  background: radial-gradient(
-  180% 120% at 50% 0%,
-  rgba(255, 255, 255, 0.25) 0%,
-  #ff7901 30%,
-  #ff7901 100%);
+  background: radial-gradient(180% 120% at 50% 0%,
+      rgba(255, 255, 255, 0.25) 0%,
+      #ff7901 30%,
+      #ff7901 100%);
   flex: 1.2;
 }
 
@@ -542,7 +541,6 @@ section {
   position: relative;
   padding: 40px;
   border-radius: 32px;
-  scroll-margin-top: 650px;
   box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 758px;
@@ -574,13 +572,13 @@ section {
 .solution-card--marchantes {
   background: radial-gradient(circle, #bdd7ff 0%, #ffffff 100%);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  scroll-margin-top: 650px;
+
 }
 
 .solution-card--madeireiros {
   background: radial-gradient(circle, #ffccaa 0%, #ffffff 100%);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  scroll-margin-top: 1200px;
+
 }
 
 .solution-header,
@@ -1222,12 +1220,12 @@ section {
 
   .bg-img-1 {
     opacity: 0;
-    height: 520px;
+    height: 100%;
   }
 
   .bg-img-2 {
     opacity: 1;
-    height: 520px;
+    height: 100%;
     filter: brightness(.7);
   }
 
