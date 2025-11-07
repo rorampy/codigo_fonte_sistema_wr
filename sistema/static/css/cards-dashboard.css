@@ -6,10 +6,11 @@
   transition: all 0.2s ease;
 }
 
+
 .clean-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transform: translateY(-1px);
 }
+
 
 .accent-orange {
   color: #FF8D41;
