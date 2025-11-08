@@ -522,12 +522,22 @@ def atividade_solicitacao_editar(id):
         
         if gravar_banco:
             try:
+                # Buscar o prazo atual de resposta
+                prazo_resposta_dias = 7 # Valor padrão
+                try:
+                    variaveis = VariavelSistemaModel.obter_variaveis_de_sistema_por_id(1)
+                    if variaveis and hasattr(variaveis, 'prazo_atividades') and variaveis.prazo_atividades:
+                        prazo_resposta_dias = int(variaveis.prazo_atividades)
+                except Exception as e:
+                    print(f"Erro ao obter variável de sistema: {e}")
+                    # Mantem o valor padrão 
+
                 # Atualizar dados da solicitação
                 solicitacao.projeto_id = projeto_id
                 solicitacao.titulo = titulo
                 solicitacao.descricao = descricao
                 solicitacao.situacao_id = 7  # 7 = Em Análise (volta para análise)
-                
+                solicitacao.prazo_resposta_dias = prazo_resposta_dias 
                 # Processar anexos se houver
                 anexos = request.files.getlist('anexos[]')
                 anexos_processados = 0
@@ -564,7 +574,7 @@ def atividade_solicitacao_editar(id):
                 
                 db.session.commit()
                 
-                mensagem_sucesso = "Solicitação atualizada com sucesso!"
+                mensagem_sucesso = f"Solicitação reenviada com sucesso! Novo prazo para resposta: {prazo_resposta_dias} dias."
                 if anexos_processados > 0:
                     mensagem_sucesso += f" ({anexos_processados} anexo(s) adicionado(s))"
                 
