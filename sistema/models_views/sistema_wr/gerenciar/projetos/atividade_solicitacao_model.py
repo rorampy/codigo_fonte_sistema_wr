@@ -15,6 +15,7 @@ class SolicitacaoAtividadeModel(BaseModel):
     situacao_id = db.Column(db.Integer, db.ForeignKey('z_sys_andamento_atividade.id'), nullable=False, default=7)  # 7 = Em Análise
     usuario_solicitante_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     motivo_rejeicao = db.Column(db.Text, nullable=True)
+    prazo_resposta_dias = db.Column(db.Integer, nullable=False, default=7)  # Novo campo para prazo de resposta em dias
     
     # Relacionamentos
     projeto = db.relationship('ProjetoModel', backref='proj_solicitacao_atividade')
@@ -25,13 +26,32 @@ class SolicitacaoAtividadeModel(BaseModel):
                                        "SolicitacaoAtividadeAnexoModel.deletado==False)")
     
     
-    def __init__(self, projeto_id, titulo, descricao, usuario_solicitante_id, situacao_id=7):
+    def __init__(self, projeto_id, titulo, descricao, usuario_solicitante_id, situacao_id=7, prazo_resposta_dias=7):
         self.projeto_id = projeto_id
         self.titulo = titulo
         self.descricao = descricao
         self.usuario_solicitante_id = usuario_solicitante_id
         self.situacao_id = situacao_id
+        self.prazo_resposta_dias = prazo_resposta_dias
     
+    def prazo_vencido(self):
+        """
+        Verifica se o prazo de resposta da solicitação já venceu
+        """
+        data_limite = self.obter_data_limite_resposta()
+        if data_limite:
+            return datetime.now() > data_limite
+        return False
+    
+    def dias_restantes(self):
+        """
+        Calcula os dias restantes para o prazo de resposta
+        """
+        data_limite = self.obter_data_limite_resposta()
+        if data_limite:
+            diferenca = data_limite - datetime.now()
+            return diferenca.days
+        return None
     
     @staticmethod
     def listar_solicitacoes():

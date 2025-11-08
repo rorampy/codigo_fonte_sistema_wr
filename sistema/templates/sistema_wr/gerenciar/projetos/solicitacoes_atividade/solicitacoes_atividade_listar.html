@@ -140,6 +140,9 @@
                     <th>Título</th>
                     <th>Solicitante</th>
                     <th>Status</th>
+                    {% if current_user.role_id == 1 %}
+                    <th>Prazo</th>
+                    {% endif %}
                     <th>Data Solicitação</th>
                     <th>Data Limite</th>
                     <th class="w-1">Ações</th>
@@ -152,7 +155,7 @@
                       <span class="text-secondary">#{{ solicitacao.id }}</span>
                     </td>
                     <td>
-                      <span class="badge bg-blue text-white">{{ solicitacao.projeto.nome_projeto }}</span>
+                      <span class="badge badge-outline text-blue">{{ solicitacao.projeto.nome_projeto }}</span>
                     </td>
                     <td>
                       <div class="d-flex py-1 align-items-center">
@@ -171,7 +174,7 @@
                       </div>
                     </td>
                     <td>
-                      <div class="d-flex py-1 align-items-center">
+                      <div class="d-flex py-1 align-items-center ms-2">
                         <div class="flex-fill">
                           <div class="fw-bold">{{ solicitacao.usuario_solicitante.nome }}</div>
                           <div class="text-secondary">{{ solicitacao.usuario_solicitante.role.cargo }}</div>
@@ -180,22 +183,30 @@
                     </td>
                     <td>
                       {% if solicitacao.situacao_id == 7 %}
-                      <span class="badge bg-warning text-white">Em Análise</span>
+                      <span class="badge badge-outline text-orange">Em Análise</span>
                       {% elif solicitacao.situacao_id == 8 %}
-                      <span class="badge bg-danger text-white">Rejeitada</span>
+                      <span class="badge badge-outline text-red">Rejeitada</span>
                       {% elif solicitacao.situacao_id == 3 %}
-                      <span class="badge bg-success text-white">Aceita</span>
+                      <span class="badge badge-outline text-green">Aceita</span>
                       {% else %}
                       <span class="badge bg-secondary text-white">{{ solicitacao.situacao.nome }}</span>
                       {% endif %}
                     </td>
+                    {% if current_user.role_id == 1 %}
+                    <td>
+                      <span class="badge badge-outline text-cyan">
+                        {{ solicitacao.prazo_resposta_dias }} dia{{'s' if solicitacao.prazo_resposta_dias != 1 else ''}}
+                      </span>
+                    </td>
+                    {% endif %}
                     <td>
                       {{ solicitacao.data_cadastro | formatar_data_hora_para_brl }}
                     </td>
                     <!-- Data Limite: data_alteracao + 48 horas -->
                     <td>
-                      {% set data_limite = solicitacao.data_alteracao | adicionar_horas(48) %}
-                      {% set prazo_vencido = solicitacao.data_alteracao | prazo_vencido %}
+                      {% set horas_prazo = solicitacao.prazo_resposta_dias * 24 %}
+                      {% set data_limite = solicitacao.data_cadastro | adicionar_horas(horas_prazo) %}
+                      {% set prazo_vencido = solicitacao.data_cadastro | prazo_vencido(horas_prazo) %}
 
                       {% if prazo_vencido and solicitacao.situacao_id == 7 %}
                       <span class="text-danger fw-bold" title="Prazo para resposta vencido!">
