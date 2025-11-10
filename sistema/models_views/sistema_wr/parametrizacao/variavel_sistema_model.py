@@ -14,12 +14,12 @@ class VariavelSistemaModel(BaseModel):
     email_corporativo = db.Column(db.String(150))
     chave_pub_google_recaptcha = db.Column(db.String(255))
     chave_priv_google_recaptcha = db.Column(db.String(255))
-    
+    prazo_atividades = db.Column(db.Integer, nullable=False, default=7)
     modo_manutencao = db.Column(db.Boolean, nullable=False)
     
     def __init__(
             self, nome_projeto, telefone, cnpj, email_corporativo,
-            chave_pub_google_recaptcha, chave_priv_google_recaptcha, modo_manutencao
+            chave_pub_google_recaptcha, chave_priv_google_recaptcha, prazo_atividades, modo_manutencao
     ):
         self.nome_projeto = nome_projeto
         self.telefone = telefone
@@ -27,6 +27,7 @@ class VariavelSistemaModel(BaseModel):
         self.email_corporativo = email_corporativo
         self.chave_pub_google_recaptcha = chave_pub_google_recaptcha
         self.chave_priv_google_recaptcha = chave_priv_google_recaptcha
+        self.prazo_atividades = prazo_atividades
         self.modo_manutencao = modo_manutencao
         
         

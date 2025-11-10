@@ -192,15 +192,15 @@
                   </td>
                   <td style="text-align: center;">
                     {% if atividade.prioridade.nome.lower() == 'baixa' %}
-                    <span class="badge bg-green text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge badge-outline text-green">{{ atividade.prioridade.nome }}</span>
                     {% elif atividade.prioridade.nome.lower() == 'média' %}
-                    <span class="badge bg-yellow text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge badge-outline text-yellow">{{ atividade.prioridade.nome }}</span>
                     {% elif atividade.prioridade.nome.lower() == 'alta' %}
-                    <span class="badge bg-orange text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge badge-outline text-orange">{{ atividade.prioridade.nome }}</span>
                     {% elif atividade.prioridade.nome.lower() == 'urgente' %}
-                    <span class="badge bg-red text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge badge-outline text-red">{{ atividade.prioridade.nome }}</span>
                     {% else %}
-                    <span class="badge bg-blue text-white">{{ atividade.prioridade.nome }}</span>
+                    <span class="badge badge-outline text-blue">{{ atividade.prioridade.nome }}</span>
                     {% endif %}
                   </td>
                   <td style="text-align: center;">

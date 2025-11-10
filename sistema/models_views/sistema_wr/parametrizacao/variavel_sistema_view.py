@@ -28,7 +28,7 @@ def variaveis_sistema_editar(id):
 
         chave_pub_google_recaptcha = request.form["chavePubGoogleRecaptcha"]
         chave_priv_google_recaptcha = request.form["chavePrivGoogleRecaptcha"]
-
+        prazo_atividades = request.form["prazoAtividades"]
         modo_manutencao = request.form["modoManutencao"]
 
         cnpj_tratado = ValidaDocs.remove_pontuacao_cnpj(cnpj)
@@ -47,7 +47,8 @@ def variaveis_sistema_editar(id):
             "chavePrivGoogleRecaptcha": [
                 "Chave Privada Recaptcha",
                 chave_priv_google_recaptcha,
-            ]
+            ],
+            "prazoAtividades": ["Prazo de Atividades", prazo_atividades]
         }
 
         validacao_campos_obrigatorios = ValidaForms.campo_obrigatorio(campos)
@@ -60,6 +61,15 @@ def variaveis_sistema_editar(id):
         if not "validado" in verificacao_cnpj:
             gravar_banco = False
             validacao_campos_erros.update(verificacao_cnpj)
+
+        try:
+            prazo_atividades_int = int(prazo_atividades)
+            if prazo_atividades_int < 1 or prazo_atividades_int > 100:
+                gravar_banco = False
+                flash((f"O prazo de atividades deve ser entre 1 e 100 dias!", "warning"))
+        except (ValueError, TypeError):
+            gravar_banco = False
+            flash((f"O prazo de atividades deve ser um número válido!", "warning"))
 
         if gravar_banco == True:
             if modo_manutencao == "0":
@@ -74,6 +84,7 @@ def variaveis_sistema_editar(id):
             configs.email_corporativo = email_corporativo
             configs.chave_pub_google_recaptcha = chave_pub_google_recaptcha
             configs.chave_priv_google_recaptcha = chave_priv_google_recaptcha
+            configs.prazo_atividades = prazo_atividades_int # Salvar o novo campo
             configs.modo_manutencao = modo_manutencao
             db.session.commit()
 

@@ -7,6 +7,7 @@ from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_solicitacao_mo
 from sistema.models_views.sistema_wr.gerenciar.projetos.projeto_model import ProjetoModel
 from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_andamento_model import AndamentoAtividadeModel
 from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioModel
+from sistema.models_views.sistema_wr.parametrizacao.variavel_sistema_model import VariavelSistemaModel
 from sistema._utilitarios import *
 from datetime import datetime, timedelta
 import os
@@ -122,28 +123,65 @@ def solicitacoes_atividade_listar():
                 flash(f"Erro no formato de data fim")
     
     if opcaoRadioData == 'limite':
-  
-
-        if filtro_data_inicio:
-            try:
-                data_inicio_obj = datetime.strptime(filtro_data_inicio, '%Y-%m-%d')
-                data_inicio_calc = data_inicio_obj - timedelta(days=2)
-                inicio_limite = data_inicio_calc.replace(hour=0, minute=0, second=0)
-                atividades = atividades.filter(SolicitacaoAtividadeModel.data_cadastro >= inicio_limite)
+        try:
+            # Para filtros de data limite, calcular no Python (mais compatível)
+            solicitacoes_base = atividades.all()
+            ids_validos = []
             
-            except ValueError:
-                flash(f"Erro no formato de data inicio") 
-
-        if filtro_data_fim:
-
-            try:
-                data_fim_obj = datetime.strptime(filtro_data_fim, '%Y-%m-%d')
-                data_fim_calc = data_fim_obj - timedelta(days=2)
-                fim_limite = data_fim_calc.replace(hour=23, minute=59, second=59)
-                print(data_fim_calc)
-                atividades = atividades.filter(SolicitacaoAtividadeModel.data_cadastro <= fim_limite)
-            except ValueError:
-                flash(f"Erro no formato de data fim") 
+            for solicitacao in solicitacoes_base:
+                if not (solicitacao.data_cadastro and solicitacao.prazo_resposta_dias):
+                    continue
+                    
+                # Calcular data limite da solicitação
+                data_limite = solicitacao.data_cadastro + timedelta(days=solicitacao.prazo_resposta_dias)
+                
+                # Verificar filtros de data
+                passa_filtro_inicio = True
+                passa_filtro_fim = True
+                
+                if filtro_data_inicio:
+                    try:
+                        data_inicio_obj = datetime.strptime(filtro_data_inicio, '%Y-%m-%d')
+                        inicio_limite = data_inicio_obj.replace(hour=0, minute=0, second=0)
+                        passa_filtro_inicio = data_limite >= inicio_limite
+                    except ValueError:
+                        passa_filtro_inicio = False
+                
+                if filtro_data_fim:
+                    try:
+                        data_fim_obj = datetime.strptime(filtro_data_fim, '%Y-%m-%d')
+                        fim_limite = data_fim_obj.replace(hour=23, minute=59, second=59)
+                        passa_filtro_fim = data_limite <= fim_limite
+                    except ValueError:
+                        passa_filtro_fim = False
+                
+                # Se passou em ambos os filtros, adicionar à lista
+                if passa_filtro_inicio and passa_filtro_fim:
+                    ids_validos.append(solicitacao.id)
+            
+            # Refazer a query com os IDs válidos
+            if ids_validos:
+                atividades = SolicitacaoAtividadeModel.query.filter(
+                    SolicitacaoAtividadeModel.deletado == False,
+                    SolicitacaoAtividadeModel.id.in_(ids_validos)
+                )
+                
+                # Reaplicar filtros básicos
+                if filtro_projeto and filtro_projeto.strip():
+                    atividades = atividades.filter(SolicitacaoAtividadeModel.projeto_id == filtro_projeto)
+                if filtro_situacao and filtro_situacao.strip():
+                    atividades = atividades.filter(SolicitacaoAtividadeModel.situacao_id == filtro_situacao)
+                if filtro_usuario and filtro_usuario.strip():
+                    atividades = atividades.filter(SolicitacaoAtividadeModel.usuario_solicitante_id == filtro_usuario)
+                if filtro_titulo and filtro_titulo.strip():
+                    atividades = atividades.filter(SolicitacaoAtividadeModel.titulo.ilike(f'%{filtro_titulo}%'))
+            else:
+                # Nenhuma solicitação atende aos critérios
+                atividades = SolicitacaoAtividadeModel.query.filter(SolicitacaoAtividadeModel.id == -1)
+                
+        except Exception as e:
+            print(f"Erro no filtro por data limite: {e}")
+            flash("Erro ao aplicar filtro por data limite")
     
     # if filtro_data_fim:
     #     try:
@@ -266,6 +304,14 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
             if not projeto:
                 validacao_campos_erros["projetoId"] = "Projeto não encontrado ou inativo"
                 gravar_banco = False
+
+        prazo_resposta_dias = 7  # Valor padrão
+        try:
+            variaveis = VariavelSistemaModel.obter_variaveis_de_sistema_por_id(1)
+            if variaveis and hasattr(variaveis, 'prazo_atividades') and variaveis.prazo_atividades:
+                prazo_resposta_dias = int(variaveis.prazo_atividades)
+        except Exception as e:
+            print(f"Erro ao obter variável de sistema: {e}")
         
         # Processar anexos
         arquivos_anexos = request.files.getlist('anexos[]')
@@ -299,7 +345,8 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
                     titulo=titulo,
                     descricao=descricao,
                     usuario_solicitante_id=current_user.id,
-                    situacao_id=7  # Em Análise
+                    situacao_id=7,  # Em Análise
+                    prazo_resposta_dias=prazo_resposta_dias
                 )
                 
                 db.session.add(solicitacao)
@@ -339,7 +386,7 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
                 db.session.commit()
                 
                 # Mensagem de sucesso
-                mensagem_sucesso = "Solicitação de atividade cadastrada com sucesso!"
+                mensagem_sucesso = f"Solicitação de atividade cadastrada com sucesso! Prazo para resposta: {prazo_resposta_dias} dias"
                 if anexos_processados > 0:
                     mensagem_sucesso += f" ({anexos_processados} anexo(s) adicionado(s))"
                 
@@ -475,12 +522,22 @@ def atividade_solicitacao_editar(id):
         
         if gravar_banco:
             try:
+                # Buscar o prazo atual de resposta
+                prazo_resposta_dias = 7 # Valor padrão
+                try:
+                    variaveis = VariavelSistemaModel.obter_variaveis_de_sistema_por_id(1)
+                    if variaveis and hasattr(variaveis, 'prazo_atividades') and variaveis.prazo_atividades:
+                        prazo_resposta_dias = int(variaveis.prazo_atividades)
+                except Exception as e:
+                    print(f"Erro ao obter variável de sistema: {e}")
+                    # Mantem o valor padrão 
+
                 # Atualizar dados da solicitação
                 solicitacao.projeto_id = projeto_id
                 solicitacao.titulo = titulo
                 solicitacao.descricao = descricao
                 solicitacao.situacao_id = 7  # 7 = Em Análise (volta para análise)
-                
+                solicitacao.prazo_resposta_dias = prazo_resposta_dias 
                 # Processar anexos se houver
                 anexos = request.files.getlist('anexos[]')
                 anexos_processados = 0
@@ -517,7 +574,7 @@ def atividade_solicitacao_editar(id):
                 
                 db.session.commit()
                 
-                mensagem_sucesso = "Solicitação atualizada com sucesso!"
+                mensagem_sucesso = f"Solicitação reenviada com sucesso! Novo prazo para resposta: {prazo_resposta_dias} dias."
                 if anexos_processados > 0:
                     mensagem_sucesso += f" ({anexos_processados} anexo(s) adicionado(s))"
                 
@@ -930,10 +987,9 @@ def adicionar_horas_filter(data, horas):
     return None
 
 @app.template_filter('prazo_vencido')
-def prazo_vencido_filter(data_alteracao, horas=48):
+def prazo_vencido_filter(data_cadastro, horas_prazo=None):
     """Verifica se o prazo foi vencido (data_alteracao + horas < agora)"""
-    if data_alteracao:
-        data_limite = data_alteracao + timedelta(hours=horas)
+    if data_cadastro and horas_prazo:
+        data_limite = data_cadastro + timedelta(hours=horas_prazo)
         return datetime.now() > data_limite
     return False
-

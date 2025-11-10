@@ -25,9 +25,7 @@
 
       {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
       <div class="col-12">
-        <form class="card"
-          action="{{ url_for('variaveis_sistema_editar', id=1) }}"
-          method="POST">
+        <form class="card" action="{{ url_for('variaveis_sistema_editar', id=1) }}" method="POST">
           <div class="card-body">
             <div class="row row-cards">
               <div class="card-header">
@@ -37,8 +35,7 @@
               <div class="col-sm-3 col-md-3">
                 <div class="mb-3">
                   <label class="form-label">Nome do Projeto</label>
-                  <input type="text" name="nomeProjeto"
-                    value="{{ configs.nome_projeto }}"
+                  <input type="text" name="nomeProjeto" value="{{ configs.nome_projeto }}"
                     class="form-control {% if 'nomeProjeto' in campos_obrigatorios %} is-invalid {% endif %}">
                 </div>
               </div>
@@ -46,9 +43,8 @@
               <div class="col-sm-3 col-md-3">
                 <div class="mb-3">
                   <label class="form-label">CNPJ</label>
-                  <input type="text" name="cnpj" value="{{ configs.cnpj }}"
-                    data-mask="00.000.000/0000-00" data-mask-visible="true"
-                    autocomplete="off"
+                  <input type="text" name="cnpj" value="{{ configs.cnpj }}" data-mask="00.000.000/0000-00"
+                    data-mask-visible="true" autocomplete="off"
                     class="form-control {% if 'cnpj' in campos_obrigatorios or 'cnpj' in campos_erros %} is-invalid {% endif %}">
                 </div>
               </div>
@@ -56,10 +52,8 @@
               <div class="col-sm-3 col-md-3">
                 <div class="mb-3">
                   <label class="form-label">Telefone</label>
-                  <input type="text" name="telefone"
-                    value="{{ configs.telefone }}"
-                    data-mask="(00) 0 0000-0000" data-mask-visible="true"
-                    autocomplete="off"
+                  <input type="text" name="telefone" value="{{ configs.telefone }}" data-mask="(00) 0 0000-0000"
+                    data-mask-visible="true" autocomplete="off"
                     class="form-control {% if 'telefone' in campos_obrigatorios %} is-invalid {% endif %}">
                 </div>
               </div>
@@ -67,8 +61,7 @@
               <div class="col-sm-3 col-md-3">
                 <div class="mb-3">
                   <label class="form-label">E-mail corporativo</label>
-                  <input type="email" name="email"
-                    value="{{ configs.email_corporativo }}"
+                  <input type="email" name="email" value="{{ configs.email_corporativo }}"
                     class="form-control {% if 'email' in campos_obrigatorios %} is-invalid {% endif %}">
                 </div>
               </div>
@@ -77,8 +70,7 @@
                 <div class="mb-3">
                   <label class="form-label">Chave Pública Google
                     ReCAPTCHA</label>
-                  <input type="text" name="chavePubGoogleRecaptcha"
-                    value="{{ configs.chave_pub_google_recaptcha }}"
+                  <input type="text" name="chavePubGoogleRecaptcha" value="{{ configs.chave_pub_google_recaptcha }}"
                     class="form-control {% if 'chavePubGoogleRecaptcha' in campos_obrigatorios %} is-invalid {% endif %}">
                 </div>
               </div>
@@ -87,17 +79,46 @@
                 <div class="mb-3">
                   <label class="form-label">Chave Privada Google
                     ReCAPTCHA</label>
-                  <input type="text" name="chavePrivGoogleRecaptcha"
-                    value="{{ configs.chave_priv_google_recaptcha }}"
+                  <input type="text" name="chavePrivGoogleRecaptcha" value="{{ configs.chave_priv_google_recaptcha }}"
                     class="form-control {% if 'chavePrivGoogleRecaptcha' in campos_obrigatorios %} is-invalid {% endif %}">
                 </div>
               </div>
             </div>
 
+
+            <div class="col-sm-4 col-md-3 mt-3">
+              <div class="mb-3">
+                <label class="form-label">Prazo de Resposta em Solicitações Atividades</label>
+                <div class="input-group input-group-flat">
+                  <span class="input-group-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
+                      <path d="M16 3v4" />
+                      <path d="M8 3v4" />
+                      <path d="M4 11h16" />
+                      <path d="M16 19h6" />
+                      <path d="M19 16v6" />
+                    </svg>
+                  </span>
+                  <input type="number" name="prazoAtividades" class="form-control text-center"
+                    min="1" max="100" value="{{ configs.prazo_atividades if configs.prazo_atividades else 7 }}"
+                    placeholder="Ex: 7" inputmode="numeric">
+                  <span class="input-group-text text-muted">dias</span>
+                </div>
+                <small class="form-hint" style="cursor: default;">
+                  Defina o prazo padrão em dias para o cálculo do tempo de resposta das 
+                  <span style="color: #BF092F; font-weight: bold;">solicitações de atividades.</span>
+                </small>
+              </div>
+            </div>
+
+
             <div class="row row-cards">
               <div class="card-header">
-                <h3 class="card-title">Sistema <span
-                    class="text-red">(ATENÇÃO!)</span></h3>
+                <h3 class="card-title">Sistema <span class="text-red">(ATENÇÃO!)</span></h3>
               </div>
 
               <div class="col-sm-2 col-md-2">
@@ -105,12 +126,10 @@
                   <label class="form-label">Modo Manutenção</label>
                   <select type="text" name="modoManutencao"
                     class="form-select {% if 'modo_manutencao' in campos_obrigatorios %}is-invalid{% endif %}">
-                    <option value="1" {% if configs.modo_manutencao == 1
-                      %}selected {% endif %}>
+                    <option value="1" {% if configs.modo_manutencao==1 %}selected {% endif %}>
                       Ativado
                     </option>
-                    <option value="0" {% if configs.modo_manutencao == 0
-                      %}selected {% endif %}>
+                    <option value="0" {% if configs.modo_manutencao==0 %}selected {% endif %}>
                       Desativado
                     </option>
                   </select>
@@ -120,13 +139,10 @@
 
           </div>
           <div class="card-footer text-end">
-            <a href="{{ url_for('principal') }}"
-              class="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg"
-                class="icon icon-tabler icon-tabler-arrow-left"
-                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                stroke="currentColor"
-                fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <a href="{{ url_for('principal') }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M5 12l14 0"></path>
                 <path d="M5 12l6 6"></path>

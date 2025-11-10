@@ -56,12 +56,11 @@
                   </div>
                 </div>
               </div>
-            </div>
 
             <!-- Atribuição e Status -->
             <h3 class="text-primary mb-3 mt-4">Atribuição e Status</h3>
             <div class="row">
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Usuário Solicitante</label>
                   <select name="usuarioSolicitanteId" class="form-select">
@@ -76,7 +75,7 @@
                   <small class="form-hint">Usuário que solicitou esta atividade</small>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Supervisor</label>
                   <select name="supervisorId" class="form-select">
@@ -91,7 +90,7 @@
                   <small class="form-hint">Responsável por supervisionar e aprovar a atividade</small>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Desenvolvedor</label>
                   <select name="desenvolvedorId" class="form-select">
@@ -153,19 +152,20 @@
             <!-- Estimativas e Prazos -->
             <h3 class="text-primary mb-3 mt-4">Estimativas e Prazos</h3>
             <div class="row">
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Horas Necessárias</label>
                   <input type="text" name="horasNecessarias"
                     value="{{ dados_corretos['horasNecessarias'] }}"
-                    class="form-control {% if 'horasNecessarias' in campos_erros %}is-invalid{% endif %} campo-float">
+                    class="form-control {% if 'horasNecessarias' in campos_erros %}is-invalid{% endif %} campo-float"
+                    placeholder="Horas para executar a atividade">
                   <div class="invalid-feedback">
                     {{ campos_erros.get('horasNecessarias') }}
                   </div>
                   <small class="form-hint">Estimativa de horas para completar</small>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Prazo de Conclusão</label>
                   <input type="date" name="dataPrazoConclusao"
@@ -176,7 +176,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Valor da Atividade</label>
                   <input type="text" name="valorAtividade"
