@@ -162,3 +162,44 @@
 .text-muted {
   color: #999 !important;
 }
+
+/* Banner de boas vindas */
+
+.welcome-container {
+    animation: fadeInUp 1s ease forwards;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Linha decorativa à esquerda */
+  .welcome-container::before {
+    content: "";
+    position: absolute;
+    left: .5rem;
+    top: .19rem;
+    height: 3rem;
+    width: 4px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #FF9D00, #FF8D41);
+  }
+
+  /* Efeito sutil no título */
+  .welcome-title {
+    font-weight: 600;
+    background: linear-gradient(90deg, #FF9D00, #FF8D41);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Parágrafo mais suave */
+  .welcome-text {
+    color: #6b7280; /* equivalente a text-secondary, mas mais refinado */
+    font-size: 0.95rem;
+  }

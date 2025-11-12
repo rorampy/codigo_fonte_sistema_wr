@@ -40,7 +40,8 @@
               Nova Atividade
             </a>
             {% endif %}
-            <a href="#" class="btn btn-light border d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modal-filtros">
+            <a href="#" class="btn btn-light border d-flex align-items-center" data-bs-toggle="modal"
+              data-bs-target="#modal-filtros">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="icon icon-tabler icons-tabler-outline icon-tabler-filter">
@@ -72,14 +73,14 @@
             <div class="d-flex gap-2 flex-wrap">
 
               {% if filtros.data_conclusao_inicio %}
-              <span class="badge badge-outline">
+              <span class="badge badge-outline text-blue">
                 Data Início: {{ filtros.data_conclusao_inicio[8:10]}}/{{ filtros.data_conclusao_inicio[5:7] }}/{{
                 filtros.data_conclusao_inicio[0:4] }}
               </span>
               {% endif %}
 
               {% if filtros.data_conclusao_fim %}
-              <span class="badge badge-outline">
+              <span class="badge badge-outline text-blue">
                 Data Fim: {{ filtros.data_conclusao_fim[8:10] }}/{{ filtros.data_conclusao_fim[5:7] }}/{{
                 filtros.data_conclusao_fim[0:4] }}
               </span>
@@ -89,7 +90,7 @@
               {% if filtros.projeto_id %}
               {% for projeto in projetos %}
               {% if projeto.id|string == filtros.projeto_id|string %}
-              <span class="badge badge-outline">Projeto: {{ projeto.nome_projeto[:20] }}
+              <span class="badge badge-outline text-blue">Projeto: {{ projeto.nome_projeto[:20] }}
                 {% if projeto.nome_projeto | length > 20 %}...{% endif %}</span>
               {% endif %}
               {% endfor %}
@@ -98,23 +99,25 @@
               {% if filtros.prioridade_id %}
               {% for prioridade in prioridades %}
               {% if prioridade.id|string == filtros.prioridade_id|string %}
-              <span class="badge badge-outline">Prioridade: {{ prioridade.nome }}</span>
+              <span class="badge badge-outline text-blue">Prioridade: {{ prioridade.nome }}</span>
               {% endif %}
               {% endfor %}
               {% endif %}
 
               {% if filtros.situacao_id %}
+              {% for situacao_id in filtros.situacao_id %}
               {% for situacao in situacoes %}
-              {% if situacao.id|string == filtros.situacao_id|string %}
-              <span class="badge badge-outline">Situação: {{ situacao.nome }}</span>
+              {% if situacao.id|string == situacao_id|string %}
+              <span class="badge badge-outline text-blue">Situação: {{ situacao.nome }}</span>
               {% endif %}
+              {% endfor %}
               {% endfor %}
               {% endif %}
 
               {% if filtros.solicitante_id %}
               {% for usuario in usuarios %}
               {% if usuario.id|string == filtros.solicitante_id|string %}
-              <span class="badge badge-outline">Solicitante: {{ usuario.nome }}</span>
+              <span class="badge badge-outline text-blue">Solicitante: {{ usuario.nome }}</span>
               {% endif %}
               {% endfor %}
               {% endif %}
@@ -122,7 +125,7 @@
               {% if filtros.supervisor_id %}
               {% for usuario in usuarios %}
               {% if usuario.id|string == filtros.supervisor_id|string %}
-              <span class="badge badge-outline">Supervisor: {{ usuario.nome }}</span>
+              <span class="badge badge-outline text-blue">Supervisor: {{ usuario.nome }}</span>
               {% endif %}
               {% endfor %}
               {% endif %}
@@ -130,13 +133,13 @@
               {% if filtros.responsavel_id %}
               {% for usuario in usuarios %}
               {% if usuario.id|string == filtros.responsavel_id|string %}
-              <span class="badge badge-outline">Responsável: {{ usuario.nome }}</span>
+              <span class="badge badge-outline text-blue">Responsável: {{ usuario.nome }}</span>
               {% endif %}
               {% endfor %}
               {% endif %}
 
               {% if filtros.titulo %}
-              <span class="badge badge-outline">Título: {{ filtros.titulo }}</span>
+              <span class="badge badge-outline text-blue">Título: {{ filtros.titulo }}</span>
               {% endif %}
             </div>
             <a href="{{ url_for('atividades_listar') }}" class="btn btn-sm btn-link ms-auto" id="btnLimparFiltros">
@@ -512,15 +515,34 @@
               <!-- Situação com 4 colunas-->
               <div class="col-md-4 mb-3">
                 <label class="form-label">Situação</label>
-                <select name="situacao_id" class="form-select">
-                  <option value="">Todas as situações</option>
-                  {% for situacao in situacoes %}
-                  <option value="{{ situacao.id }}" {% if filtros.situacao_id|string==situacao.id|string %}selected{%
-                    endif %}>
-                    {{ situacao.nome }}
-                  </option>
-                  {% endfor %}
-                </select>
+                <div class="dropdown">
+                  <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span id="situacao-label">Selecione as Situações</span>
+                  </button>
+                  <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="situacao_id" value="" class="form-check-input me-2"
+                          id="situacao-todas">
+                        Todas as Situações
+                      </label>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
+                    {% for situacao in situacoes %}
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="situacao_id" value="{{ situacao.id }}"
+                          class="form-check-input me-2 situacao-checkbox" {% if filtros.situacao_id and
+                          situacao.id|string in filtros.situacao_id %}checked{% endif %}>
+                        {{ situacao.nome }}
+                      </label>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <small class="text-muted ps-2">Selecione múltiplas opções</small>
               </div>
               <!--FIM de situação-->
 
@@ -599,66 +621,101 @@
 
 <script>
 
-  // Salvar filtros no sessionStorage ao aplicar
   document.addEventListener('DOMContentLoaded', function () {
-    const storageKey = 'filtrosAtividades'; //Chave exclusiva dessa tela
-    const form = document.querySelector('#form-filtros-atividades'); // Seu formulário de filtros
+    const storageKey = 'filtrosAtividades';
+    const form = document.querySelector('#form-filtros-atividades');
 
+    // Elementos para múltiplas situações
+    const checkboxes = document.querySelectorAll('.situacao-checkbox');
+    const todasCheckbox = document.getElementById('situacao-todas');
+    const labelSituacao = document.getElementById('situacao-label');
+
+    // Função para atualizar label das situações
+    function updateLabel() {
+      const checked = Array.from(checkboxes).filter(cb => cb.checked);
+      if (checked.length === 0) {
+        labelSituacao.textContent = 'Selecione as Situações';
+      } else if (checked.length === 1) {
+        labelSituacao.textContent = checked[0].parentElement.textContent.trim();
+      } else {
+        labelSituacao.textContent = `${checked.length} selecionadas`;
+      }
+    }
 
     // Salvar filtros ao submeter
     if (form) {
       form.addEventListener('submit', function () {
         const formData = new FormData(form);
         const filtros = {};
-        for (let [key, value] of formData.entries()) {
-          if (value) filtros[key] = value;
+
+        // Tratar campos múltiplos especialmente
+        const situacaoIds = formData.getAll('situacao_id').filter(value => value !== '');
+        if (situacaoIds.length > 0) {
+          filtros['situacao_id'] = situacaoIds;
         }
+
+        // Outros campos normais
+        for (let [key, value] of formData.entries()) {
+          if (key !== 'situacao_id' && value) {
+            filtros[key] = value;
+          }
+        }
+
         sessionStorage.setItem(storageKey, JSON.stringify(filtros));
       });
+    }
+
+    // Restaurar filtros múltiplos salvos
+    const filtrosSalvos = sessionStorage.getItem(storageKey);
+    if (filtrosSalvos && !window.location.search) {
+      const filtros = JSON.parse(filtrosSalvos);
+      Object.keys(filtros).forEach(key => {
+        if (key === 'situacao_id' && Array.isArray(filtros[key])) {
+          // Restaurar checkboxes múltiplos
+          filtros[key].forEach(value => {
+            const checkbox = document.querySelector(`input[name="situacao_id"][value="${value}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        } else {
+          const el = document.querySelector(`[name="${key}"]`);
+          if (el) el.value = filtros[key];
+        }
+      });
+      updateLabel();
+      form.submit();
     }
 
     // Salvar estado atual dos filtros da URL
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.toString()) {
       const filtros = {};
+
+      // Tratar situacao_id especialmente
+      const situacaoIds = urlParams.getAll('situacao_id');
+      if (situacaoIds.length > 0) {
+        filtros['situacao_id'] = situacaoIds;
+      }
+
+      // Outros parâmetros
       for (let [key, value] of urlParams.entries()) {
-        filtros[key] = value;
+        if (key !== 'situacao_id') {
+          filtros[key] = value;
+        }
       }
       sessionStorage.setItem(storageKey, JSON.stringify(filtros));
     }
 
+    // Botão limpar filtros (header)
     const btnLimpar = document.querySelector('#btnLimparFiltros');
-
     if (btnLimpar) {
       btnLimpar.addEventListener('click', function (e) {
-        e.preventDefault(); // Previne o comportamento padrão do link
-
-        console.log('🗑️ Limpando filtros...');
-
-        // 1. Remove do sessionStorage
+        e.preventDefault();
         sessionStorage.removeItem(storageKey);
         window.location.href = this.href || window.location.pathname;
-
-        // 2. Limpa todos os campos do formulário
-        if (form) {
-          // Limpa inputs de texto e date
-          form.querySelectorAll('input[type="text"], input[type="date"]').forEach(input => {
-            input.value = '';
-          });
-
-          // Reseta selects para a primeira opção (geralmente "Todos")
-          form.querySelectorAll('select').forEach(select => {
-            select.selectedIndex = 0;
-          });
-        }
-
-        // 3. Redireciona para a página sem parâmetros
-
-        console.log('✅ Filtros limpos!');
       });
     }
 
-    //Limpar filtros pelo modal
+    // Botão limpar filtros (modal)
     const btnLimparModal = document.querySelector('#btnLimparFiltrosModal');
     if (btnLimparModal) {
       btnLimparModal.addEventListener('click', function (e) {
@@ -667,24 +724,40 @@
         if (form) {
           form.querySelectorAll('input[type="text"], input[type="date"]').forEach(i => i.value = '');
           form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+          form.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
         }
         window.location.href = this.href || window.location.pathname;
-      })
-    }
-
-    // Restaurar filtros salvos
-    const filtrosSalvos = sessionStorage.getItem(storageKey);
-    if (filtrosSalvos && !window.location.search) {
-      const filtros = JSON.parse(filtrosSalvos);
-      Object.keys(filtros).forEach(key => {
-        const el = document.querySelector(`[name="${key}"]`);
-        if (el) el.value = filtros[key];
       });
-      form.submit();
     }
 
+    // Eventos para múltiplas situações
+    todasCheckbox?.addEventListener('change', function () {
+      checkboxes.forEach(cb => {
+        cb.checked = this.checked;
+      });
+      updateLabel();
+    });
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', function () {
+        if (todasCheckbox) {
+          todasCheckbox.checked = Array.from(checkboxes).every(c => c.checked);
+        }
+        updateLabel();
+      });
+    });
+
+    // Inicializar label
+    updateLabel();
+
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
   });
 
+  // Funções globais (fora do DOMContentLoaded)
   function verDetalhesAtividade(atividadeId) {
     fetch(`/kanban/detalhes/${atividadeId}`)
       .then(response => response.json())
@@ -705,52 +778,51 @@
     document.getElementById('modal-detalhes-titulo').textContent = atividade.titulo;
 
     conteudo.innerHTML = `
-        <div class="row">
-            <div class="col-md-8">
-                <h4>Descrição</h4>
-                <div class="mb-3">
-                    ${atividade.descricao || '<p class="text-muted">Sem descrição</p>'}
-                </div>
+    <div class="row">
+        <div class="col-md-8">
+            <h4>Descrição</h4>
+            <div class="mb-3">
+                ${atividade.descricao || '<p class="text-muted">Sem descrição</p>'}
+            </div>
+            
+            <h4>Informações</h4>
+            <dl class="row">
+                <dt class="col-sm-3">Projeto:</dt>
+                <dd class="col-sm-9">${atividade.projeto.nome}</dd>
                 
-                <h4>Informações</h4>
-                <dl class="row">
-                    <dt class="col-sm-3">Projeto:</dt>
-                    <dd class="col-sm-9">${atividade.projeto.nome}</dd>
-                    
-                    <dt class="col-sm-3">Prioridade:</dt>
-                    <dd class="col-sm-9">${atividade.prioridade.nome}</dd>
-                    
-                    <dt class="col-sm-3">Situação:</dt>
-                    <dd class="col-sm-9">${atividade.situacao.nome}</dd>
-                    
-                    <dt class="col-sm-3">Responsável:</dt>
-                    <dd class="col-sm-9">${atividade.responsavel.nome}</dd>
-                </dl>
-            </div>
-            <div class="col-md-4">
-                <h4>Métricas</h4>
-                <dl>
-                    <dt>Horas:</dt>
-                    <dd>${atividade.horas.utilizadas} / ${atividade.horas.necessarias} (${atividade.horas.percentual.toFixed(0)}%)</dd>
-                    
-                    <dt>Valor:</dt>
-                    <dd>${atividade.valor}</dd>
-                    
-                    <dt>Prazo:</dt>
-                    <dd class="${atividade.atrasada ? 'text-danger' : ''}">${atividade.prazo || 'Sem prazo'}</dd>
-                    
-                    <dt>Anexos:</dt>
-                    <dd>${atividade.anexos} arquivo(s)</dd>
-                    
-                    <dt>Criado em:</dt>
-                    <dd>${atividade.criado_em}</dd>
-                </dl>
-            </div>
+                <dt class="col-sm-3">Prioridade:</dt>
+                <dd class="col-sm-9">${atividade.prioridade.nome}</dd>
+                
+                <dt class="col-sm-3">Situação:</dt>
+                <dd class="col-sm-9">${atividade.situacao.nome}</dd>
+                
+                <dt class="col-sm-3">Responsável:</dt>
+                <dd class="col-sm-9">${atividade.responsavel.nome}</dd>
+            </dl>
         </div>
-    `;
+        <div class="col-md-4">
+            <h4>Métricas</h4>
+            <dl>
+                <dt>Horas:</dt>
+                <dd>${atividade.horas.utilizadas} / ${atividade.horas.necessarias} (${atividade.horas.percentual.toFixed(0)}%)</dd>
+                
+                <dt>Valor:</dt>
+                <dd>${atividade.valor}</dd>
+                
+                <dt>Prazo:</dt>
+                <dd class="${atividade.atrasada ? 'text-danger' : ''}">${atividade.prazo || 'Sem prazo'}</dd>
+                
+                <dt>Anexos:</dt>
+                <dd>${atividade.anexos} arquivo(s)</dd>
+                
+                <dt>Criado em:</dt>
+                <dd>${atividade.criado_em}</dd>
+            </dl>
+        </div>
+    </div>
+  `;
 
     document.getElementById('btn-editar-atividade').href = `/gerenciar/atividades/editar/${atividade.id}`;
-
     modal.show();
   }
 
@@ -777,12 +849,5 @@
     }
   }
 
-  // Inicializar tooltips
-  document.addEventListener('DOMContentLoaded', function () {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-  });
 </script>
 {% endblock conteudo %}

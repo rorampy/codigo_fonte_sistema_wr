@@ -182,7 +182,8 @@ def atividades_listar(projeto_id=None):
     filtro_data_conclusao_fim = request.args.get('data_conclusao_fim')
     filtro_projeto = request.args.get('projeto_id', projeto_id)
     filtro_prioridade = request.args.get('prioridade_id')
-    filtro_situacao = request.args.get('situacao_id')
+    # Novo - 12/11/2025
+    filtro_situacoes = request.args.getlist('situacao_id')
     filtro_responsavel = request.args.get('responsavel_id')
     filtro_titulo = request.args.get('titulo')
 
@@ -190,7 +191,8 @@ def atividades_listar(projeto_id=None):
     filtro_solicitante = request.args.get('solicitante_id')
     filtro_supervisor = request.args.get('supervisor_id')
     filtro_dev = request.args.get('dev_id')
-    
+    filtro_situacoes = [s for s in filtro_situacoes if s and s.strip()]
+
     atividades = AtividadeModel.query.filter(
         AtividadeModel.deletado == False
     )
@@ -215,8 +217,8 @@ def atividades_listar(projeto_id=None):
     if filtro_prioridade:
         atividades = atividades.filter(AtividadeModel.prioridade_id == filtro_prioridade)
     
-    if filtro_situacao:
-        atividades = atividades.filter(AtividadeModel.situacao_id == filtro_situacao)
+    if filtro_situacoes:
+        atividades = atividades.filter(AtividadeModel.situacao_id.in_(filtro_situacoes))
     
     if filtro_responsavel:
         atividades = atividades.filter(AtividadeModel.desenvolvedor_id == filtro_responsavel)
@@ -231,7 +233,7 @@ def atividades_listar(projeto_id=None):
         atividades = atividades.filter(AtividadeModel.supervisor_id == filtro_supervisor)
     
     if filtro_dev:
-        atividades = atividades.filtrer(AtividadeModel.desenvolvedor_id == filtro_dev)
+        atividades = atividades.filter(AtividadeModel.desenvolvedor_id == filtro_dev)
     
     atividades = atividades.order_by(
         AtividadeModel.id.desc(),
@@ -256,7 +258,7 @@ def atividades_listar(projeto_id=None):
             'data_conclusao_fim': filtro_data_conclusao_fim,
             'projeto_id': filtro_projeto,
             'prioridade_id': filtro_prioridade,
-            'situacao_id': filtro_situacao,
+            'situacao_id': filtro_situacoes,
             'responsavel_id': filtro_responsavel,
             'solicitante_id': filtro_solicitante,
             'supervisor_id': filtro_supervisor,
