@@ -1,14 +1,15 @@
 import os
 from sistema import app, db, requires_roles
 from logs_sistema import flask_logger
+from datetime import datetime
 from flask import render_template, request, redirect, url_for, flash, session
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from sistema.models_views.sistema_wr.financeiro.lancamento.lancamento_model import LancamentoModel
 from sistema.models_views.sistema_wr.financeiro.movimentacao_financeira.movimentacao_financeira_model import MovimentacaoFinanceiraModel
 from sistema.models_views.upload_arquivo.upload_arquivo_view import upload_arquivo
-from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento.categoria_lancamento_view import inicializar_categorias_padrao, obter_subcategorias_recursivo
-from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento.categoria_lancamento_model import CategoriaLancamentoModel
+from sistema.models_views.sistema_wr.configuracoes.gerais.plano_conta.plano_conta_view import inicializar_categorias_padrao, obter_subcategorias_recursivo
+from sistema.models_views.sistema_wr.configuracoes.gerais.plano_conta.plano_conta_model import PlanoContaModel
 from sistema._utilitarios import *
 
 
@@ -30,7 +31,7 @@ def cadastrar_lancamento():
         gravar_banco = True
 
         inicializar_categorias_padrao()
-        principais = CategoriaLancamentoModel.buscar_principais()
+        principais = PlanoContaModel.buscar_principais()
         estrutura = []
         for cat in principais:
             d = cat.to_dict()
@@ -42,6 +43,7 @@ def cadastrar_lancamento():
             tipoLancamento = request.form['tipoLancamento']
             categoriaLancamento = request.form['categoriaLancamento']
             dataLancamento = request.form['dataLancamento']
+            data_competencia = request.form.get('data_competencia')
             valorLancamento = request.form['valorLancamento']
             descricaoLancamento = request.form['descricaoLancamento']
             comprovanteLancamentoSaida = request.files.get('comprovanteLancamentoSaida')
@@ -49,6 +51,7 @@ def cadastrar_lancamento():
 
             campos = {
                 'tipoLancamento': ['Tipo Lançamento', tipoLancamento],
+                'data_competencia ': ['Data Competencia', data_competencia],
                 'categoriaLancamento': ['Categoria', categoriaLancamento],
                 'dataLancamento': ['Data lançamento', dataLancamento],
                 'valorLancamento': ['Valor', valorLancamento],
@@ -67,10 +70,31 @@ def cadastrar_lancamento():
             if gravar_banco:
                 valor_monetario_formatado = (ValoresMonetarios.converter_string_brl_para_float(valorLancamento) * 100)
                 
+                # Validação da data de competência
+                data_competencia_date = None
+                if data_competencia and data_competencia != '__/__' and '_' not in data_competencia:
+                    try:
+                        mes, ano = data_competencia.split('/')
+                        if mes.isdigit() and ano.isdigit() and len(mes) == 2 and len(ano) == 4:
+                            mes_int = int(mes)
+                            ano_int = int(ano)
+                            if 1 <= mes_int <= 12:
+                                data_competencia_date = datetime(ano_int, mes_int, 1).date()
+                            else:
+                                gravar_banco = False
+                                flash(('Mês deve estar entre 01 e 12.', 'warning'))
+                        else:
+                            gravar_banco = False
+                            flash(('Data de competência inválida. Use o formato MM/YYYY.', 'warning'))
+                    except (ValueError, AttributeError):
+                        gravar_banco = False
+                        flash(('Data de competência inválida. Use o formato MM/YYYY.', 'warning'))
+
                 lancamento = LancamentoModel(
                     despesa_recorrente=0,
                     tipo_lancamento=int(tipoLancamento),
                     categoria_id=int(categoriaLancamento),
+                    data_competencia=data_competencia_date,
                     data_movimentacao=dataLancamento,
                     descricao=descricaoLancamento,
                     valor_lancamento_100=valor_monetario_formatado,
@@ -115,7 +139,7 @@ def editar_lancamento(id):
         gravar_banco = True
 
         inicializar_categorias_padrao()
-        principais = CategoriaLancamentoModel.buscar_principais()
+        principais = PlanoContaModel.buscar_principais()
         estrutura = []
         for cat in principais:
             d = cat.to_dict()
@@ -132,6 +156,7 @@ def editar_lancamento(id):
             'tipoLancamento': lancamento.tipo_lancamento,
             'categoriaLancamento': lancamento.categoria_id,
             'dataLancamento': lancamento.data_movimentacao,
+            'data_competencia': lancamento.data_competencia,
             'valorLancamento': lancamento.valor_lancamento_100,
             'descricaoLancamento': lancamento.descricao
         }
@@ -140,6 +165,7 @@ def editar_lancamento(id):
             tipoLancamento = request.form['tipoLancamento']
             categoriaLancamento = request.form['categoriaLancamento']
             dataLancamento = request.form['dataLancamento']
+            data_competencia = request.form.get('dataCompetencia')
             valorLancamento = request.form['valorLancamento']
             descricaoLancamento = request.form['descricaoLancamento']
             comprovanteLancamentoSaida = request.files.get('comprovanteLancamentoSaida')
@@ -149,11 +175,33 @@ def editar_lancamento(id):
                 'tipoLancamento': ['Tipo Lançamento', tipoLancamento],
                 'categoriaLancamento': ['Categoria', categoriaLancamento],
                 'dataLancamento': ['Data lançamento', dataLancamento],
+                'data_competencia ': ['Data Competencia', data_competencia],
                 'valorLancamento': ['Valor', valorLancamento],
                 'descricaoLancamento': ['Descrição', descricaoLancamento],
             }
 
             validacao_campos_obrigatorios = ValidaForms.campo_obrigatorio(campos)
+
+            # Validação da data de competência
+            data_competencia_date = None
+            if data_competencia and data_competencia != '__/__' and '_' not in data_competencia:
+                try:
+                    mes, ano = data_competencia.split('/')
+                    if mes.isdigit() and ano.isdigit() and len(mes) == 2 and len(ano) == 4:
+                        mes_int = int(mes)
+                        ano_int = int(ano)
+                        if 1 <= mes_int <= 12:
+                            data_competencia_date = datetime(ano_int, mes_int, 1).date()
+                        else:
+                            gravar_banco = False
+                            flash(('Mês deve estar entre 01 e 12.', 'warning'))
+                    else:
+                        gravar_banco = False
+                        flash(('Data de competência inválida. Use o formato MM/YYYY.', 'warning'))
+                except (ValueError, AttributeError):
+                    gravar_banco = False
+                    flash(('Data de competência inválida. Use o formato MM/YYYY.', 'warning'))
+
 
             if not "validado" in validacao_campos_obrigatorios:
                 gravar_banco = False
@@ -165,6 +213,7 @@ def editar_lancamento(id):
                 lancamento.tipo_lancamento=int(tipoLancamento)
                 lancamento.categoria_id=int(categoriaLancamento)
                 lancamento.data_movimentacao=dataLancamento
+                lancamento.data_competencia = data_competencia_date
                 lancamento.descricao=descricaoLancamento
                 lancamento.valor_lancamento_100=valor_monetario_formatado                    
 

@@ -32,7 +32,7 @@
           <div class="card-body">
             <div class="row">
               <h3 class="text-primary">Informações do Lançamento</h3>
-              <div class="col-sm-4 col-md-4">
+              <div class="col-sm-3 col-md-3">
                 <div class="mb-3">
                   <label class="form-label required">Tipo lançamento</label>
                   <select name="tipoLancamento" id="tipoLancamento"
@@ -58,7 +58,7 @@
                 </div>
               </div>
 
-              <div class="col-sm-4 col-md-4">
+              <div class="col-sm-3 col-md-3">
                 <div class="mb-3">
                   <label class="form-label required">Categoria</label>
                   <select name="categoriaLancamento" id="categoriaLancamento" class="form-select {% if 'categoriaLancamento' in campos_obrigatorios or 'categoriaLancamento' in campos_erros %}
@@ -81,7 +81,7 @@
                 </div>
               </div>
 
-              <div class="col-sm-2 col-md-2">
+              <div class="col-sm-2 col-md-3">
                 <div class="mb-3">
                   <label class="form-label required">Data Movimentação</label>
                   <input type="date" name="dataLancamento" value="{{ dados_corretos['dataLancamento'] }}" class="form-control {% if 'dataLancamento' in campos_obrigatorios or 'dataLancamento' in campos_erros %}
@@ -98,7 +98,17 @@
                 </div>
               </div>
 
-              <div class="col-sm-2 col-md-2">
+              <div class="col-sm-3 col-md-3">
+                <div class="mb-3">
+                  <label class="form-label required">Data Competência</label>
+                  <input type="text" name="dataCompetencia" id="dataCompetencia"
+                    value="{% if lancamento.data_competencia %}{{ lancamento.data_competencia.strftime('%m/%Y') }}{% endif %}"
+                    class="form-control {% if 'dataCompetencia' in campos_obrigatorios %} is-invalid {% endif %}"
+                    data-mask="00/0000" data-mask-visible="true" placeholder="00/0000" autocomplete="off" />
+                </div>
+              </div>
+
+              <div class="col-sm-2 col-md-6">
                 <div class="mb-3">
                   <label class="form-label required">Valor</label>
                   <input type="text" name="valorLancamento" value="{{ dados_corretos['valorLancamento'] }}" class="form-control campo-moeda-brl {% if 'valorLancamento' in campos_obrigatorios or 'valorLancamento' in campos_erros %}
@@ -248,49 +258,71 @@
       const categoriaAtual = {{ dados_corretos.get('categoriaLancamento', 'null')
     }};
 
+    // Função para adicionar opções recursivamente
+    function adicionarOpcoesRecursivo(categorias, prefixo = '') {
+      categorias.forEach(function (categoria) {
+        if (categoria.children && categoria.children.length > 0) {
+          // Categoria pai com filhos - adiciona como opção desabilitada (título)
+          const optPai = document.createElement('option');
+          optPai.value = categoria.id;
+          optPai.textContent = `${prefixo}${categoria.codigo} – ${categoria.nome}`;
+          optPai.disabled = true;
+          optPai.style.fontWeight = 'bold';
+          optPai.style.backgroundColor = '#f1f5f9';
+          categoriaSelect.appendChild(optPai);
+
+          // Adiciona os filhos com indentação
+          adicionarOpcoesRecursivo(categoria.children, prefixo + '    ');
+        } else {
+          // Categoria sem filhos - pode ser selecionada
+          const opt = document.createElement('option');
+          opt.value = categoria.id;
+          opt.textContent = `${prefixo}${categoria.codigo} – ${categoria.nome}`;
+
+          // Verifica se é a categoria atual para selecionar
+          if (categoriaAtual && categoria.id == categoriaAtual) {
+            opt.selected = true;
+          }
+
+          categoriaSelect.appendChild(opt);
+        }
+      });
+    }
+
     function carregarCategorias(tipoLancamento) {
-      categoriaSelect.innerHTML = '<option value="">Selecione...</option>';
+      // Limpa todas as opções
+      categoriaSelect.innerHTML = '';
 
       if (!tipoLancamento) {
-        categoriaSelect.innerHTML = '<option value="">Selecione primeiro o tipo...</option>';
+        const optDefault = document.createElement('option');
+        optDefault.value = '';
+        optDefault.textContent = 'Selecione primeiro o tipo...';
+        categoriaSelect.appendChild(optDefault);
         return;
       }
 
-      const tipoCategoria = tipoLancamento === '1' ? 1 : 2;
+      // Converte para número para comparação
+      const tipoCategoria = parseInt(tipoLancamento);
 
-      estruturaCategorias.forEach(function (categoria) {
-        if (categoria.tipo === tipoCategoria) {
-          const optionCategoria = document.createElement('option');
-          optionCategoria.value = categoria.id;
-          optionCategoria.textContent = categoria.codigo + ' – ' + categoria.nome;
-          optionCategoria.disabled = true;
-          categoriaSelect.appendChild(optionCategoria);
+      // Opção padrão
+      const optDefault = document.createElement('option');
+      optDefault.value = '';
+      optDefault.textContent = 'Selecione uma categoria';
+      categoriaSelect.appendChild(optDefault);
 
-          categoria.children.forEach(function (subcategoria) {
-            const optionSub = document.createElement('option');
-            optionSub.value = subcategoria.id;
-            optionSub.textContent = '  ' + subcategoria.codigo + ' – ' + subcategoria.nome;
+      // Filtra categorias pelo tipo (1=Receita/Entrada, 2=Despesa/Saída)
+      const categoriasFiltradas = estruturaCategorias.filter(cat => cat.tipo === tipoCategoria);
 
-            if (categoriaAtual && subcategoria.id == categoriaAtual) {
-              optionSub.selected = true;
-            }
+      // Adiciona as categorias recursivamente
+      adicionarOpcoesRecursivo(categoriasFiltradas);
 
-            categoriaSelect.appendChild(optionSub);
-
-            subcategoria.children.forEach(function (subsub) {
-              const optionSubSub = document.createElement('option');
-              optionSubSub.value = subsub.id;
-              optionSubSub.textContent = '    ' + subsub.codigo + ' – ' + subsub.nome;
-
-              if (categoriaAtual && subsub.id == categoriaAtual) {
-                optionSubSub.selected = true;
-              }
-
-              categoriaSelect.appendChild(optionSubSub);
-            });
-          });
-        }
-      });
+      // Se não houver categorias, mostra mensagem
+      if (categoriasFiltradas.length === 0) {
+        const optVazio = document.createElement('option');
+        optVazio.value = '';
+        optVazio.textContent = 'Nenhuma categoria encontrada para este tipo';
+        categoriaSelect.appendChild(optVazio);
+      }
     }
 
     function toggleComprovanteField() {
@@ -300,23 +332,32 @@
         comprovanteContainer.style.display = 'block';
       } else {
         comprovanteContainer.style.display = 'none';
-        document.querySelector('input[name="comprovanteLancamentoSaida"]').value = '';
+        const inputComprovante = document.querySelector('input[name="comprovanteLancamentoSaida"]');
+        if (inputComprovante) {
+          inputComprovante.value = '';
+        }
       }
     }
 
-    comprovanteContainer.style.display = 'none';
+    // Inicializa campo comprovante como oculto
+    if (comprovanteContainer) {
+      comprovanteContainer.style.display = 'none';
+    }
 
+    // Evento de mudança do tipo de lançamento
     tipoLancamentoSelect.addEventListener('change', function () {
       carregarCategorias(this.value);
       toggleComprovanteField();
     });
 
+    // Carrega categorias iniciais se tipo já estiver selecionado
     const tipoInicial = tipoLancamentoSelect.value;
     if (tipoInicial) {
       carregarCategorias(tipoInicial);
       toggleComprovanteField();
     }
 
+    // Lógica para alternar entre manter/alterar comprovante
     const radioManterArquivo = document.getElementById("opcaoComprovanteManterArquivo");
     const radioAlterarArquivo = document.getElementById("opcaoComprovanteAlterarArquivo");
     const inputUploadArquivo = document.getElementById("inputUploadArquivo");
@@ -340,6 +381,7 @@
     }
     });
 
+    // Script para definir data atual
     document.addEventListener('DOMContentLoaded', function () {
       const dataLancamentoInput = document.querySelector('input[name="dataLancamento"]');
 

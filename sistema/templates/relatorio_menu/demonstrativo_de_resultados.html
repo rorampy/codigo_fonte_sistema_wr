@@ -1,0 +1,465 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<div class="page-wrapper">
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">
+            Relatórios Financeiros
+          </div>
+          <h2 class="page-title">
+            Demonstrativo de Resultados
+          </h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="d-flex gap-2">
+            <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-filtro-dre">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-filter" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 
+                                -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+              </svg>
+              Filtrar
+            </a>
+            <a href="{{ url_for('dre_pdf', mes=mes_atual, ano=ano_atual) }}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                <path d="M12 17v-6" />
+                <path d="M9.5 14.5l2.5 2.5l2.5 -2.5" />
+              </svg>
+              Exportar PDF
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card card-body bg-blue-lt border-0 shadow-none">
+            <div class="d-flex align-items-center text-blue">
+              <svg xmlns="http://www.w3.org/2000/svg" class="me-2" width="28" height="28" viewBox="0 0 24 24"
+                stroke-width="1.5" stroke="#0d204d" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                <path d="M16 3l0 4" />
+                <path d="M8 3l0 4" />
+                <path d="M4 11l16 0" />
+              </svg>
+              <div>
+                <h3 class="mb-0" style="color: #0d204d;">Exercício: {% if mes_string | length > 1 %}{{ mes_string }}{%
+                  else %}0{{ mes_string
+                  }}{% endif %}/{{ ano_string }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row row-cards mb-4">
+
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm border-0 shadow-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="avatar bg-green-lt text-green rounded-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                      stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M12 5l0 14" />
+                      <path d="M5 12l14 0" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="col">
+                  <div class="font-weight-medium text-muted">Receitas</div>
+                  <div class="text-green fw-bold fs-3">{{ saldo_entradas | formatar_float_para_brl }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm border-0 shadow-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="avatar bg-red-lt text-red rounded-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                      stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M5 12l14 0" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="col">
+                  <div class="font-weight-medium text-muted">Despesas</div>
+                  <div class="text-red fw-bold fs-3">{{ saldo_saidas | formatar_float_para_brl }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm border-0 shadow-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  {% if dre_dados.lucro_bruto >= 0 %}
+                  <span class="avatar bg-cyan-lt text-cyan rounded-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                      class="icon icon-tabler icons-tabler-outline icon-tabler-trending-up">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M3 17l6 -6l4 4l8 -8" />
+                      <path d="M14 7l7 0l0 7" />
+                    </svg>
+                  </span>
+                  {% else %}
+                  <span class="avatar bg-orange-lt text-orange rounded-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                      class="icon icon-tabler icons-tabler-outline icon-tabler-trending-down">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M3 7l6 6l4 -4l8 8" />
+                      <path d="M21 10l0 7l-7 0" />
+                    </svg>
+                  </span>
+                  {% endif %}
+                </div>
+                <div class="col">
+                  <div class="font-weight-medium text-muted">Lucro Bruto</div>
+                  <div
+                    class="{% if dre_dados.lucro_bruto >= 0 %}text-cyan{% else %}text-orange{% endif %} fw-bold fs-3">
+                    {{ dre_dados.lucro_bruto | formatar_float_para_brl }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm border-0 shadow-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  {% if dre_dados.resultado_liquido >= 0 %}
+                  <span class="avatar bg-teal-lt text-teal rounded-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                      stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
+                      <path d="M12 3v3m0 12v3" />
+                    </svg>
+                  </span>
+                  {% else %}
+                  <span class="avatar bg-pink-lt text-pink rounded-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                      stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
+                      <path d="M12 3v3m0 12v3" />
+                    </svg>
+                  </span>
+                  {% endif %}
+                </div>
+                <div class="col">
+                  <div class="font-weight-medium text-muted">Resultado Líquido</div>
+                  <div
+                    class="{% if dre_dados.resultado_liquido >= 0 %}text-teal{% else %}text-pink{% endif %} fw-bold fs-3">
+                    {{ dre_dados.resultado_liquido | formatar_float_para_brl }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row row-cards">
+        <div class="col-12">
+          <div class="card shadow-sm border-0">
+            <div class="card-header bg-transparent border-bottom-0 pt-4">
+              <h3 class="table-title d-flex align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="black" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                  class="table-title me-1">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                  <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                  <path d="M9 12h6" />
+                  <path d="M9 16h6" />
+                </svg>
+                Demonstrativo de Resultados
+              </h3>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-vcenter table-nowrap">
+                <thead>
+                  <tr class="text-uppercase text-muted fs-5">
+                    <th class="bg-transparent border-bottom">Descrição</th>
+                    <th class="text-end bg-transparent border-bottom" style="width: 200px;">Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <tr class="bg-green-lt">
+                    <td colspan="2" class="py-3"><strong class="text-green text-uppercase">1. Receita Operacional
+                        Bruta</strong></td>
+                  </tr>
+
+                  {% if dre_dados.receitas.categorias %}
+                  {% for codigo, categoria in dre_dados.receitas.categorias.items() %}
+                  <tr>
+                    <td class="ps-4">
+                      <span class="status-dot status-dot-animated bg-green me-2"></span>
+                      <strong>{{ categoria.nome }}</strong>
+                      <span class="text-muted ms-2 fs-5">({{ categoria.codigo }})</span>
+                    </td>
+                    <td class="text-end text-green fw-bold">{{ categoria.total | formatar_float_para_brl }}</td>
+                  </tr>
+
+                  {% for sub_codigo, subcategoria in categoria.subcategorias.items() %}
+                  <tr>
+                    <td class="ps-5 text-muted border-0 py-1">
+                      <svg xmlns="http://www.w3.org/2000/svg"
+                        class="icon icon-tabler icon-tabler-corner-down-right me-1 text-green-lt" width="16" height="16"
+                        viewBox="0 0 24 24" stroke-width="2" stroke="green" fill="none" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
+                      </svg>
+                      {{ subcategoria.nome }} {% if subcategoria.lancamentos | length > 1 %} - ({{
+                      subcategoria.lancamentos | length }}) {% else %} {% endif %}
+                    </td>
+                    <td class="text-end text-secondary border-0 py-1 fs-5">{{ subcategoria.total |
+                      formatar_float_para_brl }}</td>
+                  </tr>
+                  {% endfor %}
+                  {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td class="ps-4 text-muted fst-italic py-3" colspan="2">Nenhuma receita registrada no período.</td>
+                  </tr>
+                  {% endif %}
+
+                  <tr>
+                    <td class="text-end border-top pt-3">TOTAL RECEITAS:</td>
+                    <td class="text-end border-top pt-3"><strong class="text-green">{{ dre_dados.receitas.total |
+                        formatar_float_para_brl }}</strong></td>
+                  </tr>
+
+                  <tr>
+                    <td colspan="2" class="border-0 p-3"></td>
+                  </tr>
+                  <tr class="bg-red-lt">
+                    <td colspan="2" class="py-3"><strong class="text-red text-uppercase">2. Despesas
+                        Operacionais</strong></td>
+                  </tr>
+
+                  {% if dre_dados.despesas.categorias %}
+                  {% for codigo, categoria in dre_dados.despesas.categorias.items() %}
+                  <tr>
+                    <td class="ps-4">
+                      <span class="status-dot status-dot-animated bg-red me-2"></span>
+                      <strong>{{ categoria.nome }}</strong>
+                      <span class="text-muted ms-2 fs-5">({{ categoria.codigo }})</span>
+                    </td>
+                    <td class="text-end text-red fw-bold">{{ categoria.total | formatar_float_para_brl }}</td>
+                  </tr>
+
+                  {% for sub_codigo, subcategoria in categoria.subcategorias.items() %}
+                  <tr>
+                    <td class="ps-5 text-muted border-0 py-1">
+                      <svg xmlns="http://www.w3.org/2000/svg"
+                        class="icon icon-tabler icon-tabler-corner-down-right me-1 text-red-lt" width="16" height="16"
+                        viewBox="0 0 24 24" stroke-width="2" stroke="#D63939" fill="none" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
+                      </svg>
+                      {{ subcategoria.nome }} {% if subcategoria.lancamentos | length > 1 %} - ({{
+                      subcategoria.lancamentos | length }}) {% else %} {% endif %}
+                    </td>
+                    <td class="text-end text-secondary border-0 py-1 fs-5">{{ subcategoria.total |
+                      formatar_float_para_brl }}</td>
+                  </tr>
+                  {% endfor %}
+                  {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td class="ps-4 text-muted fst-italic py-3" colspan="2">Nenhuma despesa registrada no período.</td>
+                  </tr>
+                  {% endif %}
+
+                  <tr>
+                    <td class="text-end border-top pt-3">TOTAL DESPESAS:</td>
+                    <td class="text-end border-top pt-3"><strong class="text-red">{{ dre_dados.despesas.total |
+                        formatar_float_para_brl }}</strong></td>
+                  </tr>
+
+                  <tr>
+                    <td colspan="2" class="border-0 p-4"></td>
+                  </tr>
+                  <tr class="bg-gray-lt">
+                    <td class="py-3 ps-3 text-secondary">
+                      <strong>3. LUCRO BRUTO</strong>
+                      <span class="badge bg-secondary-lt ms-2">Receitas - Despesas</span>
+                    </td>
+                    <td class="text-end py-3 pe-3">
+                      <strong class="{% if dre_dados.lucro_bruto >= 0 %}text-green{% else %}text-red{% endif %} fs-4">
+                        {{ dre_dados.lucro_bruto | formatar_float_para_brl }}
+                      </strong>
+                    </td>
+                  </tr>
+
+                  <tr class="bg-gray-lt">
+                    <td class="py-3 ps-3 text-secondary"><strong>4. LUCRO OPERACIONAL</strong></td>
+                    <td class="text-end py-3 pe-3">
+                      <strong
+                        class="{% if dre_dados.lucro_operacional >= 0 %}text-green{% else %}text-red{% endif %} fs-4">
+                        {{ dre_dados.lucro_operacional | formatar_float_para_brl }}
+                      </strong>
+                    </td>
+                  </tr>
+
+                  <tr class="{% if dre_dados.resultado_liquido >= 0 %}bg-teal-lt{% else %}bg-pink-lt{% endif %}">
+                    <td class="py-4 ps-3">
+                      <strong
+                        class="text-uppercase {% if dre_dados.resultado_liquido >= 0 %}text-teal{% else %}text-pink{% endif %}">5.
+                        Resultado Líquido do Exercício</strong>
+                    </td>
+                    <td class="text-end py-4 pe-3">
+                      <h2 class="mb-0 {% if dre_dados.resultado_liquido >= 0 %}text-teal{% else %}text-pink{% endif %}">
+                        {{ dre_dados.resultado_liquido | formatar_float_para_brl }}
+                      </h2>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal modal-blur fade" id="modal-filtro-dre" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+          <div class="modal-content shadow-lg">
+            <div class="modal-header">
+              <h5 class="modal-title">Filtrar Período</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('demonstrativo_de_resultados') }}" method="GET">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label text-muted">Período Rápido</label>
+                  <select name="exercicio" class="form-select" id="selectExercicio">
+                    <option value="" selected>Selecione...</option>
+                    {% for exercicio in exercicios %}
+                    <option value="{{ exercicio }}">{{ exercicio }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="hr-text text-muted">PERSONALIZADO</div>
+                <div class="row g-2">
+                  <div class="col-8">
+                    <label class="form-label text-muted">Mês</label>
+                    <select name="mes" class="form-select" id="selectMes">
+                      <option value="">Mês</option>
+                      <option value="1">Janeiro</option>
+                      <option value="2">Fevereiro</option>
+                      <option value="3">Março</option>
+                      <option value="4">Abril</option>
+                      <option value="5">Maio</option>
+                      <option value="6">Junho</option>
+                      <option value="7">Julho</option>
+                      <option value="8">Agosto</option>
+                      <option value="9">Setembro</option>
+                      <option value="10">Outubro</option>
+                      <option value="11">Novembro</option>
+                      <option value="12">Dezembro</option>
+                    </select>
+                  </div>
+                  <div class="col-4">
+                    <label class="form-label text-muted">Ano</label>
+                    <input type="number" name="ano" class="form-control" id="inputAno" placeholder="2025" min="2020"
+                      max="2100">
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                  Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary ms-auto">
+                  Filtrar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Lógica simples para preencher Mês/Ano ao selecionar exercício
+      const selectExercicio = document.getElementById('selectExercicio');
+      const selectMes = document.getElementById('selectMes');
+      const inputAno = document.getElementById('inputAno');
+
+      if (selectExercicio) {
+        selectExercicio.addEventListener('change', function () {
+          const valor = this.value;
+          if (valor) {
+            const partes = valor.split('/');
+            if (partes.length === 2) {
+              selectMes.value = parseInt(partes[0]);
+              inputAno.value = partes[1];
+            }
+          }
+        });
+      }
+
+      // Inicialização condicional do TomSelect apenas se carregado
+      if (typeof TomSelect !== 'undefined') {
+        document.querySelectorAll('select.form-select').forEach(function (select) {
+          new TomSelect(select, {
+            create: false,
+            allowEmptyOption: true,
+            controlInput: null
+          });
+        });
+      }
+    });
+  </script>
+
+  {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+{% endblock conteudo %}

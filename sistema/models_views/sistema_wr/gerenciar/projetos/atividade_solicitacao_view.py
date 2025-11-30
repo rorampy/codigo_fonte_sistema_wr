@@ -74,36 +74,36 @@ def solicitacoes_atividade_listar():
     filtro_data_inicio = request.args.get('data_inicio', '').strip()
     filtro_data_fim = request.args.get('data_fim', '').strip()
 
-    # Recuperar filtros da URL
-    filtro_projeto = request.args.get('projeto_id')
-    filtro_situacao = request.args.get('situacao_id')
-    filtro_usuario = request.args.get('usuario_id')
+    # Modificado para suportar múltiplos valores
+    filtros_projeto = request.args.getlist('projeto_id')
+    filtros_situacao = request.args.getlist('situacao_id')
+    filtros_usuario = request.args.getlist('usuario_id')
     filtro_titulo = request.args.get('titulo')
 
+    # Remover valores vazios dos filtros múltiplos
+    filtros_projeto = [p for p in filtros_projeto if p and p.strip()]
+    filtros_situacao = [s for s in filtros_situacao if s and s.strip()]
+    filtros_usuario = [u for u in filtros_usuario if u and u.strip()]
     
     # Filtrar solicitações
-
     atividades = SolicitacaoAtividadeModel.query.filter(
         SolicitacaoAtividadeModel.deletado == False
     )
 
+    # Aplicar filtros múltiplos usando IN
+    if filtros_projeto:
+        atividades = atividades.filter(SolicitacaoAtividadeModel.projeto_id.in_(filtros_projeto))
 
-    if any([filtro_projeto, filtro_situacao, filtro_usuario, filtro_titulo]):
-        if filtro_projeto and filtro_projeto.strip():
-            atividades = atividades.filter(SolicitacaoAtividadeModel.projeto_id == filtro_projeto)
+    if filtros_situacao:
+        atividades = atividades.filter(SolicitacaoAtividadeModel.situacao_id.in_(filtros_situacao))
 
-        if filtro_situacao and filtro_situacao.strip():
-            atividades = atividades.filter(SolicitacaoAtividadeModel.situacao_id == filtro_situacao)
-
-        if filtro_usuario and filtro_usuario.strip():
-            atividades = atividades.filter(SolicitacaoAtividadeModel.usuario_solicitante_id == filtro_usuario)
-        
-        if filtro_titulo and filtro_titulo.strip():
-            atividades = atividades.filter(SolicitacaoAtividadeModel.titulo.ilike(f'%{filtro_titulo}%'))
+    if filtros_usuario:
+        atividades = atividades.filter(SolicitacaoAtividadeModel.usuario_solicitante_id.in_(filtros_usuario))
+    
+    if filtro_titulo and filtro_titulo.strip():
+        atividades = atividades.filter(SolicitacaoAtividadeModel.titulo.ilike(f'%{filtro_titulo}%'))
 
     if opcaoRadioData == 'solicitacao':
-        
-
         if filtro_data_inicio:
             try:
                 data_inicio_obj = datetime.strptime(filtro_data_inicio, '%Y-%m-%d')
@@ -115,10 +115,7 @@ def solicitacoes_atividade_listar():
             try:
                 data_fim_obj = datetime.strptime(filtro_data_fim, '%Y-%m-%d')
                 fim_limite = data_fim_obj.replace(hour=23, minute=59, second=59)
-
-                
                 atividades = atividades.filter(SolicitacaoAtividadeModel.data_cadastro <= fim_limite)
-
             except ValueError:
                 flash(f"Erro no formato de data fim")
     
@@ -167,12 +164,12 @@ def solicitacoes_atividade_listar():
                 )
                 
                 # Reaplicar filtros básicos
-                if filtro_projeto and filtro_projeto.strip():
-                    atividades = atividades.filter(SolicitacaoAtividadeModel.projeto_id == filtro_projeto)
-                if filtro_situacao and filtro_situacao.strip():
-                    atividades = atividades.filter(SolicitacaoAtividadeModel.situacao_id == filtro_situacao)
-                if filtro_usuario and filtro_usuario.strip():
-                    atividades = atividades.filter(SolicitacaoAtividadeModel.usuario_solicitante_id == filtro_usuario)
+                if filtros_projeto:
+                    atividades = atividades.filter(SolicitacaoAtividadeModel.projeto_id.in_(filtros_projeto))
+                if filtros_situacao:
+                    atividades = atividades.filter(SolicitacaoAtividadeModel.situacao_id.in_(filtros_situacao))
+                if filtros_usuario:
+                    atividades = atividades.filter(SolicitacaoAtividadeModel.usuario_solicitante_id.in_(filtros_usuario))
                 if filtro_titulo and filtro_titulo.strip():
                     atividades = atividades.filter(SolicitacaoAtividadeModel.titulo.ilike(f'%{filtro_titulo}%'))
             else:
@@ -182,42 +179,19 @@ def solicitacoes_atividade_listar():
         except Exception as e:
             print(f"Erro no filtro por data limite: {e}")
             flash("Erro ao aplicar filtro por data limite")
-    
-    # if filtro_data_fim:
-    #     try:
-    #         data_limite_selecionada = datetime.strptime(filtro_data_fim, '%Y-%m-%d')
-            
-    #         # Início do dia limite (00:00:00)
-    #         inicio_limite = data_limite_selecionada.replace(hour=0, minute=0, second=0)
-            
-    #         # Fim do dia limite (23:59:59)
-    #         fim_limite = data_limite_selecionada.replace(hour=23, minute=59, second=59)
-            
-    #         # data_alteracao deve estar entre (limite - 48h) para resultar no dia desejado
-    #         data_alteracao_min = inicio_limite - timedelta(hours=48)
-    #         data_alteracao_max = fim_limite - timedelta(hours=48)
-            
-    #         atividades = atividades.filter(
-    #             SolicitacaoAtividadeModel.data_alteracao >= data_alteracao_min,
-    #             SolicitacaoAtividadeModel.data_alteracao <= data_alteracao_max
-    #         )
-    #     except ValueError:
-    #         flash(f"Erro no formato data fim")
 
     dados_corretos = {
-        'projeto_id': filtro_projeto if filtro_projeto and filtro_projeto.strip() else None,
-        'situacao_id': filtro_situacao if filtro_situacao and filtro_situacao.strip() else None,
-        'usuario_id': filtro_usuario if filtro_usuario and filtro_usuario.strip() else None,
+        'projeto_id': filtros_projeto,
+        'situacao_id': filtros_situacao,
+        'usuario_id': filtros_usuario,
         'titulo': filtro_titulo if filtro_titulo and filtro_titulo.strip() else None,
         'data_conclusao_inicio': filtro_data_inicio,
         'data_limite_fim': filtro_data_fim
     }
     
-
     # Executar a query
     solicitacoes = atividades.order_by(SolicitacaoAtividadeModel.data_cadastro.desc()).all()
   
-
     # Dados para os filtros
     projetos = ProjetoModel.query.filter(
         ProjetoModel.deletado == False,
@@ -246,9 +220,9 @@ def solicitacoes_atividade_listar():
         filtros={
             'data_inicio': filtro_data_inicio,
             'data_fim': filtro_data_fim,
-            'projeto_id': filtro_projeto,
-            'situacao_id': filtro_situacao,
-            'usuario_id': filtro_usuario,
+            'projeto_id': filtros_projeto,
+            'situacao_id': filtros_situacao,
+            'usuario_id': filtros_usuario,
             'titulo': filtro_titulo,
             'tipo_filtro': opcaoRadioData
         }
@@ -386,7 +360,7 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
                 db.session.commit()
                 
                 # Mensagem de sucesso
-                mensagem_sucesso = f"Solicitação de atividade cadastrada com sucesso! Prazo para resposta: {prazo_resposta_dias} dias"
+                mensagem_sucesso = (f"Solicitação registrada com sucesso. " f"Prazo estimado para retorno: {prazo_resposta_dias} dia(s).")
                 if anexos_processados > 0:
                     mensagem_sucesso += f" ({anexos_processados} anexo(s) adicionado(s))"
                 

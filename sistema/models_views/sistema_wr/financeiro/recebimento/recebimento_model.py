@@ -24,8 +24,8 @@ class RecebimentoModel(BaseModel):
     status = db.relationship('StatusFinanceiroModel', backref=db.backref('recebimento_status_financeiro', lazy=True))
     comprovante_id = db.Column(db.Integer, db.ForeignKey('upload_arquivo.id'), nullable=True)
     comprovante = db.relationship('UploadArquivoModel', backref=db.backref('comprovante_recebimento', lazy=True))
-    categoria_lancamento_id = db.Column(db.Integer, db.ForeignKey("ca_categoria_lancamento.id"), nullable=True)
-    categoria = db.relationship("CategoriaLancamentoModel", foreign_keys=[categoria_lancamento_id], backref=db.backref("categoria_recebimento", lazy=True))
+    categoria_lancamento_id = db.Column(db.Integer, db.ForeignKey("plan_plano_conta.id"), nullable=True)
+    categoria = db.relationship("PlanoContaModel", foreign_keys=[categoria_lancamento_id], backref=db.backref("recebimentos", lazy=True))
     observacao = db.Column(db.Text, nullable=True)
     ativo = db.Column(db.Boolean, default=False, nullable=False)
 

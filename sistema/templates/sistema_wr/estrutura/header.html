@@ -235,12 +235,15 @@
               <div class="dropend">
                 <a class="dropdown-item dropdown-toggle" href="#sidebar-gerais2" data-bs-toggle="dropdown"
                   data-bs-auto-close="false" role="button" aria-expanded="false">
-                  Relatórios Financeiros
+                  Financeiro
                 </a>
                 <div class="dropdown-menu">
                   <a href="#" data-bs-toggle="modal" data-bs-target="#modal-movimentacao-financeiro"
                     class="dropdown-item">
                     Movimentação Financeira
+                  </a>
+                  <a class="dropdown-item" href="{{url_for('demonstrativo_de_resultados')}}">
+                    DRE
                   </a>
                 </div>
               </div>
@@ -401,8 +404,8 @@
                     <a href="{{url_for('listar_modelos_contratos')}}" class="dropdown-item">
                       Modelos de Contrato
                     </a>
-                    <a href="{{url_for('listar_categoria_lancamento')}}" class="dropdown-item">
-                      Categorias de Lançamento
+                    <a href="{{url_for('listar_plano_contas')}}" class="dropdown-item">
+                      Plano de Contas
                     </a>
                   </div>
                 </div>

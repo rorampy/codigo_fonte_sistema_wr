@@ -58,51 +58,57 @@
 
               {% if filtros.tipo_filtro %}
               {% if filtros.tipo_filtro == "solicitacao" %}
-              <span class="badge badge-outline">Tipo: Data de Solicitação</span>
+              <span class="badge badge-outline text-blue">Tipo: Data de Solicitação</span>
               {% elif filtros.tipo_filtro == "limite" %}
-              <span class="badge badge-outline">Tipo: Data Limite</span>
+              <span class="badge badge-outline text-blue">Tipo: Data Limite</span>
               {% endif %}
               {% endif %}
 
               {% if filtros.data_inicio %}
-              <span class="badge badge-outline">Data início: {{ filtros.data_inicio[8:10] }}/{{
+              <span class="badge badge-outline text-blue">Data início: {{ filtros.data_inicio[8:10] }}/{{
                 filtros.data_inicio[5:7] }}/{{ filtros.data_inicio[0:4] }}</span>
               {% endif %}
 
               {% if filtros.data_fim %}
-              <span class="badge badge-outline">Data limite: {{ filtros.data_fim[8:10] }}/{{
+              <span class="badge badge-outline text-blue">Data limite: {{ filtros.data_fim[8:10] }}/{{
                 filtros.data_fim[5:7]}}/{{ filtros.data_fim[0:4]}}</span>
               {% endif %}
 
               {% if filtros.projeto_id %}
+              {% for projeto_id in filtros.projeto_id %}
               {% for projeto in projetos %}
-              {% if projeto.id|string == filtros.projeto_id|string %}
-              <span class="badge badge-outline">Projeto: {{ projeto.nome_projeto[:20] }}{% if projeto.nome_projeto |
-                length > 20 %}...{% endif %}</span>
+              {% if projeto.id|string == projeto_id|string %}
+              <span class="badge badge-outline text-blue">Projeto: {{ projeto.nome_projeto[:20] }}
+                {% if projeto.nome_projeto | length > 20 %}...{% endif %}</span>
               {% endif %}
+              {% endfor %}
               {% endfor %}
               {% endif %}
 
               {% if filtros.situacao_id %}
-              {% if filtros.situacao_id == "7" %}
-              <span class="badge badge-outline">Status: Em Análise</span>
-              {% elif filtros.situacao_id == "8" %}
-              <span class="badge badge-outline">Status: Rejeitada</span>
-              {% elif filtros.situacao_id == "3" %}
-              <span class="badge badge-outline">Status: Aceita</span>
-              {% endif %}
-              {% endif %}
-
-              {% if filtros.usuario_id %}
-              {% for usuario in usuarios %}
-              {% if usuario.id|string == filtros.usuario_id|string %}
-              <span class="badge badge-outline">Solicitante: {{ usuario.nome }} {{ usuario.sobrenome }}</span>
+              {% for situacao_id in filtros.situacao_id %}
+              {% if situacao_id == "7" %}
+              <span class="badge badge-outline text-blue">Status: Em Análise</span>
+              {% elif situacao_id == "8" %}
+              <span class="badge badge-outline text-blue">Status: Rejeitada</span>
+              {% elif situacao_id == "3" %}
+              <span class="badge badge-outline text-blue">Status: Aceita</span>
               {% endif %}
               {% endfor %}
               {% endif %}
 
+              {% if filtros.usuario_id %}
+              {% for usuario_id in filtros.usuario_id %}
+              {% for usuario in usuarios %}
+              {% if usuario.id|string == usuario_id|string %}
+              <span class="badge badge-outline text-blue">Solicitante: {{ usuario.nome }} {{ usuario.sobrenome }}</span>
+              {% endif %}
+              {% endfor %}
+              {% endfor %}
+              {% endif %}
+
               {% if filtros.titulo %}
-              <span class="badge badge-outline">Título: "{{ filtros.titulo }}"</span>
+              <span class="badge badge-outline text-blue">Título: "{{ filtros.titulo }}"</span>
               {% endif %}
 
             </div>
@@ -155,7 +161,7 @@
                       <span class="text-secondary">#{{ solicitacao.id }}</span>
                     </td>
                     <td>
-                      <span class="badge badge-outline text-blue">{{ solicitacao.projeto.nome_projeto }}</span>
+                      <span class="badge badge-outline text-blue">{{ solicitacao.projeto.nome_projeto[:25] }}{% if solicitacao.projeto.nome_projeto|length > 25 %}...{% endif %}</span>
                     </td>
                     <td>
                       <div class="d-flex py-1 align-items-center">
@@ -202,7 +208,7 @@
                     <td>
                       {{ solicitacao.data_cadastro | formatar_data_hora_para_brl }}
                     </td>
-                    <!-- Data Limite: data_alteracao + 48 horas -->
+
                     <td>
                       {% set horas_prazo = solicitacao.prazo_resposta_dias * 24 %}
                       {% set data_limite = solicitacao.data_cadastro | adicionar_horas(horas_prazo) %}
@@ -356,8 +362,7 @@
             <div class="col-6 mb-3">
               <label class="form-selectgroup-item flex-fill">
                 <input type="radio" name="tipo_filtro" value="solicitacao" id="radio-solicitacao"
-                  class="form-selectgroup-input" {% if request.args.get('tipo_filtro') != 'limite' %}checked{%
-                  endif %}>
+                  class="form-selectgroup-input" {% if request.args.get('tipo_filtro') !='limite' %}checked{% endif %}>
                 <div class="form-selectgroup-label d-flex align-items-center p-3">
                   <div class="me-3">
                     <span class="form-selectgroup-check"></span>
@@ -373,7 +378,7 @@
             <div class="col-6 mb-3">
               <label class="form-selectgroup-item flex-fill">
                 <input type="radio" name="tipo_filtro" value="limite" id="radio-limite" class="form-selectgroup-input"
-                  {% if request.args.get('tipo_filtro') == 'limite' %}checked{% endif %}>
+                  {% if request.args.get('tipo_filtro')=='limite' %}checked{% endif %}>
                 <div class="form-selectgroup-label d-flex align-items-center p-3">
                   <div class="me-3">
                     <span class="form-selectgroup-check"></span>
@@ -399,60 +404,135 @@
             <div class="col-md-6 mb-3">
               <div class="mb-3">
                 <label class="form-label">Data Fim</label>
-                <input type="date" class="form-control" name="data_fim"
-                  value="{{request.args.get('data_fim', '')}}">
+                <input type="date" class="form-control" name="data_fim" value="{{request.args.get('data_fim', '')}}">
               </div>
             </div>
 
-            <!--Código Original-->
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label">Projeto</label>
-                <select class="form-select" name="projeto_id">
-                  <option value="">Todos os projetos</option>
+            <!-- Projeto com dropdown múltiplo -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Projeto</label>
+              <div class="dropdown">
+                <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span id="projeto-label">Selecione os Projetos</span>
+                </button>
+                <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="projeto_id" value="" class="form-check-input me-2"
+                        id="projeto-todos">
+                      Todos os Projetos
+                    </label>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
                   {% for projeto in projetos %}
-                  <option value="{{ projeto.id }}" {% if dados_corretos.projeto_id==projeto.id|string %}selected{% endif
-                    %}>
-                    {{ projeto.nome_projeto }}
-                  </option>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="projeto_id" value="{{ projeto.id }}"
+                        class="form-check-input me-2 projeto-checkbox" {% if filtros.projeto_id and projeto.id|string in
+                        filtros.projeto_id %}checked{% endif %}>
+                      {{ projeto.nome_projeto }}
+                    </label>
+                  </li>
                   {% endfor %}
-                </select>
+                </ul>
               </div>
+              <small class="text-muted ps-2">Selecione múltiplas opções</small>
             </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select class="form-select" name="situacao_id">
-                  <option value="">Todos os status</option>
-                  <option value="7" {% if dados_corretos.situacao_id=="7" %}selected{% endif %}>Em Análise</option>
-                  <option value="8" {% if dados_corretos.situacao_id=="8" %}selected{% endif %}>Rejeitada</option>
-                  <option value="3" {% if dados_corretos.situacao_id=="3" %}selected{% endif %}>Aceita</option>
-                </select>
+
+            <!-- Status com dropdown múltiplo -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Status</label>
+              <div class="dropdown">
+                <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span id="situacao-label">Selecione os Status</span>
+                </button>
+                <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="situacao_id" value="" class="form-check-input me-2"
+                        id="situacao-todas">
+                      Todos os Status
+                    </label>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="situacao_id" value="7"
+                        class="form-check-input me-2 situacao-checkbox" {% if filtros.situacao_id and "7" in
+                        filtros.situacao_id %}checked{% endif %}>
+                      Em Análise
+                    </label>
+                  </li>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="situacao_id" value="8"
+                        class="form-check-input me-2 situacao-checkbox" {% if filtros.situacao_id and "8" in
+                        filtros.situacao_id %}checked{% endif %}>
+                      Rejeitada
+                    </label>
+                  </li>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="situacao_id" value="3"
+                        class="form-check-input me-2 situacao-checkbox" {% if filtros.situacao_id and "3" in
+                        filtros.situacao_id %}checked{% endif %}>
+                      Aceita
+                    </label>
+                  </li>
+                </ul>
               </div>
+              <small class="text-muted ps-2">Selecione múltiplas opções</small>
             </div>
+
           </div>
+
           <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label">Solicitante</label>
-                <select class="form-select" name="usuario_id">
-                  <option value="">Todos os usuários</option>
+            <!-- Solicitante com dropdown múltiplo -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Solicitante</label>
+              <div class="dropdown">
+                <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span id="usuario-label">Selecione os Solicitantes</span>
+                </button>
+                <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="usuario_id" value="" class="form-check-input me-2"
+                        id="usuario-todos">
+                      Todos os Solicitantes
+                    </label>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
                   {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}" {% if dados_corretos.usuario_id==usuario.id|string %}selected{% endif
-                    %}>
-                    {{ usuario.nome }} {{ usuario.sobrenome }}
-                  </option>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="usuario_id" value="{{ usuario.id }}"
+                        class="form-check-input me-2 usuario-checkbox" {% if filtros.usuario_id and usuario.id|string in
+                        filtros.usuario_id %}checked{% endif %}>
+                      {{ usuario.nome }} {{ usuario.sobrenome }}
+                    </label>
+                  </li>
                   {% endfor %}
-                </select>
+                </ul>
               </div>
+              <small class="text-muted ps-2">Selecione múltiplas opções</small>
             </div>
-            <div class="col-md-6">
+
+            <!-- Título -->
+            <div class="col-md-6 mb-3">
               <div class="mb-3">
                 <label class="form-label">Título</label>
-                <input type="text" class="form-control" name="titulo" value="{{ dados_corretos.titulo or '' }}"
+                <input type="text" class="form-control" name="titulo" value="{{ filtros.titulo or '' }}"
                   placeholder="Buscar por título...">
               </div>
             </div>
+
           </div>
         </div>
         <div class="modal-footer">
@@ -564,43 +644,160 @@
   document.addEventListener('DOMContentLoaded', function () {
     const storageKey = 'filtrosSolicitacoes'; // chave exclusiva desta tela
     const form = document.querySelector('#form-filtros-solicitacoes');
-    const btnLimparCard = document.querySelector('#btnLimparFiltrosCard');
-    const btnLimparModal = document.querySelector('#btnLimparFiltrosModal');
 
-    // Restaurar filtros salvos (apenas preencher, sem enviar automaticamente)
-    const filtrosSalvos = sessionStorage.getItem(storageKey);
-    if (form && filtrosSalvos && !window.location.search) {
-      const filtros = JSON.parse(filtrosSalvos);
-      Object.keys(filtros).forEach(key => {
-        const input = form.querySelector(`[name="${key}"]`);
-        if (!input) return;
-        input.value = filtros[key]
+    // Definir todos os filtros múltiplos
+    const multiSelectFilters = [
+      { name: 'projeto', checkbox: '.projeto-checkbox', allCheckbox: '#projeto-todos', label: '#projeto-label' },
+      { name: 'situacao', checkbox: '.situacao-checkbox', allCheckbox: '#situacao-todas', label: '#situacao-label' },
+      { name: 'usuario', checkbox: '.usuario-checkbox', allCheckbox: '#usuario-todos', label: '#usuario-label' }
+    ];
+
+    // Função para configurar cada filtro múltiplo
+    function setupMultiSelectFilter(filter) {
+      const checkboxes = document.querySelectorAll(filter.checkbox);
+      const allCheckbox = document.querySelector(filter.allCheckbox);
+      const label = document.querySelector(filter.label);
+
+      if (!checkboxes.length || !allCheckbox || !label) return;
+
+      // Função para atualizar label
+      function updateLabel() {
+        const checked = Array.from(checkboxes).filter(cb => cb.checked);
+        const labelTexts = {
+          'projeto': 'Selecione os Projetos',
+          'situacao': 'Selecione os Status',
+          'usuario': 'Selecione os Solicitantes'
+        };
+
+        if (checked.length === 0) {
+          label.textContent = labelTexts[filter.name];
+        } else if (checked.length === 1) {
+          label.textContent = checked[0].parentElement.textContent.trim();
+        } else {
+          label.textContent = `${checked.length} selecionados`;
+        }
+      }
+
+      // Event listener para "Todos"
+      allCheckbox.addEventListener('change', function () {
+        checkboxes.forEach(cb => {
+          cb.checked = this.checked;
+        });
+        updateLabel();
       });
-      form.submit(); // Aplica os filtros salvos
+
+      // Event listeners para checkboxes individuais
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+          allCheckbox.checked = Array.from(checkboxes).every(c => c.checked);
+          updateLabel();
+        });
+      });
+
+      // Inicializar label
+      updateLabel();
     }
+
+    // Configurar todos os filtros múltiplos
+    multiSelectFilters.forEach(setupMultiSelectFilter);
 
     // Salvar filtros ao submeter
     if (form) {
       form.addEventListener('submit', function () {
         const formData = new FormData(form);
         const filtros = {};
+
+        // Tratar todos os campos múltiplos
+        multiSelectFilters.forEach(filter => {
+          const fieldName = filter.name + '_id';
+          const values = formData.getAll(fieldName).filter(value => value !== '');
+          if (values.length > 0) {
+            filtros[fieldName] = values;
+          }
+        });
+
+        // Outros campos normais
         for (let [key, value] of formData.entries()) {
-          if (value) filtros[key] = value;
+          const isMultiSelect = multiSelectFilters.some(f => key === f.name + '_id');
+          if (!isMultiSelect && value) {
+            filtros[key] = value;
+          }
         }
+
         sessionStorage.setItem(storageKey, JSON.stringify(filtros));
       });
+    }
+
+    // Restaurar filtros múltiplos salvos
+    const filtrosSalvos = sessionStorage.getItem(storageKey);
+    if (form && filtrosSalvos && !window.location.search) {
+      const filtros = JSON.parse(filtrosSalvos);
+      Object.keys(filtros).forEach(key => {
+        const isMultiSelect = multiSelectFilters.some(f => key === f.name + '_id');
+
+        if (isMultiSelect && Array.isArray(filtros[key])) {
+          // Restaurar checkboxes múltiplos
+          filtros[key].forEach(value => {
+            const checkbox = document.querySelector(`input[name="${key}"][value="${value}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        } else {
+          const input = form.querySelector(`[name="${key}"]`);
+          if (input) input.value = filtros[key];
+        }
+      });
+
+      // Atualizar labels
+      multiSelectFilters.forEach(filter => {
+        const label = document.querySelector(filter.label);
+        const checkboxes = document.querySelectorAll(filter.checkbox);
+        if (label && checkboxes.length > 0) {
+          const checked = Array.from(checkboxes).filter(cb => cb.checked);
+          const labelTexts = {
+            'projeto': 'Selecione os Projetos',
+            'situacao': 'Selecione os Status',
+            'usuario': 'Selecione os Solicitantes'
+          };
+
+          if (checked.length === 0) {
+            label.textContent = labelTexts[filter.name];
+          } else if (checked.length === 1) {
+            label.textContent = checked[0].parentElement.textContent.trim();
+          } else {
+            label.textContent = `${checked.length} selecionados`;
+          }
+        }
+      });
+
+      form.submit();
     }
 
     // Salvar estado atual da URL (quando entra com query string)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.toString()) {
       const filtros = {};
-      for (let [key, value] of urlParams.entries()) filtros[key] = value;
-      sessionStorage.setItem(storageKey, JSON.stringify(filtros))
+
+      // Tratar todos os campos múltiplos
+      multiSelectFilters.forEach(filter => {
+        const fieldName = filter.name + '_id';
+        const values = urlParams.getAll(fieldName);
+        if (values.length > 0) {
+          filtros[fieldName] = values;
+        }
+      });
+
+      // Outros parâmetros
+      for (let [key, value] of urlParams.entries()) {
+        const isMultiSelect = multiSelectFilters.some(f => key === f.name + '_id');
+        if (!isMultiSelect) {
+          filtros[key] = value;
+        }
+      }
+      sessionStorage.setItem(storageKey, JSON.stringify(filtros));
     }
 
     // Botões de limpar (card e modal) – limpam só esta tela e recarregam sem parâmetros
-
+    const btnLimparCard = document.querySelector('#btnLimparFiltrosCard');
     if (btnLimparCard) {
       btnLimparCard.addEventListener('click', function (e) {
         e.preventDefault();
@@ -609,7 +806,7 @@
       });
     }
 
-
+    const btnLimparModal = document.querySelector('#btnLimparFiltrosModal');
     if (btnLimparModal) {
       btnLimparModal.addEventListener('click', function (e) {
         e.preventDefault();
@@ -617,12 +814,12 @@
         if (form) {
           form.querySelectorAll('input[type="text"], input[type="date"]').forEach(i => i.value = '');
           form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+          form.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
         }
         window.location.href = this.href || window.location.pathname;
       });
     }
   });
-
 
   // Variável global para armazenar o ID da solicitação a ser excluída
   let solicitacaoIdParaExcluir = null;
@@ -643,27 +840,6 @@
       const urlFinal = urlBase.replace('/1', '/' + solicitacaoIdParaExcluir);
       window.location.href = urlFinal;
     }
-  }
-
-
-  // Função para aplicar filtros ao formulário
-  function aplicarFiltrosNoForm(filtros) {
-    Object.keys(filtros).forEach(key => {
-      const input = form.querySelector(`[name="${key}"]`);
-      if (input) {
-        if (input.tagName === 'SELECT') {
-          // Para selects, encontrar a option com o valor correto
-          const option = input.querySelector(`option[value="${filtros[key]}"]`);
-          if (option) {
-            input.value = filtros[key];
-          }
-        } else if (input.type === 'checkbox' || input.type === 'radio') {
-          input.checked = input.value === filtros[key];
-        } else {
-          input.value = filtros[key];
-        }
-      }
-    });
   }
 
   // Inicializar tooltips

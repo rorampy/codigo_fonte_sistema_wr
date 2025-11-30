@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DRE Gerencial - {{ mes_string }}/{{ ano_string }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 15mm;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            margin: 0;
+            color: #2d3748;
+            line-height: 1.4;
+            background-color: #ffffff;
+        }
+
+        .header {
+            border-bottom: 2px solid #0d204d;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .header table {
+            width: 100%;
+            border: none;
+        }
+
+        .header img {
+            width: 120px;
+        }
+
+        .system-info {
+            text-align: right;
+            font-size: 10px;
+            color: #4a5568;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 500;
+        }
+
+        .relatorio-title {
+            text-align: center;
+            font-size: 20px;
+            color: #1a202c;
+            font-weight: 600;
+            margin: 20px 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .period-badge {
+            text-align: center;
+            margin: 10px 0 25px 0;
+        }
+
+        .period-badge .badge {
+            background-color: #e7f1ff;
+            color: #0d204d;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #bdd4f1;
+        }
+
+        /* Cards de resumo */
+        .cards-container {
+            display: table;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .card-row {
+            display: table-row;
+        }
+
+        .summary-card {
+            display: table-cell;
+            width: 25%;
+            padding: 0 5px;
+            vertical-align: top;
+        }
+
+        .summary-card .card-inner {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .summary-card .card-label {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-card .card-value {
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card-receitas .card-inner {
+            border-left: 3px solid #0d204d;
+        }
+
+        .card-receitas .card-value {
+            color: #0d204d;
+        }
+
+        .card-despesas .card-inner {
+            border-left: 3px solid #0d204d;
+        }
+
+        .card-despesas .card-value {
+            color: #0d204d;
+        }
+
+        .card-lucro .card-inner {
+            border-left: 3px solid #0d204d;
+        }
+
+        .card-lucro .card-value {
+            color: #0d204d;
+        }
+
+        .card-resultado .card-inner {
+            border-left: 3px solid #0d204d;
+        }
+
+        .card-resultado .card-value {
+            color: #0d204d;
+        }
+
+        /* Tabela principal do DRE */
+        .dre-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dre-table thead th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            padding: 12px 15px;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .dre-table thead th:first-child {
+            text-align: left;
+        }
+
+        .dre-table thead th:last-child {
+            text-align: right;
+            width: 150px;
+        }
+
+        .dre-table tbody td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 11px;
+        }
+
+        .dre-table tbody td:last-child {
+            text-align: right;
+            font-weight: 600;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* Seção de título (Receitas, Despesas) */
+        .section-header {
+            background-color: #f1f5f9 !important;
+        }
+
+        .section-header td {
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            padding: 12px 15px !important;
+            color: #334155;
+        }
+
+        .section-header.receitas td:first-child {
+            color: #10b981;
+        }
+
+        .section-header.despesas td:first-child {
+            color: #ef4444;
+        }
+
+        /* Categoria pai */
+        .categoria-row td {
+            padding-left: 25px !important;
+        }
+
+        .categoria-row td:first-child {
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* Subcategoria */
+        .subcategoria-row td {
+            padding-left: 40px !important;
+            color: #0d204d;
+        }
+
+        .subcategoria-row td:first-child::before {
+            content: "↳ ";
+            color: #0d204d;
+        }
+
+        /* Linha de total */
+        .total-row {
+            background-color: #f8fafc;
+        }
+
+        .total-row td {
+            font-weight: 700 !important;
+            border-top: 2px solid #e2e8f0 !important;
+            padding: 12px 15px !important;
+        }
+
+        /* Cores para valores */
+        .valor-positivo {
+            color: #10b981 !important;
+        }
+
+        .valor-negativo {
+            color: #ef4444 !important;
+        }
+
+        /* Linha de resultado */
+        .resultado-row {
+            background-color: #f0fdf4;
+        }
+
+        .resultado-row.positivo {
+            background-color: #f0fdf4;
+        }
+
+        .resultado-row.negativo {
+            background-color: #fef2f2;
+        }
+
+        .resultado-row td {
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            padding: 14px 15px !important;
+        }
+
+        .resultado-row.positivo td {
+            color: #10b981;
+        }
+
+        .resultado-row.negativo td {
+            color: #ef4444;
+        }
+
+        /* Seções de resultado */
+        .resultado-section {
+            background-color: #f8fafc;
+            margin-top: 3px;
+        }
+
+        .resultado-section td {
+            padding: 12px 15px !important;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        /* Resultado final destacado */
+        .resultado-final {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        .resultado-final.negativo {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+
+        .resultado-final td {
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            padding: 16px 15px !important;
+        }
+
+        .resultado-final .badge-resultado {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .resultado-final.positivo .badge-resultado {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+
+        .resultado-final.negativo .badge-resultado {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Espaçador entre seções */
+        .spacer-row td {
+            padding: 8px !important;
+            border: none !important;
+            background-color: #ffffff !important;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 9px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+        }
+
+        .footer strong {
+            color: #64748b;
+        }
+
+        /* Mensagem de sem dados */
+        .no-data {
+            color: #94a3b8;
+            font-style: italic;
+            padding-left: 25px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <table>
+            <tr>
+                <td style="width: 200px;">
+                    <img style="width: 200px; height: auto;" src="{{ logo_path }}" alt="Logo WR Software" />
+                </td>
+                <td class="system-info">
+                    <div><strong>WR Software</strong></div>
+                    <div><strong>Relatório gerado em:</strong> {{ data_geracao }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="relatorio-title">Demonstrativo de Resultados</div>
+
+    <!-- Período do Relatório -->
+    <div class="period-badge">
+        <span class="badge">Exercício: {{ mes_string }}/{{ ano_string }}</span>
+    </div>
+
+    <!-- Cards de Resumo -->
+    <div class="cards-container">
+        <div class="card-row">
+            <div class="summary-card card-receitas">
+                <div class="card-inner">
+                    <div class="card-label">Receitas</div>
+                    <div class="card-value">{{ saldo_entradas | formatar_float_para_brl }}</div>
+                </div>
+            </div>
+            <div class="summary-card card-despesas">
+                <div class="card-inner">
+                    <div class="card-label">Despesas</div>
+                    <div class="card-value">{{ saldo_saidas | formatar_float_para_brl }}</div>
+                </div>
+            </div>
+            <div class="summary-card card-lucro">
+                <div class="card-inner">
+                    <div class="card-label">Lucro Bruto</div>
+                    <div class="card-value">{{ dre_dados.lucro_bruto | formatar_float_para_brl }}</div>
+                </div>
+            </div>
+            <div class="summary-card card-resultado">
+                <div class="card-inner">
+                    <div class="card-label">Resultado Líquido</div>
+                    <div class="card-value">{{ dre_dados.resultado_liquido | formatar_float_para_brl }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela do DRE -->
+    <table class="dre-table">
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <!-- SEÇÃO RECEITAS -->
+            <tr class="section-header receitas">
+                <td colspan="2" style="text-align: left; display: flex; justify-content: center; align-items: center; margin: auto;">
+                    1. Receita Operacional Bruta</td>
+            </tr>
+
+            {% if dre_dados.receitas.categorias %}
+            {% for codigo, categoria in dre_dados.receitas.categorias.items() %}
+            <tr class="categoria-row">
+                <td>
+                    <strong>{{ categoria.nome }}</strong>
+                    <span style="color: #94a3b8; margin-left: 8px; font-size: 9px;">({{ categoria.codigo }})</span>
+                </td>
+                <td class="valor-positivo">{{ categoria.total | formatar_float_para_brl }}</td>
+            </tr>
+
+            {% for sub_codigo, subcategoria in categoria.subcategorias.items() %}
+            <tr class="subcategoria-row">
+                <td>{{ subcategoria.nome }} {% if subcategoria.lancamentos | length > 1 %} - ({{
+                    subcategoria.lancamentos | length }}) {% else %} {% endif %}</td>
+                <td style="color: #64748b;">{{ subcategoria.total | formatar_float_para_brl }}</td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td class="no-data" colspan="2">Nenhuma receita registrada no período.</td>
+            </tr>
+            {% endif %}
+
+            <tr class="total-row">
+                <td>TOTAL RECEITAS</td>
+                <td class="valor-positivo">{{ dre_dados.receitas.total | formatar_float_para_brl }}</td>
+            </tr>
+
+            <!-- Espaçador -->
+            <tr class="spacer-row">
+                <td colspan="2"></td>
+            </tr>
+
+            <!-- SEÇÃO DESPESAS -->
+            <tr class="section-header despesas">
+                <td colspan="2" style="text-align: left; display: flex; justify-content: center; align-items: center; margin: auto;">
+                    2. Despesas Operacionais</td>
+            </tr>
+
+            {% if dre_dados.despesas.categorias %}
+            {% for codigo, categoria in dre_dados.despesas.categorias.items() %}
+            <tr class="categoria-row">
+                <td>
+                    <strong>{{ categoria.nome }}</strong>
+                    <span style="color: #94a3b8; margin-left: 8px; font-size: 9px;">({{ categoria.codigo }})</span>
+                </td>
+                <td class="valor-negativo">{{ categoria.total | formatar_float_para_brl }}</td>
+            </tr>
+
+            {% for sub_codigo, subcategoria in categoria.subcategorias.items() %}
+            <tr class="subcategoria-row">
+                <td>{{ subcategoria.nome }} {% if subcategoria.lancamentos | length > 1 %} - ({{
+                    subcategoria.lancamentos | length }}) {% else %} {% endif %}</td>
+                <td style="color: #64748b;">{{ subcategoria.total | formatar_float_para_brl }}</td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td class="no-data" colspan="2">Nenhuma despesa registrada no período.</td>
+            </tr>
+            {% endif %}
+
+            <tr class="total-row">
+                <td>TOTAL DESPESAS</td>
+                <td class="valor-negativo">{{ dre_dados.despesas.total | formatar_float_para_brl }}</td>
+            </tr>
+
+            <!-- Espaçador -->
+            <tr class="spacer-row">
+                <td colspan="2"></td>
+            </tr>
+
+            <!-- RESULTADOS -->
+            <tr class="resultado-section">
+                <td>3. LUCRO BRUTO</td>
+                <td class="{% if dre_dados.lucro_bruto >= 0 %}valor-positivo{% else %}valor-negativo{% endif %}">
+                    {{ dre_dados.lucro_bruto | formatar_float_para_brl }}
+                </td>
+            </tr>
+
+            <tr class="resultado-section">
+                <td>4. LUCRO OPERACIONAL</td>
+                <td class="{% if dre_dados.lucro_operacional >= 0 %}valor-positivo{% else %}valor-negativo{% endif %}">
+                    {{ dre_dados.lucro_operacional | formatar_float_para_brl }}
+                </td>
+            </tr>
+
+            <tr class="resultado-final {% if dre_dados.resultado_liquido >= 0 %}positivo{% else %}negativo{% endif %}">
+                <td>
+                    5. RESULTADO LÍQUIDO DO EXERCÍCIO
+                    <span class="badge-resultado">{% if dre_dados.resultado_liquido >= 0 %}LUCRO{% else %}PREJUÍZO{%
+                        endif %}</span>
+                </td>
+                <td class="{% if dre_dados.resultado_liquido >= 0 %}valor-positivo{% else %}valor-negativo{% endif %}">
+                    {{ dre_dados.resultado_liquido | formatar_float_para_brl }}
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p><strong>WR Software &copy; 2025</strong> - Todos os direitos reservados</p>
+        <p>Demonstrativo de Resultado do Exercício gerado automaticamente pelo Sistema WR</p>
+    </div>
+</body>
+
+</html>

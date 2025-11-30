@@ -20,6 +20,7 @@
     </div>
   </div>
 
+
   <!-- Page body -->
   <div class="page-body">
     <div class="container-xl">
@@ -59,7 +60,7 @@
                 </div>
               </div>
 
-              <div class="col-sm-6 col-md-6">
+              <div class="col-sm-6 col-md-3">
                 <div class="mb-3">
                   <label class="form-label required">Categoria</label>
                   <select name="categoriaLancamento" id="categoriaLancamento" class="form-select no-tomselect {% if 'categoriaLancamento' in campos_obrigatorios or 'categoriaLancamento' in campos_erros %}
@@ -116,6 +117,15 @@
                 </div>
               </div>
 
+              <div class="col-sm-3 col-md-3">
+                <div class="mb-3">
+                  <label class="form-label required">Data Competência</label>
+                  <input type="text" name="data_competencia" id="data_competencia" value=""
+                    class="form-control {% if 'data_competencia' in campos_obrigatorios %} is-invalid {% endif %}"
+                    data-mask="00/0000" data-mask-visible="true" placeholder="00/0000" autocomplete="off"
+                    pattern="^(0[1-9]|1[0-2])\/\d{4}$" />
+                </div>
+              </div>
 
               <div class="col-sm-6 col-md-6">
                 <div class="mb-3">
@@ -123,7 +133,7 @@
                   <input type="text" name="descricaoLancamento" value="{{ dados_corretos['descricaoLancamento'] }}"
                     class="form-control {% if 'descricaoLancamento' in campos_obrigatorios or 'descricaoLancamento' in campos_erros %}
                           is-invalid
-                        {% endif %}">
+                        {% endif %}" placeholder="Descrição de Lançamento">
                   <div class="invalid-feedback">
                     {% if 'descricaoLancamento' in campos_obrigatorios
                     %}
@@ -184,7 +194,7 @@
   </div>
 
   <script>
-    const estruturaCategorias = {{ estrutura| tojson }};
+    const estruturaCategorias = {{ estrutura | tojson }};
 
     document.addEventListener('DOMContentLoaded', function () {
       const categoriaSelect = document.getElementById('categoriaLancamento');
@@ -196,60 +206,69 @@
         categoriaSelect.innerHTML = '';
 
         if (!tipoLancamento) {
-          categoriaSelect.innerHTML = '<option value="">Selecione primeiro o tipo...</option>';
+          const optDefault = document.createElement('option');
+          optDefault.value = '';
+          optDefault.textContent = 'Selecione o tipo de lançamento primeiro';
+          categoriaSelect.appendChild(optDefault);
           return;
         }
 
-        // Adiciona opção inicial
-        categoriaSelect.innerHTML = '<option value="">Selecione...</option>';
+        // Converte para número para comparação
+        tipoLancamento = parseInt(tipoLancamento);
 
-        const tipoCategoria = tipoLancamento === '1' ? 1 : 2;
+        // Opção padrão
+        const optDefault = document.createElement('option');
+        optDefault.value = '';
+        optDefault.textContent = 'Selecione uma categoria';
+        categoriaSelect.appendChild(optDefault);
 
-        estruturaCategorias.forEach(function (categoria) {
-          if (categoria.tipo === tipoCategoria) {
-            // Categoria principal (desabilitada)
-            const optionCategoria = document.createElement('option');
-            optionCategoria.value = categoria.id;
-            optionCategoria.textContent = categoria.codigo + ' – ' + categoria.nome;
-            optionCategoria.disabled = true;
-            optionCategoria.style.fontWeight = 'bold';
-            optionCategoria.style.backgroundColor = '#f8f9fa';
-            categoriaSelect.appendChild(optionCategoria);
+        // Filtra categorias pelo tipo (1=Receita/Entrada, 2=Despesa/Saída)
+        const categoriasFiltradas = estruturaCategorias.filter(cat => cat.tipo === tipoLancamento);
 
-            // Subcategorias
-            categoria.children.forEach(function (subcategoria) {
-              const optionSub = document.createElement('option');
-              optionSub.value = subcategoria.id;
-              optionSub.textContent = '  ' + subcategoria.codigo + ' – ' + subcategoria.nome;
-              categoriaSelect.appendChild(optionSub);
+        // Função para adicionar opções recursivamente
+        function adicionarOpcoes(categorias, prefixo = '') {
+          categorias.forEach(categoria => {
+            // Adiciona a categoria pai como optgroup ou opção desabilitada
+            if (categoria.children && categoria.children.length > 0) {
+              // Categoria pai com filhos - adiciona como opção desabilitada (título)
+              const optPai = document.createElement('option');
+              optPai.value = categoria.id;
+              optPai.textContent = `${prefixo}${categoria.codigo} - ${categoria.nome}`;
+              optPai.disabled = true;
+              optPai.style.fontWeight = 'bold';
+              optPai.style.backgroundColor = '#f1f5f9';
+              categoriaSelect.appendChild(optPai);
 
-              // Sub-subcategorias
-              subcategoria.children.forEach(function (subsub) {
-                const optionSubSub = document.createElement('option');
-                optionSubSub.value = subsub.id;
-                optionSubSub.textContent = '    ' + subsub.codigo + ' – ' + subsub.nome;
-                categoriaSelect.appendChild(optionSubSub);
-              });
-            });
-          }
-        });
+              // Adiciona os filhos com indentação
+              adicionarOpcoes(categoria.children, prefixo + '    ');
+            } else {
+              // Categoria sem filhos - pode ser selecionada
+              const opt = document.createElement('option');
+              opt.value = categoria.id;
+              opt.textContent = `${prefixo}${categoria.codigo} - ${categoria.nome}`;
+              categoriaSelect.appendChild(opt);
+            }
+          });
+        }
 
-        // Preserva o valor selecionado se existir
-        const valorSelecionado = '{{ dados_corretos.get("categoriaLancamento", "") }}';
-        if (valorSelecionado) {
-          categoriaSelect.value = valorSelecionado;
+        adicionarOpcoes(categoriasFiltradas);
+
+        // Se não houver categorias, mostra mensagem
+        if (categoriasFiltradas.length === 0) {
+          const optVazio = document.createElement('option');
+          optVazio.value = '';
+          optVazio.textContent = 'Nenhuma categoria encontrada para este tipo';
+          categoriaSelect.appendChild(optVazio);
         }
       }
 
       // Função global para ser chamada pelo onchange dos radio buttons
       window.toggleComprovanteField = function () {
-        const tipoSelecionado = document.querySelector('input[name="tipoLancamento"]:checked')?.value;
-
-        if (tipoSelecionado === '2') {
+        const tipoSelecionado = document.querySelector('input[name="tipoLancamento"]:checked');
+        if (tipoSelecionado && tipoSelecionado.value === '2') {
           comprovanteContainer.style.display = 'block';
         } else {
           comprovanteContainer.style.display = 'none';
-          document.querySelector('input[name="comprovanteLancamentoSaida"]').value = '';
         }
       }
 
@@ -264,6 +283,8 @@
       }
     });
 
+    console.log(estruturaCategorias);
+
     // Script para definir data atual
     document.addEventListener('DOMContentLoaded', function () {
       const dataLancamentoInput = document.querySelector('input[name="dataLancamento"]');
@@ -273,7 +294,6 @@
         const ano = hoje.getFullYear();
         const mes = String(hoje.getMonth() + 1).padStart(2, '0');
         const dia = String(hoje.getDate()).padStart(2, '0');
-
         return `${ano}-${mes}-${dia}`;
       }
 

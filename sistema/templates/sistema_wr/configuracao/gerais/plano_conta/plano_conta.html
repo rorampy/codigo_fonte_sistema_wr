@@ -70,8 +70,7 @@
 {% block conteudo %}
 {% include 'sistema_wr/estrutura/header.html' %}
 
-<link rel="stylesheet"
-  href="{{ url_for('static', filename='css/financeiro/categoria_lancamento/categoria_lancamento.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tree-view.css') }}">
 
 <div class="page-wrapper">
   <!-- Page header -->
@@ -81,7 +80,7 @@
         <div class="col">
           <!-- Page pre-title -->
           <div class="page-pretitle">
-            CATEGORIAS LANÇAMENTOS
+            PLANO DE CONTAS
           </div>
           <h2 class="page-title">
             Listagem
@@ -154,7 +153,6 @@
       </div>
     </div>
   </div>
-
 
   <!-- Modal Editar Categoria -->
   <div class="modal modal-blur fade" id="modal-edit-category" tabindex="-1" role="dialog" aria-hidden="true">
@@ -321,7 +319,7 @@
     btn.disabled = true;
     let response, text, data;
     try {
-      const response = await fetch('/configuracoes/categoria-lancamento/criar', {
+      const response = await fetch('/configuracoes/gerais/plano-contas/criar', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {

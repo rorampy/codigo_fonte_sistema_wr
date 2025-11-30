@@ -88,19 +88,23 @@
 
 
               {% if filtros.projeto_id %}
+              {% for projeto_id in filtros.projeto_id %}
               {% for projeto in projetos %}
-              {% if projeto.id|string == filtros.projeto_id|string %}
+              {% if projeto.id|string == projeto_id|string %}
               <span class="badge badge-outline text-blue">Projeto: {{ projeto.nome_projeto[:20] }}
                 {% if projeto.nome_projeto | length > 20 %}...{% endif %}</span>
               {% endif %}
               {% endfor %}
+              {% endfor %}
               {% endif %}
 
               {% if filtros.prioridade_id %}
+              {% for prioridade_id in filtros.prioridade_id %}
               {% for prioridade in prioridades %}
-              {% if prioridade.id|string == filtros.prioridade_id|string %}
+              {% if prioridade.id|string == prioridade_id|string %}
               <span class="badge badge-outline text-blue">Prioridade: {{ prioridade.nome }}</span>
               {% endif %}
+              {% endfor %}
               {% endfor %}
               {% endif %}
 
@@ -115,26 +119,32 @@
               {% endif %}
 
               {% if filtros.solicitante_id %}
+              {% for solicitante_id in filtros.solicitante_id %}
               {% for usuario in usuarios %}
-              {% if usuario.id|string == filtros.solicitante_id|string %}
+              {% if usuario.id|string == solicitante_id|string %}
               <span class="badge badge-outline text-blue">Solicitante: {{ usuario.nome }}</span>
               {% endif %}
+              {% endfor %}
               {% endfor %}
               {% endif %}
 
               {% if filtros.supervisor_id %}
+              {% for supervisor_id in filtros.supervisor_id %}
               {% for usuario in usuarios %}
-              {% if usuario.id|string == filtros.supervisor_id|string %}
+              {% if usuario.id|string == supervisor_id|string %}
               <span class="badge badge-outline text-blue">Supervisor: {{ usuario.nome }}</span>
               {% endif %}
+              {% endfor %}
               {% endfor %}
               {% endif %}
 
               {% if filtros.responsavel_id %}
+              {% for responsavel_id in filtros.responsavel_id %}
               {% for usuario in usuarios %}
-              {% if usuario.id|string == filtros.responsavel_id|string %}
+              {% if usuario.id|string == responsavel_id|string %}
               <span class="badge badge-outline text-blue">Responsável: {{ usuario.nome }}</span>
               {% endif %}
+              {% endfor %}
               {% endfor %}
               {% endif %}
 
@@ -177,7 +187,11 @@
                         data-bs-custom-class="tooltip-atividade-descricao"
                         title="{{ atividade.descricao|striptags|truncate(500) if atividade.descricao and atividade.descricao|trim != '' else 'Sem descrição disponível' }}"
                         style="cursor: default; border-bottom: 1px #999;">
-                        {{ atividade.titulo[:50] }}{% if atividade.titulo | length > 50 %}...{% endif %}
+                        {{ atividade.titulo[:50] }}{% if atividade.titulo | length > 50 %}...{% endif %} 
+                        <br>
+                        <div class="text-muted d-flex mb-1" style="font-size: 12px;">
+                          {{ atividade.projeto.nome_projeto if atividade.projeto else '---' }}
+                        </div>
                       </strong>
                     </div>
                     {% set total_anexos = atividade.anexos.filter_by(deletado=False).count() %}
@@ -485,39 +499,80 @@
                   value="{{ filtros.data_conclusao_fim or '' }}">
               </div>
 
-              <!-- Projetos com 4 colunas-->
+              <!-- Projetos com dropdown múltiplo -->
               <div class="col-md-4 mb-3">
-                <label class="form-label">Projeto</label>
-                <select name="projeto_id" class="form-select">
-                  <option value="">Todos os projetos</option>
-                  {% for projeto in projetos %}
-                  <option value="{{ projeto.id }}" {% if filtros.projeto_id|string==projeto.id|string %}selected{% endif
-                    %}>
-                    {{ projeto.nome_projeto }}
-                  </option>
-                  {% endfor %}
-                </select>
+                <label class="form-label">Projetos</label>
+                <div class="dropdown">
+                  <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span id="projeto-label">Selecione os Projetos</span>
+                  </button>
+                  <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="projeto_id" value="" class="form-check-input me-2"
+                          id="projeto-todos">
+                        Todos os Projetos
+                      </label>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
+                    {% for projeto in projetos %}
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="projeto_id" value="{{ projeto.id }}"
+                          class="form-check-input me-2 projeto-checkbox" {% if filtros.projeto_id and projeto.id|string
+                          in filtros.projeto_id %}checked{% endif %}>
+                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ projeto.nome_projeto }}">
+                          {{ projeto.nome_projeto[:15] }}{% if projeto.nome_projeto|length > 15 %}...{% endif %}
+                        </span>
+                      </label>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <small class="text-muted ps-2">Selecione múltiplas opções</small>
               </div>
 
-              <!-- Prioridade com 4 colunas-->
+              <!-- Prioridade com dropdown múltiplo -->
               <div class="col-md-4 mb-3">
                 <label class="form-label">Prioridade</label>
-                <select name="prioridade_id" class="form-select">
-                  <option value="">Todas as prioridades</option>
-                  {% for prioridade in prioridades %}
-                  <option value="{{ prioridade.id }}" {% if filtros.prioridade_id|string==prioridade.id|string
-                    %}selected{% endif %}>
-                    {{ prioridade.nome }}
-                  </option>
-                  {% endfor %}
-                </select>
+                <div class="dropdown">
+                  <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span id="prioridade-label">Prioridade</span>
+                  </button>
+                  <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="prioridade_id" value="" class="form-check-input me-2"
+                          id="prioridade-todas">
+                        Todas as Prioridades
+                      </label>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
+                    {% for prioridade in prioridades %}
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="prioridade_id" value="{{ prioridade.id }}"
+                          class="form-check-input me-2 prioridade-checkbox" {% if filtros.prioridade_id and
+                          prioridade.id|string in filtros.prioridade_id %}checked{% endif %}>
+                        {{ prioridade.nome }}
+                      </label>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <small class="text-muted ps-2">Selecione múltiplas opções</small>
               </div>
+
               <!-- Situação com 4 colunas-->
               <div class="col-md-4 mb-3">
                 <label class="form-label">Situação</label>
                 <div class="dropdown">
                   <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span id="situacao-label">Selecione as Situações</span>
+                    <span id="situacao-label">Situações</span>
                   </button>
                   <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
                     <li>
@@ -546,51 +601,110 @@
               </div>
               <!--FIM de situação-->
 
-              <!-- Solicitante com 4 colunas-->
+              <!-- Solicitante com dropdown múltiplo -->
               <div class="col-md-4 mb-3">
                 <label class="form-label">Solicitante</label>
-                <select name="solicitante_id" class="form-select">
-                  <option value="">Todos os solicitantes</option>
-                  {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}" {% if filtros.solicitante_id|string==usuario.id|string %}selected{%
-                    endif %}>
-                    {{ usuario.nome }}
-                  </option>
-                  {% endfor %}
-                </select>
+                <div class="dropdown">
+                  <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span id="solicitante-label">Solicitante</span>
+                  </button>
+                  <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="solicitante_id" value="" class="form-check-input me-2"
+                          id="solicitante-todos">
+                        Todos os Solicitantes
+                      </label>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
+                    {% for usuario in usuarios %}
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="solicitante_id" value="{{ usuario.id }}"
+                          class="form-check-input me-2 solicitante-checkbox" {% if filtros.solicitante_id and
+                          usuario.id|string in filtros.solicitante_id %}checked{% endif %}>
+                        {{ usuario.nome }}
+                      </label>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <small class="text-muted ps-2">Selecione múltiplas opções</small>
               </div>
 
-
               <!--FIM de Solicitante-->
-              <!--Inicio Supervisor-->
+
+              <!-- Supervisor com dropdown múltiplo -->
               <div class="col-md-4 mb-3">
                 <label class="form-label">Supervisor</label>
-                <select name="supervisor_id" class="form-select">
-                  <option value="">Todos os supervisores</option>
-                  {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}" {% if filtros.supervisor_id|string==usuario.id|string %}selected{%
-                    endif %}>
-                    {{ usuario.nome }}
-                  </option>
-                  {% endfor %}
-                </select>
+                <div class="dropdown">
+                  <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span id="supervisor-label">Supervisor</span>
+                  </button>
+                  <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="supervisor_id" value="" class="form-check-input me-2"
+                          id="supervisor-todos">
+                        Todos os Supervisores
+                      </label>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
+                    {% for usuario in usuarios %}
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="supervisor_id" value="{{ usuario.id }}"
+                          class="form-check-input me-2 supervisor-checkbox" {% if filtros.supervisor_id and
+                          usuario.id|string in filtros.supervisor_id %}checked{% endif %}>
+                        {{ usuario.nome }}
+                      </label>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <small class="text-muted ps-2">Selecione múltiplas opções</small>
               </div>
 
               <!--Fim-->
 
 
+              <!-- DEV com dropdown múltiplo -->
               <div class="col-md-4 mb-3">
                 <label class="form-label">DEV</label>
-                <select name="responsavel_id" class="form-select">
-                  <option value="">Todos os devs</option>
-                  {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}" {% if filtros.responsavel_id|string==usuario.id|string %}selected{%
-                    endif %}>
-                    {{ usuario.nome }}
-                  </option>
-                  {% endfor %}
-                </select>
+                <div class="dropdown">
+                  <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span id="responsavel-label">Selecione os DEVs</span>
+                  </button>
+                  <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="responsavel_id" value="" class="form-check-input me-2"
+                          id="responsavel-todos">
+                        Todos os DEVs
+                      </label>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
+                    {% for usuario in usuarios %}
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="responsavel_id" value="{{ usuario.id }}"
+                          class="form-check-input me-2 responsavel-checkbox" {% if filtros.responsavel_id and
+                          usuario.id|string in filtros.responsavel_id %}checked{% endif %}>
+                        {{ usuario.nome }}
+                      </label>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <small class="text-muted ps-2">Selecione múltiplas opções</small>
               </div>
+
               <div class="col-md-12 mb-3">
                 <label class="form-label">Título</label>
                 <input type="text" name="titulo" class="form-control" value="{{ filtros.titulo or '' }}"
@@ -625,22 +739,67 @@
     const storageKey = 'filtrosAtividades';
     const form = document.querySelector('#form-filtros-atividades');
 
-    // Elementos para múltiplas situações
-    const checkboxes = document.querySelectorAll('.situacao-checkbox');
-    const todasCheckbox = document.getElementById('situacao-todas');
-    const labelSituacao = document.getElementById('situacao-label');
+    // Definir todos os filtros múltiplos
+    const multiSelectFilters = [
+      { name: 'situacao', checkbox: '.situacao-checkbox', allCheckbox: '#situacao-todas', label: '#situacao-label' },
+      { name: 'projeto', checkbox: '.projeto-checkbox', allCheckbox: '#projeto-todos', label: '#projeto-label' },
+      { name: 'prioridade', checkbox: '.prioridade-checkbox', allCheckbox: '#prioridade-todas', label: '#prioridade-label' },
+      { name: 'solicitante', checkbox: '.solicitante-checkbox', allCheckbox: '#solicitante-todos', label: '#solicitante-label' },
+      { name: 'supervisor', checkbox: '.supervisor-checkbox', allCheckbox: '#supervisor-todos', label: '#supervisor-label' },
+      { name: 'responsavel', checkbox: '.responsavel-checkbox', allCheckbox: '#responsavel-todos', label: '#responsavel-label' }
+    ];
 
-    // Função para atualizar label das situações
-    function updateLabel() {
-      const checked = Array.from(checkboxes).filter(cb => cb.checked);
-      if (checked.length === 0) {
-        labelSituacao.textContent = 'Selecione as Situações';
-      } else if (checked.length === 1) {
-        labelSituacao.textContent = checked[0].parentElement.textContent.trim();
-      } else {
-        labelSituacao.textContent = `${checked.length} selecionadas`;
+    // Função para configurar cada filtro múltiplo
+    function setupMultiSelectFilter(filter) {
+      const checkboxes = document.querySelectorAll(filter.checkbox);
+      const allCheckbox = document.querySelector(filter.allCheckbox);
+      const label = document.querySelector(filter.label);
+
+      if (!checkboxes.length || !allCheckbox || !label) return;
+
+      // Função para atualizar label
+      function updateLabel() {
+        const checked = Array.from(checkboxes).filter(cb => cb.checked);
+        const labelTexts = {
+          'situacao': 'Situações',
+          'projeto': 'Projetos',
+          'prioridade': 'Prioridades',
+          'solicitante': 'Solicitantes',
+          'supervisor': 'Supervisores',
+          'responsavel': 'DEVs'
+        };
+
+        if (checked.length === 0) {
+          label.textContent = labelTexts[filter.name];
+        } else if (checked.length === 1) {
+          label.textContent = checked[0].parentElement.textContent.trim();
+        } else {
+          label.textContent = `${checked.length} selecionados`;
+        }
       }
+
+      // Event listener para "Todos"
+      allCheckbox.addEventListener('change', function () {
+        checkboxes.forEach(cb => {
+          cb.checked = this.checked;
+        });
+        updateLabel();
+      });
+
+      // Event listeners para checkboxes individuais
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+          allCheckbox.checked = Array.from(checkboxes).every(c => c.checked);
+          updateLabel();
+        });
+      });
+
+      // Inicializar label
+      updateLabel();
     }
+
+    // Configurar todos os filtros múltiplos
+    multiSelectFilters.forEach(setupMultiSelectFilter);
 
     // Salvar filtros ao submeter
     if (form) {
@@ -648,15 +807,19 @@
         const formData = new FormData(form);
         const filtros = {};
 
-        // Tratar campos múltiplos especialmente
-        const situacaoIds = formData.getAll('situacao_id').filter(value => value !== '');
-        if (situacaoIds.length > 0) {
-          filtros['situacao_id'] = situacaoIds;
-        }
+        // Tratar todos os campos múltiplos
+        multiSelectFilters.forEach(filter => {
+          const fieldName = filter.name + '_id';
+          const values = formData.getAll(fieldName).filter(value => value !== '');
+          if (values.length > 0) {
+            filtros[fieldName] = values;
+          }
+        });
 
         // Outros campos normais
         for (let [key, value] of formData.entries()) {
-          if (key !== 'situacao_id' && value) {
+          const isMultiSelect = multiSelectFilters.some(f => key === f.name + '_id');
+          if (!isMultiSelect && value) {
             filtros[key] = value;
           }
         }
@@ -670,10 +833,12 @@
     if (filtrosSalvos && !window.location.search) {
       const filtros = JSON.parse(filtrosSalvos);
       Object.keys(filtros).forEach(key => {
-        if (key === 'situacao_id' && Array.isArray(filtros[key])) {
+        const isMultiSelect = multiSelectFilters.some(f => key === f.name + '_id');
+
+        if (isMultiSelect && Array.isArray(filtros[key])) {
           // Restaurar checkboxes múltiplos
           filtros[key].forEach(value => {
-            const checkbox = document.querySelector(`input[name="situacao_id"][value="${value}"]`);
+            const checkbox = document.querySelector(`input[name="${key}"][value="${value}"]`);
             if (checkbox) checkbox.checked = true;
           });
         } else {
@@ -681,7 +846,32 @@
           if (el) el.value = filtros[key];
         }
       });
-      updateLabel();
+
+      // Atualizar labels
+      multiSelectFilters.forEach(filter => {
+        const label = document.querySelector(filter.label);
+        const checkboxes = document.querySelectorAll(filter.checkbox);
+        if (label && checkboxes.length > 0) {
+          const checked = Array.from(checkboxes).filter(cb => cb.checked);
+          const labelTexts = {
+            'situacao': 'Situações',
+            'projeto': 'Projetos',
+            'prioridade': 'Prioridades',
+            'solicitante': 'Solicitantes',
+            'supervisor': 'Supervisores',
+            'responsavel': 'DEVs'
+          };
+
+          if (checked.length === 0) {
+            label.textContent = labelTexts[filter.name];
+          } else if (checked.length === 1) {
+            label.textContent = checked[0].parentElement.textContent.trim();
+          } else {
+            label.textContent = `${checked.length} selecionados`;
+          }
+        }
+      });
+
       form.submit();
     }
 
@@ -690,15 +880,19 @@
     if (urlParams.toString()) {
       const filtros = {};
 
-      // Tratar situacao_id especialmente
-      const situacaoIds = urlParams.getAll('situacao_id');
-      if (situacaoIds.length > 0) {
-        filtros['situacao_id'] = situacaoIds;
-      }
+      // Tratar todos os campos múltiplos
+      multiSelectFilters.forEach(filter => {
+        const fieldName = filter.name + '_id';
+        const values = urlParams.getAll(fieldName);
+        if (values.length > 0) {
+          filtros[fieldName] = values;
+        }
+      });
 
       // Outros parâmetros
       for (let [key, value] of urlParams.entries()) {
-        if (key !== 'situacao_id') {
+        const isMultiSelect = multiSelectFilters.some(f => key === f.name + '_id');
+        if (!isMultiSelect) {
           filtros[key] = value;
         }
       }
@@ -729,26 +923,6 @@
         window.location.href = this.href || window.location.pathname;
       });
     }
-
-    // Eventos para múltiplas situações
-    todasCheckbox?.addEventListener('change', function () {
-      checkboxes.forEach(cb => {
-        cb.checked = this.checked;
-      });
-      updateLabel();
-    });
-
-    checkboxes.forEach(cb => {
-      cb.addEventListener('change', function () {
-        if (todasCheckbox) {
-          todasCheckbox.checked = Array.from(checkboxes).every(c => c.checked);
-        }
-        updateLabel();
-      });
-    });
-
-    // Inicializar label
-    updateLabel();
 
     // Inicializar tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

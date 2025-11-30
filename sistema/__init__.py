@@ -255,7 +255,7 @@ from sistema.models_views.sistema_wr.gerenciar.projetos import lancamento_horas_
 from sistema.models_views.sistema_wr.gerenciar.projetos import kanban_view
 from sistema.models_views.sistema_wr.gerenciar.projetos import atividade_solicitacao_view
 
-# RelatóriosS
+# Relatórios
 from sistema.models_views.sistema_wr.relatorios.relatorio_horas_dev import relatorio_horas_dev_view
 
 
@@ -264,11 +264,17 @@ from sistema.models_views.sistema_wr.financeiro.lancamento import lancamento_mod
 from sistema.models_views.sistema_wr.financeiro.lancamento import lancamento_view
 from sistema.models_views.sistema_wr.financeiro.movimentacao_financeira import movimentacao_financeira_model
 from sistema.models_views.sistema_wr.financeiro.movimentacao_financeira import movimentacao_financeira_view
-from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento import categoria_lancamento_model
-from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento import categoria_lancamento_view
+
+# Plano de Conte
+from sistema.models_views.sistema_wr.configuracoes.gerais.plano_conta import plano_conta_model
+from sistema.models_views.sistema_wr.configuracoes.gerais.plano_conta import plano_conta_view
+
 from sistema.models_views.sistema_wr.financeiro.recebimento import status_financeiro_model
 from sistema.models_views.sistema_wr.financeiro.recebimento import recebimento_model
 from sistema.models_views.sistema_wr.financeiro.recebimento import recebimento_view
+
+# DRE
+from sistema.models_views.sistema_wr.financeiro.relatorio_menu.relatorio_menu_view import demonstrativo_de_resultados, dre_pdf
 
 # Contrato
 from sistema.models_views.sistema_wr.contrato import contrato_model

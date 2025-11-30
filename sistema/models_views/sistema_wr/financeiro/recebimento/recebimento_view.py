@@ -4,8 +4,8 @@ from flask_login import login_required
 from sistema._utilitarios import *
 from sistema.models_views.sistema_wr.financeiro.movimentacao_financeira.movimentacao_financeira_model import MovimentacaoFinanceiraModel
 from sistema.models_views.sistema_wr.financeiro.recebimento.recebimento_model import RecebimentoModel
-from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento.categoria_lancamento_view import inicializar_categorias_padrao, obter_subcategorias_recursivo
-from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento.categoria_lancamento_model import CategoriaLancamentoModel
+from sistema.models_views.sistema_wr.configuracoes.gerais.plano_conta.plano_conta_view import inicializar_categorias_padrao, obter_subcategorias_recursivo
+from sistema.models_views.sistema_wr.configuracoes.gerais.plano_conta.plano_conta_model import PlanoContaModel
 from sistema.models_views.upload_arquivo.upload_arquivo_view import upload_arquivo
 
 @app.route('/lancamentos-receber', methods=['GET'])
@@ -31,7 +31,7 @@ def informar_recebimento(id):
         gravar_banco = True
 
         inicializar_categorias_padrao()
-        principais = CategoriaLancamentoModel.buscar_principais()
+        principais = PlanoContaModel.buscar_principais()
         estrutura = []
         for cat in principais:
             d = cat.to_dict()

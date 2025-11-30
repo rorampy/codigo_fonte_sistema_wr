@@ -180,18 +180,29 @@ def atividade_visualizar(atividade_id):
 def atividades_listar(projeto_id=None):
     filtro_data_conclusao_inicio = request.args.get('data_conclusao_inicio')
     filtro_data_conclusao_fim = request.args.get('data_conclusao_fim')
-    filtro_projeto = request.args.get('projeto_id', projeto_id)
-    filtro_prioridade = request.args.get('prioridade_id')
-    # Novo - 12/11/2025
-    filtro_situacoes = request.args.getlist('situacao_id')
-    filtro_responsavel = request.args.get('responsavel_id')
+    
+    # Modificado para suportar múltiplos valores
+    filtros_projeto = request.args.getlist('projeto_id')
+    filtros_prioridade = request.args.getlist('prioridade_id')
+    filtros_situacao = request.args.getlist('situacao_id')
+    filtros_responsavel = request.args.getlist('responsavel_id')
+    filtros_solicitante = request.args.getlist('solicitante_id')
+    filtros_supervisor = request.args.getlist('supervisor_id')
+    
     filtro_titulo = request.args.get('titulo')
-
-    #Alterações João
-    filtro_solicitante = request.args.get('solicitante_id')
-    filtro_supervisor = request.args.get('supervisor_id')
-    filtro_dev = request.args.get('dev_id')
-    filtro_situacoes = [s for s in filtro_situacoes if s and s.strip()]
+    
+    # Se veio projeto_id pela URL, adicionar aos filtros
+    if projeto_id:
+        if str(projeto_id) not in filtros_projeto:
+            filtros_projeto.append(str(projeto_id))
+    
+    # Remover valores vazios dos filtros múltiplos
+    filtros_projeto = [p for p in filtros_projeto if p and p.strip()]
+    filtros_prioridade = [p for p in filtros_prioridade if p and p.strip()]
+    filtros_situacao = [s for s in filtros_situacao if s and s.strip()]
+    filtros_responsavel = [r for r in filtros_responsavel if r and r.strip()]
+    filtros_solicitante = [s for s in filtros_solicitante if s and s.strip()]
+    filtros_supervisor = [s for s in filtros_supervisor if s and s.strip()]
 
     atividades = AtividadeModel.query.filter(
         AtividadeModel.deletado == False
@@ -211,29 +222,27 @@ def atividades_listar(projeto_id=None):
         except ValueError:
             pass
     
-    if filtro_projeto:
-        atividades = atividades.filter(AtividadeModel.projeto_id == filtro_projeto)
+    # Aplicar filtros múltiplos usando IN
+    if filtros_projeto:
+        atividades = atividades.filter(AtividadeModel.projeto_id.in_(filtros_projeto))
     
-    if filtro_prioridade:
-        atividades = atividades.filter(AtividadeModel.prioridade_id == filtro_prioridade)
+    if filtros_prioridade:
+        atividades = atividades.filter(AtividadeModel.prioridade_id.in_(filtros_prioridade))
     
-    if filtro_situacoes:
-        atividades = atividades.filter(AtividadeModel.situacao_id.in_(filtro_situacoes))
+    if filtros_situacao:
+        atividades = atividades.filter(AtividadeModel.situacao_id.in_(filtros_situacao))
     
-    if filtro_responsavel:
-        atividades = atividades.filter(AtividadeModel.desenvolvedor_id == filtro_responsavel)
+    if filtros_responsavel:
+        atividades = atividades.filter(AtividadeModel.desenvolvedor_id.in_(filtros_responsavel))
+        
+    if filtros_solicitante:
+        atividades = atividades.filter(AtividadeModel.usuario_solicitante_id.in_(filtros_solicitante))
+    
+    if filtros_supervisor:
+        atividades = atividades.filter(AtividadeModel.supervisor_id.in_(filtros_supervisor))
     
     if filtro_titulo:
         atividades = atividades.filter(AtividadeModel.titulo.ilike(f"%{filtro_titulo}%"))
-    #Adicionado para atender a task do filtro
-    if filtro_solicitante:
-        atividades = atividades.filter(AtividadeModel.usuario_solicitante_id == filtro_solicitante)
-    
-    if filtro_supervisor:
-        atividades = atividades.filter(AtividadeModel.supervisor_id == filtro_supervisor)
-    
-    if filtro_dev:
-        atividades = atividades.filter(AtividadeModel.desenvolvedor_id == filtro_dev)
     
     atividades = atividades.order_by(
         AtividadeModel.id.desc(),
@@ -241,7 +250,6 @@ def atividades_listar(projeto_id=None):
     ).all()
     
     projetos = ProjetoModel.obter_projetos_asc_nome()
-    
     prioridades = PrioridadeAtividadeModel.listar_prioridades_ativas()
     situacoes = AndamentoAtividadeModel.listar_andamentos_ativos()
     usuarios = UsuarioModel.obter_usuarios_asc_nome()
@@ -256,12 +264,12 @@ def atividades_listar(projeto_id=None):
         filtros={
             'data_conclusao_inicio': filtro_data_conclusao_inicio,
             'data_conclusao_fim': filtro_data_conclusao_fim,
-            'projeto_id': filtro_projeto,
-            'prioridade_id': filtro_prioridade,
-            'situacao_id': filtro_situacoes,
-            'responsavel_id': filtro_responsavel,
-            'solicitante_id': filtro_solicitante,
-            'supervisor_id': filtro_supervisor,
+            'projeto_id': filtros_projeto,
+            'prioridade_id': filtros_prioridade,
+            'situacao_id': filtros_situacao,
+            'responsavel_id': filtros_responsavel,
+            'solicitante_id': filtros_solicitante,
+            'supervisor_id': filtros_supervisor,
             'titulo': filtro_titulo
         }
     )

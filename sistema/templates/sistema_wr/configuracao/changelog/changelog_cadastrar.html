@@ -1,131 +1,135 @@
 {% extends 'sistema_wr/estrutura/base.html' %}
 {% block conteudo %}
 {% include 'sistema_wr/estrutura/header.html' %}
+
 <div class="page-wrapper">
-    <!-- Page header -->
     <div class="page-header d-print-none">
-      <div class="container-xl">
-        <div class="row g-2 align-items-center">
-          <div class="col">
-            <!-- Page pre-title -->
-            <div class="page-pretitle">
-              HISTÓRICO DE VERSÕES
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        HISTÓRICO DE VERSÕES
+                    </div>
+                    <h2 class="page-title">
+                        Nova Versão do Sistema
+                    </h2>
+                </div>
             </div>
-            <h2 class="page-title">
-              Nova Versão de sistema
-            </h2>
-          </div>
         </div>
-      </div>
     </div>
 
-    <!-- Page body -->
     <div class="page-body">
-      <div class="container-xl">
+        <div class="container-xl">
 
-        {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+            {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
-        <div class="col-12">
-          <form class="card" 
-            action="{{ url_for('changelog_cadastrar') }}" 
-          method="POST">
-            <div class="card-body">
-              <div class="row row-cards">
+            <div class="row row-deck row-cards">
+                <div class="col-12">
+                    <form class="card shadow-sm" action="{{ url_for('changelog_cadastrar') }}" method="POST">
+                        <div class="card-header">
+                            <h3 class="card-title">Dados do Lançamento</h3>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label required" for="input-versao">Versão</label>
+                                    <div class="input-icon">
+                                        <span class="input-icon-addon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-git-branch" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M12 12l0 6" /><path d="M12 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M12 6l0 3" /></svg>
+                                        </span>
+                                        <input type="text" 
+                                               id="input-versao"
+                                               name="versao" 
+                                               value="{{ dados_corretos['versao'] }}"
+                                               class="form-control {% if 'versao' in campos_obrigatorios %}is-invalid{% endif %}"
+                                               placeholder="Ex: v1.0.5">
+                                        <div class="invalid-feedback">O preenchimento da versão é obrigatório.</div>
+                                    </div>
+                                </div>
 
-                <div class="col-sm-4 col-md-4">
-                  <div class="mb-3">
-                    <label class="form-label">Versão</label>
-                    <input type="text" name="versao" value="{{ dados_corretos['versao'] }}"
-                      class="form-control {% if 'versao' in campos_obrigatorios %}is-invalid{% endif %}"
-                    >
-                  </div>
+                                <div class="col-md-6">
+                                    <label class="form-label required" for="input-data">Data de Publicação</label>
+                                    <div class="input-icon">
+                                        <span class="input-icon-addon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
+                                        </span>
+                                        <input type="text" 
+                                               id="input-data"
+                                               name="dataPublicacao" 
+                                               value="{{ dados_corretos['dataPublicacao'] }}"
+                                               data-mask="00/00/0000" 
+                                               placeholder="DD/MM/AAAA" 
+                                               data-mask-visible="true" 
+                                               autocomplete="off" 
+                                               class="form-control {% if 'dataPublicacao' in campos_obrigatorios %}is-invalid{% endif %}">
+                                        <div class="invalid-feedback">Informe uma data válida.</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label required">Descrição Detalhada</label>
+                                    <div class="card" style="border: 1px solid #dce1e7;">
+                                        <div id="editor-container" style="min-height: 200px; border: none;"></div>
+                                    </div>
+                                    <input type="hidden" name="conteudo" id="conteudo-input">
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('changelog_listar')}}" class="btn btn-ghost-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l14 0"></path><path d="M5 12l6 6"></path><path d="M5 12l6 -6"></path></svg>
+                                Voltar
+                            </a>
+                            <button type="submit" class="btn btn-primary ms-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
+                                Cadastrar Versão
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="col-sm-4 col-md-4">
-                  <div class="mb-3">
-                    <label class="form-label">Data de Publicação</label>
-                    <input type="text" name="dataPublicacao" value="{{ dados_corretos['dataPublicacao'] }}"
-                      data-mask="00/00/0000" placeholder="00/00/0000" 
-                      data-mask-visible="true" autocomplete="off" 
-                      class="form-control {% if 'dataPublicacao' in campos_obrigatorios %}is-invalid{% endif %}"
-                    >
-                  </div>
-                </div>
-
-                <div class="col-sm-12 col-md-12">
-                  <div class="mb-3">
-                    <label class="form-label">Descrição detalhada</label>
-                    <div id="editor-container"></div>
-                    <input type="hidden" name="conteudo" id="conteudo-input"
-                    >
-                  </div>
-                </div>
-
-              </div>
             </div>
-            <div class="card-footer text-center text-md-end">
-              <a href="{{ url_for('principal') }}" 
-                class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" 
-                  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
-                  fill="none" stroke-linecap="round" stroke-linejoin="round"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M5 12l14 0"></path>
-                  <path d="M5 12l6 6"></path>
-                  <path d="M5 12l6 -6"></path>
-               </svg>
-                Voltar
-              </a>
-              <button type="submit" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" 
-                  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
-                  fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M12 5l0 14"></path>
-                  <path d="M5 12l14 0"></path>
-                </svg>
-                Cadastrar
-              </button>
-            </div>
-          </form>
         </div>
-      </div>
     </div>
-
-    <!-- Configs Quill -->
-    <script>
-      var CustomOptions = {
-        modules: {
-            toolbar: [
-                [{ 'size': ['small', false, 'large', 'huge'] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'align': [] }],
-                [{ 'color': [] }, { 'background': [] }],
-                ['link']
-                // Adicionar mais botões personalizados aqui
-            ]
-        },
-        theme: 'snow'
-      };
-
-      // Obtem o elemento do editor
-      var editor = new Quill('#editor-container', CustomOptions);
-
-      // Sincroniza o conteúdo do editor com o input escondido
-      editor.on('text-change', function () {
-        var content = editor.root.innerHTML;
-        document.querySelector('#conteudo-input').value = content;
-      });
-
-      // Define o conteúdo do editor a partir dos dados corretos
-      var descricao = '{{ dados_corretos['conteudo']|safe }}';
-      editor.clipboard.dangerouslyPasteHTML(descricao);
-    </script>
 
     {% include 'sistema_wr/estrutura/footer.html' %}
-    
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const customOptions = {
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    ['link', 'clean']
+                ]
+            },
+            placeholder: 'Descreva as mudanças, correções e novas funcionalidades...',
+            theme: 'snow'
+        };
+
+        // Inicializa o editor
+        const editor = new Quill('#editor-container', customOptions);
+        const hiddenInput = document.querySelector('#conteudo-input');
+
+        // Sincroniza o conteúdo
+        editor.on('text-change', function () {
+            hiddenInput.value = editor.root.innerHTML;
+        });
+
+        // Carrega dados iniciais (se houver erro de validação e retorno)
+        const descricaoInicial = '{{ dados_corretos["conteudo"]|safe }}';
+        if (descricaoInicial) {
+            editor.clipboard.dangerouslyPasteHTML(descricaoInicial);
+            hiddenInput.value = editor.root.innerHTML; // Garante sync inicial
+        }
+    });
+</script>
 
 {% endblock conteudo %}

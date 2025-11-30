@@ -1,8 +1,8 @@
 from ....base_model import BaseModel, db
 from sistema.models_views.sistema_wr.gerenciar.clientes.cliente_model import ClienteModel
 from sistema.models_views.sistema_wr.financeiro.lancamento.lancamento_model import LancamentoModel
-from sistema.models_views.sistema_wr.configuracoes.gerais.categoria_lancamento.categoria_lancamento_model import CategoriaLancamentoModel
-from sqlalchemy import desc
+from sistema.models_views.sistema_wr.configuracoes.gerais.plano_conta.plano_conta_model import PlanoContaModel
+from sqlalchemy import desc, extract
 from datetime import date, timedelta
 
 class MovimentacaoFinanceiraModel(BaseModel):
@@ -165,13 +165,27 @@ class MovimentacaoFinanceiraModel(BaseModel):
                 ClienteModel.identificacao.ilike(f"%{filtros['cliente_nome']}%")
             )
         
-        if 'categoria_id' in filtros:
+        if 'categorias_ids' in filtros:
             query = query.join(
                 LancamentoModel, 
                 MovimentacaoFinanceiraModel.lancamento_id == LancamentoModel.id, 
                 isouter=True
             ).filter(
-                LancamentoModel.categoria_id == filtros['categoria_id']
+                LancamentoModel.categoria_id.in_(filtros['categorias_ids'])
+            )
+        
+        # Filtro por competência (mês/ano) - usa a data de competência do lançamento
+        if 'competencia_mes' in filtros and 'competencia_ano' in filtros:
+            # Se ainda não fez join com LancamentoModel, precisa fazer
+            if 'categorias_ids' not in filtros:
+                query = query.join(
+                    LancamentoModel,
+                    MovimentacaoFinanceiraModel.lancamento_id == LancamentoModel.id,
+                    isouter=True
+                )
+            query = query.filter(
+                extract('month', LancamentoModel.data_competencia) == filtros['competencia_mes'],
+                extract('year', LancamentoModel.data_competencia) == filtros['competencia_ano']
             )
         
         return query.order_by(MovimentacaoFinanceiraModel.data_movimentacao.desc()).all()
@@ -235,5 +249,96 @@ class MovimentacaoFinanceiraModel(BaseModel):
         entradas = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_entrada(data_inicio=data_inicio, data_fim=data_fim)
         saidas = MovimentacaoFinanceiraModel.filtrar_movimentacao_financeira_saldo_saida(data_inicio=data_inicio, data_fim=data_fim)
 
-        return entradas - saidas          
+        return entradas - saidas
+    
+    @staticmethod
+    def calcular_saldos_com_filtros(filtros):
+        """
+        Calcula os saldos (entradas, saídas e líquido) baseado nos filtros aplicados
+        Retorna um dicionário com saldo_entradas, saldo_saidas e saldo_liquido
+        """
+        # Query base para entradas
+        query_entradas = MovimentacaoFinanceiraModel.query.filter(
+            MovimentacaoFinanceiraModel.ativo == True,
+            MovimentacaoFinanceiraModel.deletado == False,
+            MovimentacaoFinanceiraModel.tipo_movimentacao == 1
+        )
+        
+        # Query base para saídas
+        query_saidas = MovimentacaoFinanceiraModel.query.filter(
+            MovimentacaoFinanceiraModel.ativo == True,
+            MovimentacaoFinanceiraModel.deletado == False,
+            MovimentacaoFinanceiraModel.tipo_movimentacao.in_([2, 3, 4])
+        )
+        
+        # Aplicar filtros de data
+        if 'data_inicio' in filtros:
+            query_entradas = query_entradas.filter(MovimentacaoFinanceiraModel.data_movimentacao >= filtros['data_inicio'])
+            query_saidas = query_saidas.filter(MovimentacaoFinanceiraModel.data_movimentacao >= filtros['data_inicio'])
+        
+        if 'data_fim' in filtros:
+            query_entradas = query_entradas.filter(MovimentacaoFinanceiraModel.data_movimentacao <= filtros['data_fim'])
+            query_saidas = query_saidas.filter(MovimentacaoFinanceiraModel.data_movimentacao <= filtros['data_fim'])
+        
+        # Aplicar filtro de categoria (incluindo subcategorias)
+        if 'categorias_ids' in filtros:
+            query_entradas = query_entradas.join(
+                LancamentoModel,
+                MovimentacaoFinanceiraModel.lancamento_id == LancamentoModel.id,
+                isouter=True
+            ).filter(LancamentoModel.categoria_id.in_(filtros['categorias_ids']))
+            
+            query_saidas = query_saidas.join(
+                LancamentoModel,
+                MovimentacaoFinanceiraModel.lancamento_id == LancamentoModel.id,
+                isouter=True
+            ).filter(LancamentoModel.categoria_id.in_(filtros['categorias_ids']))
+        
+        # Aplicar filtro de cliente
+        if 'cliente_nome' in filtros:
+            query_entradas = query_entradas.join(
+                ClienteModel,
+                MovimentacaoFinanceiraModel.cliente_id == ClienteModel.id,
+                isouter=True
+            ).filter(ClienteModel.identificacao.ilike(f"%{filtros['cliente_nome']}%"))
+            
+            query_saidas = query_saidas.join(
+                ClienteModel,
+                MovimentacaoFinanceiraModel.cliente_id == ClienteModel.id,
+                isouter=True
+            ).filter(ClienteModel.identificacao.ilike(f"%{filtros['cliente_nome']}%"))
+        
+        # Aplicar filtro de competência
+        if 'competencia_mes' in filtros and 'competencia_ano' in filtros:
+            if 'categorias_ids' not in filtros:
+                query_entradas = query_entradas.join(
+                    LancamentoModel,
+                    MovimentacaoFinanceiraModel.lancamento_id == LancamentoModel.id,
+                    isouter=True
+                )
+                query_saidas = query_saidas.join(
+                    LancamentoModel,
+                    MovimentacaoFinanceiraModel.lancamento_id == LancamentoModel.id,
+                    isouter=True
+                )
+            
+            query_entradas = query_entradas.filter(
+                extract('month', LancamentoModel.data_competencia) == filtros['competencia_mes'],
+                extract('year', LancamentoModel.data_competencia) == filtros['competencia_ano']
+            )
+            query_saidas = query_saidas.filter(
+                extract('month', LancamentoModel.data_competencia) == filtros['competencia_mes'],
+                extract('year', LancamentoModel.data_competencia) == filtros['competencia_ano']
+            )
+        
+        # Calcular saldos
+        saldo_entradas = sum(m.valor_movimentacao_100 for m in query_entradas.all()) or 0
+        saldo_saidas = sum(m.valor_movimentacao_100 for m in query_saidas.all()) or 0
+        saldo_liquido = saldo_entradas - saldo_saidas
+        
+        return {
+            'saldo_entradas': saldo_entradas,
+            'saldo_saidas': saldo_saidas,
+            'saldo_liquido': saldo_liquido
+        }          
         

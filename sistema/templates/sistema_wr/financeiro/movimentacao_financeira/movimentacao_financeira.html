@@ -33,6 +33,19 @@
               </svg>
               Lançar Movimentação
             </a>
+            <a href="{{url_for('lancamentos_financeiros')}}" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M15 15m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                <path d="M18.5 18.5l2.5 2.5" />
+                <path d="M4 6h16" />
+                <path d="M4 12h4" />
+                <path d="M4 18h4" />
+              </svg>
+              Lançamentos
+            </a>
           </div>
         </div>
       </div>
@@ -125,43 +138,44 @@
             <div class="item-details">
               <div class="item-title">
                 {% if mov.tipo_movimentacao == 3 %}
-                  Movimentação cancelada
+                Movimentação cancelada
                 {% elif mov.tipo_movimentacao == 4 and mov.recebimento_id and mov.recebimento %}
-                  Estorno pagamento Cliente {{ mov.recebimento.cliente.identificacao | truncate(20, '...') }} | Produto : {{ mov.recebimento.contrato_produto.produto.descricao | truncate(20, '...') }}
+                Estorno pagamento Cliente {{ mov.recebimento.cliente.identificacao | truncate(20, '...') }} | Produto :
+                {{ mov.recebimento.contrato_produto.produto.descricao | truncate(20, '...') }}
                 {% elif mov.tipo_movimentacao == 4 %}
-                  Movimentação estornada
+                Movimentação estornada
                 {% elif mov.lancamento_id %}
-                  {{ mov.lancamento.descricao }}
+                {{ mov.lancamento.descricao }}
                 {% elif mov.recebimento_id and mov.recebimento %}
-                  {{ mov.recebimento.observacao }}
+                {{ mov.recebimento.observacao }}
                 {% else %}
-                  Recebimento
+                Recebimento
                 {% endif %}
               </div>
               <div class="item-subtitle">
                 <span class="item-category">
                   {% if mov.tipo_movimentacao == 3 %}
-                    Cancelamento
+                  Cancelamento
                   {% elif mov.tipo_movimentacao == 4 %}
-                    Estorno
+                  Estorno
                   {% elif mov.lancamento and mov.lancamento.categoria %}
-                    {{ mov.lancamento.categoria.codigo }} - {{ mov.lancamento.categoria.nome }}
+                  {{ mov.lancamento.categoria.codigo }} - {{ mov.lancamento.categoria.nome }}
                   {% elif mov.recebimento and mov.recebimento.categoria %}
-                    {{ mov.recebimento.categoria.codigo }} - {{ mov.recebimento.categoria.nome }}
+                  {{ mov.recebimento.categoria.codigo }} - {{ mov.recebimento.categoria.nome }}
                   {% else %}
-                    Categoria não definida
+                  Categoria não definida
                   {% endif %}
                 </span>
                 <span>•</span>
                 <span>
                   {% if mov.tipo_movimentacao == 3 %}
-                    Movimentação cancelada
+                  Movimentação cancelada
                   {% elif mov.tipo_movimentacao == 4 %}
-                    Movimentação estornada
+                  Movimentação estornada
                   {% elif mov.tipo_movimentacao == 1 %}
-                    Pagamento recebido
+                  Pagamento recebido
                   {% else %}
-                    Pagamento efetuado
+                  Pagamento efetuado
                   {% endif %}
                 </span>
               </div>
@@ -218,6 +232,16 @@
               </div>
 
               <div class="col-md-6 mb-3">
+                <label class="form-label">Competência (MM/AAAA)</label>
+                <input type="text" name="competencia" class="form-control" id="inputCompetencia"
+                  placeholder="Ex: 11/2025" maxlength="7"
+                  value="{{ dados_corretos.get('competencia', '') }}">
+                <div class="form-text">
+                  Filtra movimentações pela competência no formato mês/ano
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
                 <label class="form-label">Tipo de Movimentação</label>
                 <select name="tipoMovimentacao" class="form-select">
                   <option value="">Todos os tipos</option>
@@ -229,7 +253,7 @@
                   </option>
                 </select>
               </div>
-              <div class="col-md-6 mb-3">
+              <div class="col-md-12 mb-3">
                 <label class="form-label">Categoria</label>
                 <select name="categoriaId" class="form-select">
                   <option value="">Todas as categorias</option>
@@ -294,4 +318,20 @@
 
   {% include 'sistema_wr/estrutura/footer.html' %}
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Máscara para o campo de competência (MM/AAAA)
+    const inputCompetencia = document.getElementById('inputCompetencia');
+    if (inputCompetencia) {
+      inputCompetencia.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 2) {
+          value = value.substring(0, 2) + '/' + value.substring(2, 6);
+        }
+        e.target.value = value;
+      });
+    }
+  });
+</script>
 {% endblock conteudo %}
