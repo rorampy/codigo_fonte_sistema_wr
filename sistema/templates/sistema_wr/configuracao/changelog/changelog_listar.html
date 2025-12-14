@@ -63,19 +63,20 @@
     padding-bottom: 2rem;
   }
 
-  /* Linha Vertical Contínua e Suave */
+   /* Linha Vertical Contínua e Suave */
   .changelog-timeline::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 14px;
     bottom: 0;
     left: 24px;
     width: 2px;
     background: linear-gradient(to bottom,
-        rgba(var(--tblr-primary-rgb), 0) 0%,
-        rgba(var(--tblr-primary-rgb), 0.3) 10%,
+        rgba(var(--tblr-primary-rgb), 0.3) 0%,
+        /* Opacidade desde o início */
         rgba(var(--tblr-primary-rgb), 0.3) 90%,
         rgba(var(--tblr-primary-rgb), 0) 100%);
+    /* Fade apenas no final */
     display: none;
   }
 
@@ -164,10 +165,6 @@
   .changelog-footer-end.visible {
     opacity: 1;
   }
-
- 
-
-
 </style>
 
 <div class="page-wrapper">
@@ -248,7 +245,7 @@
                   changelog.data_lancamento }}</span>
                 {% if current_user.role_id == 1 %}
                 <!-- Botão para Editar -->
-                <span class="badge badge-outline text-blue" >
+                <span class="badge badge-outline text-blue">
                   <a href="{{ url_for('changelog_editar', id=changelog.id) }}" style="margin-left: auto;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
