@@ -133,23 +133,13 @@
     transform: scale(1.2);
   }
 
-  /* Badge de versão */
-  .version-badge {
-    font-family: var(--tblr-font-monospace, monospace);
-    font-size: 0.85rem;
-    background: transparent;
-    color: var(--tblr-muted);
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 1px solid rgba(var(--tblr-border-color-rgb), 0.5);
-    transition: all 0.4s ease;
-  }
 
   .changelog-item.in-focus .version-badge {
     background: rgba(var(--tblr-primary-rgb), 0.1);
     color: var(--tblr-primary);
     border-color: rgba(var(--tblr-primary-rgb), 0.2);
   }
+
 
   @media (min-width: 768px) {
     .changelog-timeline::before {
@@ -174,6 +164,10 @@
   .changelog-footer-end.visible {
     opacity: 1;
   }
+
+ 
+
+
 </style>
 
 <div class="page-wrapper">
@@ -222,7 +216,7 @@
             </div>
             <h2 class="fw-bold text-body mb-2 display-6">O que há de novo?</h2>
             <p class="text-secondary mx-auto" style="max-width: 500px; font-size: 1.1rem; line-height: 1.6;">
-              Acompanhe a evolução da nossa plataforma. 
+              Acompanhe a evolução da nossa plataforma.
               <br>
               Cada atualização traz melhorias pensadas para você.
             </p>
@@ -236,17 +230,45 @@
 
               <div
                 class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-3">
-                <div class="d-flex align-items-center gap-2">
-                  <span class="version-badge">v{{ changelog.versao }}</span>
-                  <span class="d-md-none text-muted small">• {{ changelog.data_lancamento }}</span>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <!-- Badge de Versão do Sistema-->
+                  <span class="badge badge-outline text-blue">v{{ changelog.versao }}</span>
+                  {% if changelog.branch %}
+                  <!-- Badge de Branch do Sistema-->
+                  <span class="badge badge-outline text-azure d-flex mx-auto">
+                    <span class="d-flex justify-content-center align-items-center">{{ changelog.branch }}</span>
+                  </span>
+                  {% endif %}
+
+
+
                 </div>
-                <span class="d-none d-md-block text-muted small fw-medium" style="letter-spacing: 0.5px;">{{
+                <span class="text-muted small fw-medium ms-auto {% if current_user.role_id == 1 %} me-2 {% endif %}"
+                  style="letter-spacing: 0.5px;">{{
                   changelog.data_lancamento }}</span>
+                {% if current_user.role_id == 1 %}
+                <!-- Botão para Editar -->
+                <span class="badge badge-outline text-blue" >
+                  <a href="{{ url_for('changelog_editar', id=changelog.id) }}" style="margin-left: auto;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                      <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                      <path d="M16 5l3 3" />
+                    </svg>
+                  </a>
+                </span>
+
+                {% endif %}
               </div>
+
+
 
               <div class="markdown text-secondary" style="font-size: 1.05rem; line-height: 1.7;">
                 {{ changelog.conteudo | safe }}
               </div>
+
             </div>
             {% else %}
             <div class="empty py-5">
