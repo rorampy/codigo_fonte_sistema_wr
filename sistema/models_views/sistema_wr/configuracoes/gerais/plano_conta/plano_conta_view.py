@@ -2,7 +2,7 @@ from sistema import app, db, requires_roles, current_user
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required
 from sistema.models_views.sistema_wr.configuracoes.gerais.plano_conta.plano_conta_model import (PlanoContaModel,)
-
+from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioModel
 from sistema._utilitarios import *
 
 
@@ -18,6 +18,11 @@ def listar_plano_contas():
         categorias_principais = PlanoContaModel.buscar_principais()
         print(categorias_principais)
 
+        # Verificar se o controle de estrutura está ativo (verifica qualquer categoria)
+        controle_estrutura_ativo = PlanoContaModel.query.filter_by(
+            controle_estrutura=True,
+            ativo=True).first() is not None
+
         # Montar estrutura hierárquica
         estrutura = []
         for categoria in categorias_principais:
@@ -26,13 +31,17 @@ def listar_plano_contas():
             estrutura.append(categoria_dict)
 
         return render_template(
-            "sistema_wr/configuracao/gerais/plano_conta/plano_conta.html", estrutura=estrutura
+            "sistema_wr/configuracao/gerais/plano_conta/plano_conta.html", 
+            estrutura=estrutura,
+            controle_estrutura_ativo=controle_estrutura_ativo
         )
 
     except Exception as e:
         flash((f"Erro ao carregar plano de contas: {str(e)}", "error"))
         return render_template(
-            "sistema_wr/configuracao/gerais/plano_conta/plano_conta.html", estrutura=[]
+            "sistema_wr/configuracao/gerais/plano_conta/plano_conta.html", 
+            estrutura=[],
+            controle_estrutura_ativo=False
         )
 
 
@@ -468,3 +477,69 @@ def eh_categoria_folha(categoria_id):
     """
     filhos = PlanoContaModel.buscar_filhos(categoria_id)
     return len(filhos) == 0
+
+@app.route("/configuracoes/gerais/plano-contas/usuario-permitir-alterar", methods=["PUT"])
+@login_required
+@requires_roles
+def permitir_alterar_estrutura():
+    try:
+        usuarioid = current_user.id
+        usuario = UsuarioModel.obter_usuario_por_id(usuarioid)
+        
+        if not usuario or usuario.role_id != 1:
+            return jsonify({"erro": "Permissão negada"}), 403
+        
+        categorias = PlanoContaModel.listar_todos_planos()
+        
+        if not categorias:
+            return jsonify({"erro": "Nenhuma categoria encontrada"}), 404
+        
+        # Atualizar todas as categorias
+        for categoria in categorias:
+            categoria.controle_estrutura = True
+        
+        db.session.commit()
+
+        return jsonify(
+            {
+                "sucesso": True,
+                "mensagem": f"Estrutura liberada! {len(categorias)} categorias atualizadas com sucesso!",
+            }
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"erro": f"Erro ao atualizar: {str(e)}"}), 500
+
+@app.route("/configuracoes/gerais/plano-contas/usuario-negar-alteracao", methods=["PUT"])
+@login_required
+@requires_roles
+def negar_alterar_estrutura():
+    try:
+        usuarioid = current_user.id
+        usuario = UsuarioModel.obter_usuario_por_id(usuarioid)
+        
+        if not usuario or usuario.role_id != 1:
+            return jsonify({"erro": "Permissão negada"}), 403
+        
+        categorias = PlanoContaModel.listar_todos_planos()
+        
+        if not categorias:
+            return jsonify({"erro": "Nenhuma categoria encontrada"}), 404
+        
+        # Atualizar todas as categorias
+        for categoria in categorias:
+            categoria.controle_estrutura = False
+        
+        db.session.commit()
+
+        return jsonify(
+            {
+                "sucesso": True,
+                "mensagem": f"Estrutura bloqueada! {len(categorias)} categorias atualizadas com sucesso!",
+            }
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"erro": f"Erro ao atualizar: {str(e)}"}), 500

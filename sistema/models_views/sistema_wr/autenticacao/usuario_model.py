@@ -37,7 +37,13 @@ class UsuarioModel(BaseModel, UserMixin):
         self.senha = generate_password_hash(senha)
         self.role_id = role_id
         self.ativo = ativo
-
+    
+    def obter_usuario_por_id(id):
+        usuario = UsuarioModel.query.filter(
+            UsuarioModel.id == id
+        ).first()
+        
+        return usuario
     
     @classmethod
     def obter_usuarios_desc_id(cls):
