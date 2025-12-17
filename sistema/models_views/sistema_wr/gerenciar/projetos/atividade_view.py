@@ -13,6 +13,7 @@ from sistema._utilitarios import *
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
+from sqlalchemy.orm import joinedload
 
 
 # Configurações de upload
@@ -23,6 +24,66 @@ ALLOWED_EXTENSIONS = {
     'other': {'csv'}
 }
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+
+
+def _extrair_tag_ids_do_request(form_or_args, key="tag_id"):
+    """
+    Extrai IDs de tags aceitando:
+    - múltiplos valores (checkboxes): getlist('tag_id')
+    - valor único (select antigo): get('tag_id')
+    Retorna lista de strings (sem vazios).
+    """
+    ids = []
+    try:
+        ids = form_or_args.getlist(key) or []
+    except Exception:
+        ids = []
+    
+    if not ids:
+        unico = form_or_args.get(key)
+        if unico:
+            ids = [unico]
+    
+    return [str(x).strip() for x in ids if  x is not None and str(x).strip()]
+
+def _processar_tags_selecionadas(ids_str, campos_erros, dados_corretos, key_erro="tag_id"):
+    """
+    Valida IDs de tags, busca tags ativas e retorna lista de TagModel.
+    Preenche dados_corretos['tag_id'] (lista de strings) para re-render do form.
+    
+    Args:
+        ids_str: lista de IDs como strings (ex: ['1', '3', '5'])
+        campos_erros: dict para adicionar mensagens de erro
+        dados_corretos: dict para manter valores no form após erro
+        key_erro: chave do erro no dict (padrão 'tag_id')
+    
+    Returns:
+        Lista de TagModel (vazia se sem tags ou erro)
+    """
+
+    dados_corretos["tag_id"] = ids_str
+
+    if not ids_str:
+        return []
+
+    #Converter para ints e remover duplicados
+
+    try:
+        ids_int = sorted({int(x) for x in ids_str})
+    except(ValueError, TypeError):
+        campos_erros[key_erro] = "IDs de tags inválidos"
+        return []
+    
+    tags = TagModel.query.filter(
+        TagModel.id.in_(ids_int),
+        TagModel.deletado == False
+    ).all()
+
+    if len(tags) != len(ids_int):
+        campos_erros[key_erro] = "Uma ou mais tags selecionadas não existem ou foram removidas"
+        return []
+    
+    return tags
 
 
 def allowed_file(filename):
@@ -189,7 +250,8 @@ def atividades_listar(projeto_id=None):
     filtros_responsavel = request.args.getlist('responsavel_id')
     filtros_solicitante = request.args.getlist('solicitante_id')
     filtros_supervisor = request.args.getlist('supervisor_id')
-    filtros_tags = request.args.getlist('tag_id')
+    
+    filtros_tag = [t for t in request.args.getlist('tag_id') if t and str(t).strip()]
 
     filtro_titulo = request.args.get('titulo')
     
@@ -205,10 +267,12 @@ def atividades_listar(projeto_id=None):
     filtros_responsavel = [r for r in filtros_responsavel if r and r.strip()]
     filtros_solicitante = [s for s in filtros_solicitante if s and s.strip()]
     filtros_supervisor = [s for s in filtros_supervisor if s and s.strip()]
-    filtros_tag = [t for t in filtros_tags if t and t.strip()]
+    
 
     atividades = AtividadeModel.query.filter(
         AtividadeModel.deletado == False
+    ).options(
+        joinedload(AtividadeModel.tags)
     )
     
     if filtro_data_conclusao_inicio:
@@ -245,7 +309,13 @@ def atividades_listar(projeto_id=None):
         atividades = atividades.filter(AtividadeModel.supervisor_id.in_(filtros_supervisor))
 
     if filtros_tag:
-        atividades = atividades.filter(AtividadeModel.tag_id.in_(filtros_tag))
+        try:
+            tag_id_int = [int(x) for x in filtros_tag]
+            atividades = atividades.filter(
+                AtividadeModel.tags.any(TagModel.id.in_(tag_id_int))
+            )
+        except(ValueError, TypeError):
+            pass
     
     if filtro_titulo:
         atividades = atividades.filter(AtividadeModel.titulo.ilike(f"%{filtro_titulo}%"))
@@ -332,7 +402,8 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
         supervisor_id = request.form.get("supervisorId")
         desenvolvedor_id = request.form.get("desenvolvedorId")
         usuario_solicitante_id = request.form.get("usuarioSolicitanteId")
-        tag_id = request.form.get("tag_id").strip()
+        
+        tags_ids_str = _extrair_tag_ids_do_request(request.form, "tag_id")
 
         campos = {
             "projetoId": ["Projeto", projeto_id],
@@ -347,15 +418,16 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
             gravar_banco = False
             flash(("Verifique os campos destacados em vermelho!", "warning"))
 
-        tag_id_processado = None
-        if tag_id:
-            tag_existente = TagModel.obter_tag_por_id(int(tag_id))
-            if not tag_existente:
-                validacao_campos_erros["tag_id"] = "Tag selecionada não existe"
-                gravar_banco = False
-            else:
-                tag_id_processado = int(tag_id)
-    
+
+        tags_processadas = _processar_tags_selecionadas(
+            ids_str=tags_ids_str,
+            campos_erros=validacao_campos_erros,
+            dados_corretos=dados_corretos,
+            key_erro="tag_id"
+        )
+        if "tag_id" in validacao_campos_erros:
+            gravar_banco = False
+        
 
         # Validação de horas necessárias
         horas_processadas = 0.0
@@ -415,7 +487,7 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
                 
                 anexos_validos.append(arquivo)
 
-        print(f"tag_id: {tag_id_processado}")
+        
 
         # Se passou em todas as validações, gravar no banco
         if gravar_banco:
@@ -434,11 +506,12 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
                     valor_atividade_100=valor_atividade_100,
                     prioridade_id=prioridade_id,
                     situacao_id=situacao_id,
-                    tag_id=tag_id_processado
                 )
                 
                 db.session.add(atividade)
                 db.session.flush()  # Para obter o ID da atividade
+
+                atividade.tags = tags_processadas
                 
                 # Processar anexos usando a função upload_arquivo existente
                 anexos_processados = 0
@@ -590,7 +663,8 @@ def atividade_editar(atividade_id):
         supervisor_id = request.form.get("supervisorId")
         desenvolvedor_id = request.form.get("desenvolvedorId")
         usuario_solicitante_id = request.form.get("usuarioSolicitanteId")
-        tag_id = request.form.get("tag_id")
+        
+        tag_ids_str = _extrair_tag_ids_do_request(request.form, "tag_id")
 
         campos = {
             "projetoId": ["Projeto", projeto_id],
@@ -605,6 +679,14 @@ def atividade_editar(atividade_id):
             gravar_banco = False
             flash(("Verifique os campos destacados em vermelho!", "warning"))
 
+        tags_processadas = _processar_tags_selecionadas(
+            ids_str=tag_ids_str,
+            campos_erros=validacao_campos_erros,
+            dados_corretos={},
+            key_erro="tag_id"
+        )
+        if "tag_id" in validacao_campos_erros:
+            gravar_banco = False
 
         horas_necessarias_processadas = 0.0
         if horas_necessarias:
@@ -652,15 +734,6 @@ def atividade_editar(atividade_id):
             if total_lancamentos == 0:
                 flash((f"Atividade não pode ser concluída pois não tem registro de horas", "warning"))
                 return redirect(url_for("atividade_editar", atividade_id=atividade_id))
-            
-        tag_id_processado = None
-        if tag_id:
-            tag_existente = TagModel.obter_tag_por_id(int(tag_id))
-            if not tag_existente:
-                validacao_campos_erros["tag_id"] = "Tag inválida."
-                gravar_banco = False
-            else:
-                tag_id_processado = int(tag_id)
 
         # Processa anexos (se houver novos uploads)
         arquivos_anexos = request.files.getlist('anexos[]')
@@ -699,7 +772,8 @@ def atividade_editar(atividade_id):
                 atividade.supervisor_id = supervisor_id if supervisor_id else None
                 atividade.desenvolvedor_id = desenvolvedor_id if desenvolvedor_id else None
                 atividade.usuario_solicitante_id = usuario_solicitante_id if usuario_solicitante_id else None
-                atividade.tag_id = tag_id_processado
+                
+                atividade.tags = tags_processadas
 
                 # Processa novos anexos (se houver)
                 anexos_adicionados = 0
@@ -761,7 +835,7 @@ def atividade_editar(atividade_id):
             'supervisorId': str(atividade.supervisor_id) if atividade.supervisor_id else '',
             'desenvolvedorId': str(atividade.desenvolvedor_id) if atividade.desenvolvedor_id else '',
             'usuarioSolicitanteId': str(atividade.usuario_solicitante_id) if atividade.usuario_solicitante_id else '',
-            'tag_id': str(atividade.tag_id) if atividade.tag_id else ''
+            'tag_id':[str(t.id) for t in (atividade.tags or [])]
         }
 
     return render_template(
@@ -863,8 +937,11 @@ def atividade_duplicar(id):
         )
         
         db.session.add(nova_atividade)
+        db.session.flush()  # Para obter o ID da nova atividade
+
+        nova_atividade.tags = list(atividade_original.tags or [])
+
         db.session.commit()
-        
         return jsonify({
             'success': True, 
             'message': 'Atividade duplicada com sucesso!',

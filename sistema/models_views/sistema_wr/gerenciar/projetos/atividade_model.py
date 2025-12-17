@@ -1,6 +1,12 @@
 from sistema.models_views.base_model import BaseModel, db
 from datetime import datetime
 
+# tabela associativa 
+proj_atividade_tags = db.Table(
+    'proj_atividade_tags',
+    db.Column('atividade_id', db.Integer, db.ForeignKey('proj_atividade.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id', ondelete='CASCADE'), primary_key=True),
+)
 
 class AtividadeModel(BaseModel):
     """
@@ -19,8 +25,7 @@ class AtividadeModel(BaseModel):
     prioridade_id = db.Column(db.Integer, db.ForeignKey('z_sys_prioridade_atividade.id'), nullable=False)
     situacao_id = db.Column(db.Integer, db.ForeignKey('z_sys_andamento_atividade.id'), nullable=False)
 
-    # Campo de Tag (novo)
-    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=True)
+
     
     supervisor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
     desenvolvedor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
@@ -35,11 +40,15 @@ class AtividadeModel(BaseModel):
     situacao = db.relationship('AndamentoAtividadeModel', backref='proj_atividade')
     anexos = db.relationship('AtividadeAnexoModel', backref='proj_atividade', lazy='dynamic', cascade='all, delete-orphan')
     
-    tag = db.relationship('TagModel', foreign_keys=[tag_id], backref='atividades')
+    tags = db.relationship(
+        'TagModel',
+        secondary=proj_atividade_tags,
+        backref=db.backref('atividades', lazy='dynamic')
+    )
 
     def __init__(self, projeto_id, titulo, prioridade_id, situacao_id, descricao=None, 
                  supervisor_id=None, desenvolvedor_id=None, usuario_solicitante_id=None,
-                 horas_necessarias=0.0, horas_utilizadas=0.0, data_prazo_conclusao=None, valor_atividade_100=0, tag_id=None):
+                 horas_necessarias=0.0, horas_utilizadas=0.0, data_prazo_conclusao=None, valor_atividade_100=0):
         self.projeto_id = projeto_id
         self.titulo = titulo
         self.descricao = descricao
@@ -52,7 +61,7 @@ class AtividadeModel(BaseModel):
         self.valor_atividade_100 = valor_atividade_100
         self.prioridade_id = prioridade_id
         self.situacao_id = situacao_id
-        self.tag_id = tag_id
+        
     
     
     @property

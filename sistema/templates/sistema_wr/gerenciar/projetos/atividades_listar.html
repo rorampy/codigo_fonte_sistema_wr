@@ -64,7 +64,8 @@
 
       <!-- Filtros ativos -->
       {% if filtros and (filtros.projeto_id or filtros.prioridade_id or filtros.situacao_id or filtros.responsavel_id or
-      filtros.titulo or filtros.solicitante_id or filtros.supervisor_id or filtros.tag_id or filtros.data_conclusao_inicio or filtros.data_conclusao_fim) %}
+      filtros.titulo or filtros.solicitante_id or filtros.supervisor_id or filtros.tag_id or
+      filtros.data_conclusao_inicio or filtros.data_conclusao_fim) %}
       <div class="card mb-3">
         <div class="card-body py-2">
           <div class="d-flex align-items-center">
@@ -179,7 +180,7 @@
                 <tr>
                   <th style="width: 35%;">TÍTULO</th>
                   <th style="text-align: center; width: 10%;">PRIORIDADE</th>
-                  <th style="text-align: center; width: 10%;">TAG</th>
+                  <th style="text-align: center; width: 10%;">TAG(S)</th>
                   <th style="text-align: center; width: 10%;">SITUAÇÃO</th>
                   <th style="text-align: center; width: 10%;">PRAZO</th>
                   <th style="text-align: center; width: 10%;">SOLICITANTE</th>
@@ -232,11 +233,45 @@
                     {% endif %}
                   </td>
 
+
                   <td style="text-align: center;">
-                    {% if atividade.tag and not atividade.tag.deletado %}
-                    <span class="badge badge-outline {{atividade.tag.cor}} px-2 py-1 mb-1">
-                      {{ atividade.tag.nome }}
+                    {% if atividade.tags %}
+                    {% set tags_visiveis = atividade.tags|selectattr('deletado', 'equalto', false)|list %}
+                    {% if tags_visiveis|length == 0 %}
+                    <span class="text-muted">—</span>
+                    {% elif tags_visiveis|length == 1 %}
+                    <span class="badge badge-outline {{ tags_visiveis[0].cor }} px-2 py-1">
+                      {{ tags_visiveis[0].nome }}
                     </span>
+                    {% else %}
+                    <div class="d-inline-block position-relative">
+                      <a href="#" class="text-decoration-none text-muted" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                          stroke="#0054A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                          class="icon icon-tabler icons-tabler-outline icon-tabler-tags">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path
+                            d="M3 8v4.172a2 2 0 0 0 .586 1.414l5.71 5.71a2.41 2.41 0 0 0 3.408 0l3.592 -3.592a2.41 2.41 0 0 0 0 -3.408l-5.71 -5.71a2 2 0 0 0 -1.414 -.586h-4.172a2 2 0 0 0 -2 2z" />
+                          <path d="M18 19l1.592 -1.592a4.82 4.82 0 0 0 0 -6.816l-4.592 -4.592" />
+                          <path d="M7 10h-.01" />
+                        </svg>
+                        <span class="badge bg-blue text-red-fg position-absolute top-0 start-100 translate-middle"
+                          style="font-size: 0.625rem; padding: 0.125rem 0.375rem;">{{ tags_visiveis|length }}</span>
+                      </a>
+                      <div class="dropdown-menu p-2" style="max-width: 200px;">
+                        <div class="dropdown-header px-0 text-center  ">
+                          Tags da Atividade
+                        </div>
+                        <hr class="dropdown-divider mt-1 mb-1">
+                        {% for tag in tags_visiveis %}
+                        <span class="badge badge-outline {{ tag.cor }} px-2 py-1 m-1 d-inline-block">
+                          {{ tag.nome }}
+                        </span>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    {% endif %}
                     {% else %}
                     <span class="text-muted">—</span>
                     {% endif %}
@@ -1079,6 +1114,14 @@
         });
     }
   }
+
+  // Inicializa os tooltips do Bootstrap
+  document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
 
 </script>
 {% endblock conteudo %}

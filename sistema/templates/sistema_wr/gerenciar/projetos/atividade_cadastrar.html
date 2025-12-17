@@ -54,27 +54,48 @@
                 </div>
               </div>
 
-              <!-- Campo da Tag  -->
+              <!-- Campo Tags (Múltiplas) -->
               <div class="col-md-3">
                 <div class="mb-3">
-                  <label class="form-label">Tag</label>
-                  <div class="input-group">
-                    <select name="tag_id" id="tag_id"
-                      class="form-select {% if 'tag_id' in campos_erros %}is-invalid{% endif %}">
-                      <option value="" data-cor="" data-nome="">Nenhuma</option>
+                  <label class="form-label">Tags</label>
+                  <div class="dropdown">
+                    <button class="form-select text-start {% if 'tag_id' in campos_erros %}is-invalid{% endif %}"
+                      type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span id="tag-label-cadastro">Selecione as Tags</span>
+                    </button>
+                    <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                      <li>
+                        <label class="dropdown-item">
+                          <input type="checkbox" class="form-check-input me-2" id="tag-todas-cadastro">
+                          Todas as Tags
+                        </label>
+                      </li>
+                      <li>
+                        <hr class="dropdown-divider">
+                      </li>
                       {% for tag in tags %}
-                      <option value="{{ tag.id }}" data-cor="{{ tag.cor }}" data-nome="{{ tag.nome }}" {% if
-                        dados_corretos.get('tag_id')|int==tag.id %}selected{% endif %}>
-                        {{ tag.nome }}
-                      </option>
+                      <li>
+                        <label class="dropdown-item">
+                          <input type="checkbox" name="tag_id" value="{{ tag.id }}"
+                            class="form-check-input me-2 tag-checkbox-cadastro" {% if dados_corretos.get('tag_id') and
+                            tag.id|string in dados_corretos.get('tag_id') %}checked{% endif %}>
+                          <span class="badge badge-sm {{ tag.cor }} me-1"></span>
+                          {{ tag.nome }}
+                        </label>
+                      </li>
                       {% endfor %}
-                    </select>
+                    </ul>
                   </div>
-                  <div class="invalid-feedback">
+                  {% if 'tag_id' in campos_erros %}
+                  <div class="invalid-feedback d-block">
                     {{ campos_erros.get('tag_id') }}
                   </div>
+                  {% endif %}
+                  <small class="form-hint">Selecione múltiplas tags para categorizar</small>
                 </div>
+
               </div>
+
             </div>
 
             <!-- Atribuição e Status -->
@@ -503,6 +524,69 @@
     var event = new Event('change', { bubbles: true });
     filesInput.dispatchEvent(event);
   }
+
+  // GERENCIAR TAGS (múltiplas)
+    const tagCheckboxes = document.querySelectorAll('.tag-checkbox-cadastro');
+    const tagTodas = document.getElementById('tag-todas-cadastro');
+    const tagLabel = document.getElementById('tag-label-cadastro');
+    const tagPreview = document.getElementById('tag-preview-cadastro');
+    const tagBadges = document.getElementById('tag-badges-cadastro');
+
+    function atualizarTagsLabel() {
+      const selecionadas = Array.from(tagCheckboxes).filter(cb => cb.checked);
+      
+      if (selecionadas.length === 0) {
+        tagLabel.textContent = 'Selecione as Tags';
+        tagPreview.style.display = 'none';
+      } else if (selecionadas.length === 1) {
+        // Pega o texto sem o badge
+        const nomeTag = selecionadas[0].parentElement.querySelector('span:last-child') 
+          ? selecionadas[0].parentElement.textContent.replace(/\s+/g, ' ').trim()
+          : selecionadas[0].parentElement.textContent.trim();
+        tagLabel.textContent = nomeTag;
+        atualizarPreviewBadges(selecionadas);
+      } else {
+        tagLabel.textContent = `${selecionadas.length} tags selecionadas`;
+      }
+    }
+
+    function atualizarPreviewBadges(selecionadas) {
+      tagBadges.innerHTML = '';
+      selecionadas.forEach(cb => {
+        const badge = cb.parentElement.querySelector('.badge');
+        if (badge) {
+          const badgeClone = badge.cloneNode(true);
+          badgeClone.classList.remove('badge-sm');
+          badgeClone.classList.add('badge-outline');
+          tagBadges.appendChild(badgeClone);
+          tagBadges.innerHTML += ' ';
+        }
+      });
+      tagPreview.style.display = selecionadas.length > 0 ? 'block' : 'none';
+    }
+
+    // "Todas as Tags" sincroniza
+    if (tagTodas) {
+      tagTodas.addEventListener('change', function() {
+        tagCheckboxes.forEach(cb => cb.checked = this.checked);
+        atualizarTagsLabel();
+      });
+    }
+
+    // Checkboxes individuais
+    tagCheckboxes.forEach(cb => {
+      cb.addEventListener('change', function() {
+        if (tagTodas) {
+          tagTodas.checked = Array.from(tagCheckboxes).every(c => c.checked);
+        }
+        atualizarTagsLabel();
+      });
+    });
+
+    // Inicializar label
+    atualizarTagsLabel();
+
+
 </script>
 
 
