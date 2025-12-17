@@ -1,0 +1,220 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">GERENCIAMENTO DE TAGS</div>
+          <h2 class="page-title">Listagem de Tags</h2>
+        </div>
+
+        <div class="col-auto ms-auto">
+          <a href="{{ url_for('tags_cadastrar') }}" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" stroke-width="2"
+              stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Nova Tag
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="page-body">
+    <div class="container-xl">
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+
+      <div class="card">
+        <div class="card-body">
+          {% include 'sistema_wr/configuracao/cadastro_tags/tags_tabela.html' %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+
+<!-- ==================== MODAL EDITAR ==================== -->
+<div class="modal modal-blur fade" id="modalEditarTag" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <form id="formEditarTag">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Tag</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" id="edit-tag-id">
+
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="mb-3">
+                <label class="form-label required">Nome da Tag</label>
+                <input type="text" name="nome" id="edit-nome" class="form-control" maxlength="100"
+                  placeholder="Ex: Urgente" required>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">Cor</label>
+                <select id="edit-cor" name="cor" class="form-select" required>
+                  <option value="">Selecione uma cor</option>
+                  {% for cor in cores_permitidas %}
+                  <option value="{{ cor }}">
+                    {{ TagModel.obter_nome_cor(cor) }}
+                  </option>
+                  {% endfor %}
+                </select>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">
+              Descrição
+              <span class="form-label-description">Opcional</span>
+            </label>
+            <textarea id="edit-descricao" name="descricao" class="form-control" rows="3" maxlength="255"
+              placeholder="Adicione uma breve descrição para esta tag..."></textarea>
+            <small class="form-hint">Máximo de 255 caracteres</small>
+          </div>
+
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between">
+          <a href="#" class="text-muted" data-bs-dismiss="modal">
+            Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M5 12l5 5l10 -10" />
+            </svg>
+            Salvar Alterações
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL DELETAR ==================== -->
+<div class="modal modal-blur fade" id="modalDeletarTag" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-danger"></div>
+      <div class="modal-body text-center py-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24"
+          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M12 9v4" />
+          <path
+            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+          <path d="M12 16h.01" />
+        </svg>
+        <input type="hidden" id="delete-tag-id">
+        <h3>Tem certeza?</h3>
+        <div class="text-secondary">
+          Deseja realmente excluir a tag <br> <strong id="delete-tag-nome" class="text-body"></strong>?
+          <br>Esta ação não pode ser desfeita.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col">
+              <button class="btn w-100" data-bs-dismiss="modal">
+                Cancelar
+              </button>
+            </div>
+            <div class="col">
+              <button class="btn btn-danger w-100" id="btnConfirmarDelete">
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== JS ==================== -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+
+    const modalEditar = new bootstrap.Modal(document.getElementById('modalEditarTag'));
+    const modalDeletar = new bootstrap.Modal(document.getElementById('modalDeletarTag'));
+
+    // -------- EDITAR --------
+    window.editarTag = function (id, nome, cor, descricao) {
+      document.getElementById('edit-tag-id').value = id;
+      document.getElementById('edit-nome').value = nome;
+      document.getElementById('edit-cor').value = cor;
+      document.getElementById('edit-descricao').value = descricao || '';
+      modalEditar.show();
+    };
+
+    document.getElementById('formEditarTag').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const id = document.getElementById('edit-tag-id').value;
+      const btn = this.querySelector('button[type="submit"]');
+
+      const formData = new FormData(this);
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Salvando...';
+
+      fetch(`/tags/editar/${id}`, { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+          if (data.sucesso) location.reload();
+          else alert(data.mensagem || 'Erro');
+        })
+        .catch(() => alert('Erro ao editar tag'))
+        .finally(() => btn.disabled = false);
+    });
+
+    // -------- DELETAR --------
+    window.deletarTag = function (id, nome) {
+      document.getElementById('delete-tag-id').value = id;
+      document.getElementById('delete-tag-nome').textContent = nome;
+      modalDeletar.show();
+    };
+
+    document.getElementById('btnConfirmarDelete').addEventListener('click', function () {
+      const id = document.getElementById('delete-tag-id').value;
+
+      this.disabled = true;
+      this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Excluindo...';
+
+      fetch(`/tags/deletar/${id}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+          if (data.sucesso) location.reload();
+          else alert(data.mensagem || 'Erro');
+        })
+        .catch(() => alert('Erro ao deletar tag'));
+    });
+
+  });
+</script>
+
+{% endblock conteudo %}

@@ -28,7 +28,7 @@
             <!-- Informações Básicas -->
             <h3 class="text-primary mb-3">Informações Básicas</h3>
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <div class="mb-3">
                   <label class="form-label required">Projeto</label>
                   <select name="projetoId"
@@ -54,6 +54,27 @@
                     placeholder="Título da atividade">
                   <div class="invalid-feedback">
                     {{ campos_obrigatorios.get('titulo') }}
+                  </div>
+                </div>
+              </div>
+              <!-- Campo da Tag  -->
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">Tag</label>
+                  <div class="input-group">
+                    <select name="tag_id" id="tag_id"
+                      class="form-select {% if 'tag_id' in campos_erros %}is-invalid{% endif %}">
+                      <option value="" data-cor="" data-nome="">Nenhuma</option>
+                      {% for tag in tags %}
+                      <option value="{{ tag.id }}" data-cor="{{ tag.cor }}" data-nome="{{ tag.nome }}" {% if
+                        dados_corretos.get('tag_id')|int==tag.id %}selected{% endif %}>
+                        {{ tag.nome }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="invalid-feedback">
+                    {{ campos_erros.get('tag_id') }}
                   </div>
                 </div>
               </div>
@@ -106,7 +127,8 @@
                   {% else %}
                   <!-- Usuário não pode alterar -->
                   <input type="text" class="form-control"
-                    value="{{atividade.supervisor.nome if atividade.supervisor else 'Não atribuído'}}" readonly disabled>
+                    value="{{atividade.supervisor.nome if atividade.supervisor else 'Não atribuído'}}" readonly
+                    disabled>
                   <input type="hidden" name="supervisorId" value="{{atividade.supervisor_id}}">
                   <small class="form-hint text-muted mt-2">
                     {% if atividade.supervisor %}
@@ -136,8 +158,8 @@
                   {% else %}
                   <!--Usuário que NÃO pode alterar-->
                   <input type="text" class="form-control"
-                  value="{{atividade.desenvolvedor.nome if atividade.desenvolvedor.nome else 'Não Atribuído'}}" 
-                  readonly disabled>
+                    value="{{atividade.desenvolvedor.nome if atividade.desenvolvedor.nome else 'Não Atribuído'}}"
+                    readonly disabled>
                   <input type="hidden" name="desenvolvedorId" value="{{atividade.desenvolvedorId}}">
                   <small class="form-hint text-muted mt-2">
                     {% if atividade.desenvolvedor %}

@@ -8,6 +8,7 @@ from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_andamento_mode
 from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_solicitacao_model import SolicitacaoAtividadeModel
 from sistema.models_views.sistema_wr.gerenciar.projetos.projeto_model import ProjetoModel
 from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioModel
+from sistema.models_views.sistema_wr.configuracoes.tags.tags_model import TagModel
 from sistema._utilitarios import *
 from datetime import datetime
 import os
@@ -188,7 +189,8 @@ def atividades_listar(projeto_id=None):
     filtros_responsavel = request.args.getlist('responsavel_id')
     filtros_solicitante = request.args.getlist('solicitante_id')
     filtros_supervisor = request.args.getlist('supervisor_id')
-    
+    filtros_tags = request.args.getlist('tag_id')
+
     filtro_titulo = request.args.get('titulo')
     
     # Se veio projeto_id pela URL, adicionar aos filtros
@@ -203,6 +205,7 @@ def atividades_listar(projeto_id=None):
     filtros_responsavel = [r for r in filtros_responsavel if r and r.strip()]
     filtros_solicitante = [s for s in filtros_solicitante if s and s.strip()]
     filtros_supervisor = [s for s in filtros_supervisor if s and s.strip()]
+    filtros_tag = [t for t in filtros_tags if t and t.strip()]
 
     atividades = AtividadeModel.query.filter(
         AtividadeModel.deletado == False
@@ -240,6 +243,9 @@ def atividades_listar(projeto_id=None):
     
     if filtros_supervisor:
         atividades = atividades.filter(AtividadeModel.supervisor_id.in_(filtros_supervisor))
+
+    if filtros_tag:
+        atividades = atividades.filter(AtividadeModel.tag_id.in_(filtros_tag))
     
     if filtro_titulo:
         atividades = atividades.filter(AtividadeModel.titulo.ilike(f"%{filtro_titulo}%"))
@@ -261,6 +267,7 @@ def atividades_listar(projeto_id=None):
         prioridades=prioridades,
         situacoes=situacoes,
         usuarios=usuarios,
+        tags=TagModel.listar_tags_ativas(),
         filtros={
             'data_conclusao_inicio': filtro_data_conclusao_inicio,
             'data_conclusao_fim': filtro_data_conclusao_fim,
@@ -270,6 +277,7 @@ def atividades_listar(projeto_id=None):
             'responsavel_id': filtros_responsavel,
             'solicitante_id': filtros_solicitante,
             'supervisor_id': filtros_supervisor,
+            'tag_id': filtros_tag,
             'titulo': filtro_titulo
         }
     )
@@ -289,6 +297,7 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
     prioridades = PrioridadeAtividadeModel.listar_prioridades_ativas()
     situacoes = AndamentoAtividadeModel.listar_andamentos_ativos()
     usuarios = UsuarioModel.obter_usuarios_asc_nome()
+    tags = TagModel.listar_tags_ativas()
 
     # Dados iniciais (podem vir de uma solicitação aceita)
     dados_corretos = {}
@@ -323,6 +332,7 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
         supervisor_id = request.form.get("supervisorId")
         desenvolvedor_id = request.form.get("desenvolvedorId")
         usuario_solicitante_id = request.form.get("usuarioSolicitanteId")
+        tag_id = request.form.get("tag_id").strip()
 
         campos = {
             "projetoId": ["Projeto", projeto_id],
@@ -336,6 +346,16 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
         if "validado" not in validacao_campos_obrigatorios:
             gravar_banco = False
             flash(("Verifique os campos destacados em vermelho!", "warning"))
+
+        tag_id_processado = None
+        if tag_id:
+            tag_existente = TagModel.obter_tag_por_id(int(tag_id))
+            if not tag_existente:
+                validacao_campos_erros["tag_id"] = "Tag selecionada não existe"
+                gravar_banco = False
+            else:
+                tag_id_processado = int(tag_id)
+    
 
         # Validação de horas necessárias
         horas_processadas = 0.0
@@ -395,6 +415,8 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
                 
                 anexos_validos.append(arquivo)
 
+        print(f"tag_id: {tag_id_processado}")
+
         # Se passou em todas as validações, gravar no banco
         if gravar_banco:
             try:
@@ -411,7 +433,8 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
                     data_prazo_conclusao=data_prazo,
                     valor_atividade_100=valor_atividade_100,
                     prioridade_id=prioridade_id,
-                    situacao_id=situacao_id
+                    situacao_id=situacao_id,
+                    tag_id=tag_id_processado
                 )
                 
                 db.session.add(atividade)
@@ -483,6 +506,8 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
         prioridades=prioridades,
         situacoes=situacoes,
         usuarios=usuarios,
+        tags=tags,
+        TagModel=TagModel,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,
         dados_corretos=dados_corretos,
@@ -549,6 +574,8 @@ def atividade_editar(atividade_id):
     prioridades = PrioridadeAtividadeModel.listar_prioridades_ativas()
     situacoes = AndamentoAtividadeModel.listar_andamentos_ativos()
     usuarios = UsuarioModel.obter_usuarios_asc_nome()
+    tags = TagModel.listar_tags_ativas()
+    
 
     if request.method == "POST":
         projeto_id = request.form.get("projetoId")
@@ -563,6 +590,7 @@ def atividade_editar(atividade_id):
         supervisor_id = request.form.get("supervisorId")
         desenvolvedor_id = request.form.get("desenvolvedorId")
         usuario_solicitante_id = request.form.get("usuarioSolicitanteId")
+        tag_id = request.form.get("tag_id")
 
         campos = {
             "projetoId": ["Projeto", projeto_id],
@@ -576,6 +604,7 @@ def atividade_editar(atividade_id):
         if "validado" not in validacao_campos_obrigatorios:
             gravar_banco = False
             flash(("Verifique os campos destacados em vermelho!", "warning"))
+
 
         horas_necessarias_processadas = 0.0
         if horas_necessarias:
@@ -623,6 +652,15 @@ def atividade_editar(atividade_id):
             if total_lancamentos == 0:
                 flash((f"Atividade não pode ser concluída pois não tem registro de horas", "warning"))
                 return redirect(url_for("atividade_editar", atividade_id=atividade_id))
+            
+        tag_id_processado = None
+        if tag_id:
+            tag_existente = TagModel.obter_tag_por_id(int(tag_id))
+            if not tag_existente:
+                validacao_campos_erros["tag_id"] = "Tag inválida."
+                gravar_banco = False
+            else:
+                tag_id_processado = int(tag_id)
 
         # Processa anexos (se houver novos uploads)
         arquivos_anexos = request.files.getlist('anexos[]')
@@ -661,6 +699,7 @@ def atividade_editar(atividade_id):
                 atividade.supervisor_id = supervisor_id if supervisor_id else None
                 atividade.desenvolvedor_id = desenvolvedor_id if desenvolvedor_id else None
                 atividade.usuario_solicitante_id = usuario_solicitante_id if usuario_solicitante_id else None
+                atividade.tag_id = tag_id_processado
 
                 # Processa novos anexos (se houver)
                 anexos_adicionados = 0
@@ -721,7 +760,8 @@ def atividade_editar(atividade_id):
             'situacaoId': str(atividade.situacao_id),
             'supervisorId': str(atividade.supervisor_id) if atividade.supervisor_id else '',
             'desenvolvedorId': str(atividade.desenvolvedor_id) if atividade.desenvolvedor_id else '',
-            'usuarioSolicitanteId': str(atividade.usuario_solicitante_id) if atividade.usuario_solicitante_id else ''
+            'usuarioSolicitanteId': str(atividade.usuario_solicitante_id) if atividade.usuario_solicitante_id else '',
+            'tag_id': str(atividade.tag_id) if atividade.tag_id else ''
         }
 
     return render_template(
@@ -731,6 +771,8 @@ def atividade_editar(atividade_id):
         prioridades=prioridades,
         situacoes=situacoes,
         usuarios=usuarios,
+        tags=tags,
+        TagModel=TagModel,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,
         dados_corretos=dados_corretos

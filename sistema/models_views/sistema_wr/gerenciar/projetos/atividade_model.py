@@ -18,6 +18,9 @@ class AtividadeModel(BaseModel):
     valor_atividade_100 = db.Column(db.Integer, default=0)  # Valor em centavos
     prioridade_id = db.Column(db.Integer, db.ForeignKey('z_sys_prioridade_atividade.id'), nullable=False)
     situacao_id = db.Column(db.Integer, db.ForeignKey('z_sys_andamento_atividade.id'), nullable=False)
+
+    # Campo de Tag (novo)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=True)
     
     supervisor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
     desenvolvedor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
@@ -31,11 +34,12 @@ class AtividadeModel(BaseModel):
     prioridade = db.relationship('PrioridadeAtividadeModel', backref='proj_atividade')
     situacao = db.relationship('AndamentoAtividadeModel', backref='proj_atividade')
     anexos = db.relationship('AtividadeAnexoModel', backref='proj_atividade', lazy='dynamic', cascade='all, delete-orphan')
-
+    
+    tag = db.relationship('TagModel', foreign_keys=[tag_id], backref='atividades')
 
     def __init__(self, projeto_id, titulo, prioridade_id, situacao_id, descricao=None, 
                  supervisor_id=None, desenvolvedor_id=None, usuario_solicitante_id=None,
-                 horas_necessarias=0.0, horas_utilizadas=0.0, data_prazo_conclusao=None, valor_atividade_100=0):
+                 horas_necessarias=0.0, horas_utilizadas=0.0, data_prazo_conclusao=None, valor_atividade_100=0, tag_id=None):
         self.projeto_id = projeto_id
         self.titulo = titulo
         self.descricao = descricao
@@ -48,6 +52,7 @@ class AtividadeModel(BaseModel):
         self.valor_atividade_100 = valor_atividade_100
         self.prioridade_id = prioridade_id
         self.situacao_id = situacao_id
+        self.tag_id = tag_id
     
     
     @property

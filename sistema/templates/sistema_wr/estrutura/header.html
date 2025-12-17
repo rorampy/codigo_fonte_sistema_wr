@@ -414,6 +414,9 @@
                 <a class="dropdown-item" href="{{ url_for('variaveis_sistema_editar', id=1)}}">
                   Variáveis de Sistema
                 </a>
+                <a class="dropdown-item" href="{{ url_for('tags_listar')}}">
+                  Gerenciar Tags
+                </a>
                 {% endif %}
                 <a class="dropdown-item" href="{{ url_for('changelog_listar')}}">
                   Changelog
@@ -502,7 +505,8 @@
                   <option value="">Todos os usuários</option>
                   {% for usuario in usuarios %}
                   {% if usuario.role_id == 1 %}
-                  <option value="{{ usuario.id }}" {% if dados_corretos.usuario_id == usuario.id|string %}selected{% endif %}>
+                  <option value="{{ usuario.id }}" {% if dados_corretos.usuario_id==usuario.id|string %}selected{% endif
+                    %}>
                     {{ usuario.nome }} {{ usuario.sobrenome }}
                   </option>
                   {% endif %}
