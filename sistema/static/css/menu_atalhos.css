@@ -1,0 +1,126 @@
+/* Menu de Atalhos Flutuante - Botão fixo no canto inferior direito */
+
+/* Container principal - posicionamento fixo */
+.menu-atalhos-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+}
+
+/* Botão Flutuante (FAB) */
+.btn-menu-atalhos {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  background: var(--tblr-primary, #206bc4);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 10000;
+}
+
+.btn-menu-atalhos:hover {
+  background: var(--tblr-primary-darken, #1a5ba8);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+.btn-menu-atalhos:active {
+  transform: scale(0.95);
+}
+
+/* Animação dos ícones do botão - troca entre menu e fechar */
+.btn-menu-atalhos .icon {
+  transition: opacity 0.2s ease;
+}
+
+.btn-menu-atalhos.active .icon-tabler-menu-2 {
+  display: none !important;
+}
+
+.btn-menu-atalhos.active .icon-close {
+  display: block !important;
+}
+
+/* Menu Overlay - painel que aparece acima do botão */
+.menu-atalhos-overlay {
+  position: fixed;
+  bottom: 5rem; /* Posicionado acima do botão */
+  right: 2rem;
+  width: 320px;
+  max-height: 500px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  pointer-events: none; /* Não intercepta cliques quando oculto */
+  z-index: 9998;
+}
+
+/* Estado visível do menu */
+.menu-atalhos-overlay.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Conteúdo interno do menu */
+.menu-atalhos-content {
+  padding: 1rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.menu-atalhos-titulo {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--tblr-body-color, #1e293b);
+}
+
+/* Items da lista de atalhos */
+.menu-atalhos-overlay .list-group-item {
+  border: none;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.menu-atalhos-overlay .list-group-item:hover {
+  background-color: var(--tblr-light, #f8f9fa);
+}
+
+.menu-atalhos-overlay .avatar {
+  flex-shrink: 0;
+}
+
+/* Responsivo - ajusta para telas pequenas (mobile) */
+@media (max-width: 768px) {
+  .menu-atalhos-container {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .menu-atalhos-overlay {
+    width: calc(100vw - 2rem); /* Ocupa quase toda largura da tela */
+    max-width: 320px;
+    right: 1rem;
+    bottom: 4rem;
+  }
+
+  .btn-menu-atalhos {
+    width: 48px;
+    height: 48px;
+  }
+}

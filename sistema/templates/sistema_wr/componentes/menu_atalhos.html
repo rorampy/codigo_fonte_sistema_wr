@@ -1,0 +1,143 @@
+{# Menu de Atalhos Flutuante - Aparece apenas para role_id = 1 #}
+{# Para adicionar novos atalhos: copie um bloco <a class="list-group-item"> e ajuste href, ícone e texto #}
+
+    <div id="menuAtalhos" class="menu-atalhos-container">
+
+        {# Botão Flutuante (FAB - Floating Action Button) #}
+        <button type="button" id="btnMenuAtalhos" class="btn-menu-atalhos" title="Atalhos rápidos"
+            aria-label="Menu de atalhos">
+            {# Ícone de menu (3 linhas) #}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-menu-2">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M4 6l16 0" />
+                <path d="M4 12l16 0" />
+                <path d="M4 18l16 0" />
+            </svg>
+            {# Ícone de fechar (X) - oculto inicialmente #}
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-close d-none" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M18 6l-12 12" />
+                <path d="M6 6l12 12" />
+            </svg>
+        </button>
+
+        {# Menu Overlay - aparece ao clicar no botão #}
+        <div id="overlayMenuAtalhos" class="menu-atalhos-overlay d-none">
+            <div class="menu-atalhos-content">
+                <h4 class="menu-atalhos-titulo text-center mb-1">Atalhos Rápidos</h4>
+
+                <hr class="hr mb-2 mt-0 py-0">
+
+                <div class="list-group list-group-flush">
+
+                    <a href="{{ url_for('principal') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-sm me-3 bg-primary-lt">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-home">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
+                                    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+                                    <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+                                </svg>
+                            </span>
+                            <div class="flex-fill">
+                                <div class="font-weight-medium">Início</div>
+                                <div class="text-muted small">Voltar ao Início</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    {# Atalho 2: Minhas Atividades (filtra por desenvolvedor atual + situações: não iniciada, em
+                    andamento, pausada, atrasada) #}
+                    <a href="{{ url_for('atividades_listar') }}?responsavel_id={{ current_user.id }}&situacao_id=1&situacao_id=2&situacao_id=3"
+                        class="list-group-item list-group-item-action">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-sm me-3 bg-primary-lt">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path
+                                        d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                                    <path
+                                        d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                                    <path d="M9 12l2 2l4 -4" />
+                                </svg>
+                            </span>
+                            <div class="flex-fill">
+                                <div class="font-weight-medium">Minhas Atividades</div>
+                                <div class="text-muted small">Ver minhas tarefas ativas</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('atividades_listar') }}?situacao_id=1&situacao_id=2&situacao_id=3"
+                        class="list-group-item list-group-item-action">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-sm me-3 bg-primary-lt">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-list">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M9 6l11 0" />
+                                    <path d="M9 12l11 0" />
+                                    <path d="M9 18l11 0" />
+                                    <path d="M5 6l0 .01" />
+                                    <path d="M5 12l0 .01" />
+                                    <path d="M5 18l0 .01" />
+                                </svg>
+                            </span>
+                            <div class="flex-fill">
+                                <div class="font-weight-medium">Atividades</div>
+                                <div class="text-muted small">Ver todas as tarefas ativas</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    {# Atalho 3: Nova Atividade #}
+                    <a href="{{ url_for('atividade_cadastrar') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-sm me-3 bg-success-lt">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M12 5l0 14" />
+                                    <path d="M5 12l14 0" />
+                                </svg>
+                            </span>
+                            <div class="flex-fill">
+                                <div class="font-weight-medium">Nova Atividade</div>
+                                <div class="text-muted small">Cadastrar nova atividade</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    {# Atalho 4: Solicitações de Atividade (filtra por situação "Em Análise" = ID 7) #}
+                    <a href="{{ url_for('solicitacoes_atividade_listar') }}?situacao_id=7"
+                        class="list-group-item list-group-item-action">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-sm me-3 bg-info-lt">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M12 8v4l3 3" />
+                                    <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                                </svg>
+                            </span>
+                            <div class="flex-fill">
+                                <div class="font-weight-medium">Ver Solicitações de atividade</div>
+                                <div class="text-muted small">Solicitações em análise</div>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
