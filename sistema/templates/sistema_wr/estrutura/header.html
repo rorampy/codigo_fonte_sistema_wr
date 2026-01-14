@@ -248,6 +248,7 @@
                 </div>
               </div>
               <!-- Novo Sub menu para horas devs-->
+               {%if current_user.role.id in [1] %}
               <div class="dropend">
                 <a class="dropdown-item dropdown-toggle" href="#sidebar-gerais2" data-bs-toggle="dropdown"
                   data-bs-auto-close="false" role="button" aria-expanded="false">
@@ -259,6 +260,7 @@
                   </a>
                 </div>
               </div>
+              {% endif %}
               <!-- Fim do novo menu-->
             </div>
           </div>
