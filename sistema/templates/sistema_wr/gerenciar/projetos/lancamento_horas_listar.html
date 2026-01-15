@@ -2,6 +2,217 @@
 {% block conteudo %}
 {% include 'sistema_wr/estrutura/header.html' %}
 
+<style>
+  /* ==================== MÉTRICAS CARDS - MODERN STYLE ==================== */
+  :root {
+    --sys-primary: #3b82f6;
+    --sys-primary-dark: #2563eb;
+    --sys-primary-light: #60a5fa;
+    --sys-text-main: #1e293b;
+    --sys-text-secondary: #475569;
+    --sys-text-muted: #94a3b8;
+    --sys-border: #e2e8f0;
+    --sys-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --sys-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --sys-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-normal: 250ms;
+    --duration-slow: 400ms;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .metrics-section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .metrics-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--sys-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .metrics-section-divider {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--sys-border) 0%, transparent 100%);
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 1200px) {
+    .metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 576px) {
+    .metrics-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .metric-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    min-height: 100px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--sys-shadow-xs);
+    transition: transform var(--duration-normal) var(--ease-out-expo),
+      box-shadow var(--duration-normal) var(--ease-out-expo),
+      border-color 150ms ease;
+    animation: scaleIn var(--duration-slow) var(--ease-out-expo);
+    animation-fill-mode: both;
+  }
+
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, var(--sys-primary-light) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity var(--duration-normal) ease;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sys-shadow-md);
+    border-color: var(--sys-primary-light);
+  }
+
+  .metric-card:hover::before {
+    opacity: 1;
+  }
+
+  .metric-card:nth-child(1) {
+    animation-delay: 50ms;
+  }
+
+  .metric-card:nth-child(2) {
+    animation-delay: 100ms;
+  }
+
+  .metric-card:nth-child(3) {
+    animation-delay: 150ms;
+  }
+
+  .metric-card:nth-child(4) {
+    animation-delay: 200ms;
+  }
+
+  .metric-icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    flex-shrink: 0;
+    transition: transform var(--duration-normal) var(--ease-out-expo);
+  }
+
+  .metric-card:hover .metric-icon {
+    transform: scale(1.08);
+  }
+
+  .metric-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .metric-icon.success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #047857;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  }
+
+  .metric-icon.primary {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #2563eb;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+  }
+
+  .metric-icon.info {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    color: #4338ca;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+  }
+
+  .metric-icon.warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #b45309;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+  }
+
+  .metric-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .metric-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--sys-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .metric-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--sys-text-main);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    transition: color 150ms ease;
+  }
+
+  .metric-card:hover .metric-value {
+    color: var(--sys-primary-dark);
+  }
+
+  .metric-subtitle {
+    font-size: 0.8125rem;
+    color: var(--sys-text-muted);
+  }
+</style>
+
 <div class="page-wrapper">
   <!-- Page header -->
   <div class="page-header d-print-none">
@@ -14,19 +225,20 @@
           </div>
           <h2 class="page-title">
             {% if atividade_filtrada %}
-              Lançamento de Horas - {{ atividade_filtrada.titulo }}
+            Lançamento de Horas - {{ atividade_filtrada.titulo }}
             {% else %}
-              Lançamento de Horas
+            Lançamento de Horas
             {% endif %}
           </h2>
         </div>
         <div class="col-12 col-md-auto ms-auto d-print-none">
           <div class="d-flex gap-2">
             {% if atividade_filtrada %}
-            <a href="{{ url_for('atividade_visualizar', atividade_id=atividade_filtrada.id) }}" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
-                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <a href="{{ url_for('atividade_visualizar', atividade_id=atividade_filtrada.id) }}"
+              class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M5 12l14 0"></path>
                 <path d="M5 12l6 6"></path>
@@ -35,10 +247,10 @@
               Voltar para Atividade
             </a>
             {% endif %}
-            <a href="{% if filtros.atividade_id %}{{ url_for('lancamento_horas_cadastrar', atividade_id=filtros.atividade_id) }}{% else %}{{ url_for('lancamento_horas_cadastrar') }}{% endif %}" class="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
+            <a href="{% if filtros.atividade_id %}{{ url_for('lancamento_horas_cadastrar', atividade_id=filtros.atividade_id) }}{% else %}{{ url_for('lancamento_horas_cadastrar') }}{% endif %}"
+              class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                 <path d="M12 5l0 14" />
                 <path d="M5 12l14 0" />
@@ -46,12 +258,12 @@
               Novo Lançamento
             </a>
             <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-filtros">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round"
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="icon icon-tabler icons-tabler-outline icon-tabler-filter">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+                <path
+                  d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
               </svg>
               Filtrar
             </a>
@@ -67,32 +279,35 @@
       {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
       <!-- Filtros ativos -->
-      {% if filtros and (filtros.projeto_id or filtros.atividade_id or filtros.usuario_id or filtros.data_inicio or filtros.data_fim) %}
+      {% if filtros and (filtros.projeto_id or filtros.atividade_id or filtros.usuario_id or filtros.data_inicio or
+      filtros.data_fim) %}
       <div class="card mb-3">
         <div class="card-body py-2">
           <div class="d-flex align-items-center">
             <span class="text-muted me-2">Filtros ativos:</span>
             <div class="d-flex gap-2 flex-wrap">
               {% if filtros.projeto_id %}
-                {% for projeto in projetos %}
-                  {% if projeto.id|string == filtros.projeto_id|string %}
-                  <span class="badge badge-outline">Projeto: {{ projeto.nome_projeto[:35] }}{% if projeto.nome_projeto | length > 35 %}...{% endif %}</span>
-                  {% endif %}
-                {% endfor %}
+              {% for projeto in projetos %}
+              {% if projeto.id|string == filtros.projeto_id|string %}
+              <span class="badge badge-outline">Projeto: {{ projeto.nome_projeto[:35] }}{% if projeto.nome_projeto |
+                length > 35 %}...{% endif %}</span>
+              {% endif %}
+              {% endfor %}
               {% endif %}
               {% if filtros.atividade_id %}
-                {% for atividade in atividades %}
-                  {% if atividade.id|string == filtros.atividade_id|string %}
-                  <span class="badge badge-outline">Atividade: {{ atividade.titulo[:35] }}{% if atividade.titulo | length > 35 %}...{% endif %}</span>
-                  {% endif %}
-                {% endfor %}
+              {% for atividade in atividades %}
+              {% if atividade.id|string == filtros.atividade_id|string %}
+              <span class="badge badge-outline">Atividade: {{ atividade.titulo[:35] }}{% if atividade.titulo | length >
+                35 %}...{% endif %}</span>
+              {% endif %}
+              {% endfor %}
               {% endif %}
               {% if filtros.usuario_id %}
-                {% for usuario in usuarios %}
-                  {% if usuario.id|string == filtros.usuario_id|string %}
-                  <span class="badge badge-outline">Usuário: {{ usuario.nome }}</span>
-                  {% endif %}
-                {% endfor %}
+              {% for usuario in usuarios %}
+              {% if usuario.id|string == filtros.usuario_id|string %}
+              <span class="badge badge-outline">Usuário: {{ usuario.nome }}</span>
+              {% endif %}
+              {% endfor %}
               {% endif %}
               {% if filtros.data_inicio %}
               <span class="badge badge-outline">De: {{ filtros.data_inicio }}</span>
@@ -104,6 +319,93 @@
             <a href="{{ url_for('lancamento_horas_listar') }}" class="btn btn-sm btn-link ms-auto">
               Limpar filtros
             </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Cards de Métricas do Usuário -->
+      {% if metricas_usuario and current_user.role.id == 1 %}
+      <div class="mb-4">
+        <div class="metrics-section-header">
+          <h6 class="metrics-section-title">
+            {% for usuario in usuarios if usuario.id|string == filtros.usuario_id|string %}
+            Métricas de {{ usuario.nome }} {{ usuario.sobrenome }}
+            {% endfor %}
+          </h6>
+          <div class="metrics-section-divider"></div>
+        </div>
+
+        <div class="metrics-grid">
+          <!-- Card: Atividades Fechadas -->
+          <div class="metric-card">
+            <div class="metric-icon success">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12l5 5l10 -10" />
+              </svg>
+            </div>
+            <div class="metric-content">
+              <div class="metric-label">Atividades Fechadas</div>
+              <div class="metric-value">{{ metricas_usuario.atividades_fechadas }}</div>
+              <div class="metric-subtitle">Concluídas</div>
+            </div>
+          </div>
+
+          <!-- Card: Total de Horas -->
+          <div class="metric-card">
+            <div class="metric-icon primary">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 12l3 2" />
+                <path d="M12 7v5" />
+              </svg>
+            </div>
+            <div class="metric-content">
+              <div class="metric-label">Total de Horas</div>
+              <div class="metric-value">{{ metricas_usuario.total_horas }}h</div>
+              <div class="metric-subtitle">Acumuladas</div>
+            </div>
+          </div>
+
+          <!-- Card: Horas Hoje -->
+          <div class="metric-card">
+            <div class="metric-icon info">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="5" width="16" height="16" rx="2" />
+                <path d="M16 3v4" />
+                <path d="M8 3v4" />
+                <path d="M4 11h16" />
+                <path d="M11 15h1" />
+                <path d="M12 15v3" />
+              </svg>
+            </div>
+            <div class="metric-content">
+              <div class="metric-label">Horas Hoje</div>
+              <div class="metric-value">{{ metricas_usuario.horas_hoje }}h</div>
+              <div class="metric-subtitle">{{ metricas_usuario.data_hoje }}</div>
+            </div>
+          </div>
+
+          <!-- Card: Horas do Mês -->
+          <div class="metric-card">
+            <div class="metric-icon warning">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="5" width="16" height="16" rx="2" />
+                <path d="M16 3v4" />
+                <path d="M8 3v4" />
+                <path d="M4 11h16" />
+                <path d="M8 15h2v2h-2z" />
+              </svg>
+            </div>
+            <div class="metric-content">
+              <div class="metric-label">Horas do Mês</div>
+              <div class="metric-value">{{ metricas_usuario.horas_mes_atual }}h</div>
+              <div class="metric-subtitle">Mês atual</div>
+            </div>
           </div>
         </div>
       </div>
@@ -131,7 +433,8 @@
         <div class="col-md-3">
           <div class="card border-0 shadow-sm">
             <div class="card-body text-center">
-              <div class="h1 m-0 {% if atividade_filtrada.percentual_horas > 100 %}text-danger{% elif atividade_filtrada.percentual_horas > 80 %}text-warning{% else %}text-success{% endif %}">
+              <div
+                class="h1 m-0 {% if atividade_filtrada.percentual_horas > 100 %}text-danger{% elif atividade_filtrada.percentual_horas > 80 %}text-warning{% else %}text-success{% endif %}">
                 {{ "%.1f"|format(atividade_filtrada.percentual_horas) }}%
               </div>
               <div class="mt-2 text-secondary">Progresso</div>
@@ -147,6 +450,10 @@
           </div>
         </div>
       </div>
+      {% endif %}
+
+      {% if metricas_usuario and current_user.role.id == 1 %}
+      <div class="hr-text">Histórico de Lançamentos</div>
       {% endif %}
 
       <div class="col-12">
@@ -174,15 +481,18 @@
                   </td>
                   <td>
                     <div class="text-secondary">
-                      {{ lancamento.atividade.projeto.nome_projeto[:35] }}{% if lancamento.atividade.projeto.nome_projeto | length > 35 %}...{% endif %}
+                      {{ lancamento.atividade.projeto.nome_projeto[:35] }}{% if
+                      lancamento.atividade.projeto.nome_projeto | length > 35 %}...{% endif %}
                     </div>
                   </td>
                   <td>
                     <div>
-                      <strong>{{ lancamento.atividade.titulo[:60] }}{% if lancamento.atividade.titulo | length > 60 %}...{% endif %}</strong>
+                      <strong>{{ lancamento.atividade.titulo[:60] }}{% if lancamento.atividade.titulo | length > 60
+                        %}...{% endif %}</strong>
                     </div>
                     <div class="text-muted small">
-                      {{ "%.1f"|format(lancamento.atividade.horas_utilizadas) }}h / {{ "%.1f"|format(lancamento.atividade.horas_necessarias) }}h
+                      {{ "%.1f"|format(lancamento.atividade.horas_utilizadas) }}h / {{
+                      "%.1f"|format(lancamento.atividade.horas_necessarias) }}h
                     </div>
                   </td>
                   <td>
@@ -207,9 +517,10 @@
                     <div class="btn-list flex-nowrap" style="justify-content: center; gap: 8px;">
                       {% if lancamento.atividade.situacao_id == 4 %}
                       <!-- Atividade Concluída - Botões Desabilitados -->
-                      <span class="btn btn-icon btn-outline-secondary disabled" title="Atividade concluída - não é possível editar">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <span class="btn btn-icon btn-outline-secondary disabled"
+                        title="Atividade concluída - não é possível editar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
                           <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
@@ -217,9 +528,10 @@
                         </svg>
                       </span>
 
-                      <span class="btn btn-icon btn-outline-secondary disabled" title="Atividade concluída - não é possível excluir">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <span class="btn btn-icon btn-outline-secondary disabled"
+                        title="Atividade concluída - não é possível excluir">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M4 7l16 0"></path>
                           <path d="M10 11l0 6"></path>
@@ -231,10 +543,10 @@
                       {% else %}
                       <!-- Botão Editar -->
                       <a href="{{ url_for('lancamento_horas_editar', id=lancamento.id) }}"
-                        class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip"
-                        data-bs-placement="top" title="Editar Lançamento">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                        class="btn btn-icon btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Editar Lançamento">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
                           <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
@@ -243,11 +555,10 @@
                       </a>
 
                       <!-- Botão Excluir -->
-                      <a href="#" class="btn btn-icon btn-outline-danger"
-                        data-bs-toggle="modal" data-bs-target="#modal-excluir-{{ lancamento.id }}"
-                        title="Excluir Lançamento">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                      <a href="#" class="btn btn-icon btn-outline-danger" data-bs-toggle="modal"
+                        data-bs-target="#modal-excluir-{{ lancamento.id }}" title="Excluir Lançamento">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M4 7l16 0"></path>
                           <path d="M10 11l0 6"></path>
@@ -259,21 +570,21 @@
                       {% endif %}
 
                       <!-- Modal de Confirmação de Exclusão -->
-                      <div class="modal modal-blur fade" id="modal-excluir-{{ lancamento.id }}"
-                        tabindex="-1" role="dialog" aria-hidden="true">
+                      <div class="modal modal-blur fade" id="modal-excluir-{{ lancamento.id }}" tabindex="-1"
+                        role="dialog" aria-hidden="true">
                         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                           <div class="modal-content">
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                              aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             <div class="modal-status bg-danger"></div>
                             <div class="modal-body text-center py-4">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                stroke-linejoin="round">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24"
+                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <path d="M12 9v4"></path>
-                                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                                <path
+                                  d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                </path>
                                 <path d="M12 16h.01"></path>
                               </svg>
                               <h3>Excluir lançamento?</h3>
@@ -286,8 +597,7 @@
                               <div class="w-100">
                                 <div class="row">
                                   <div class="col">
-                                    <a href="#" class="btn btn-outline-secondary w-100"
-                                      data-bs-dismiss="modal">
+                                    <a href="#" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">
                                       Cancelar
                                     </a>
                                   </div>
@@ -314,9 +624,9 @@
         {% else %}
         <div class="empty">
           <div class="empty-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" 
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
               <path d="M12 7v5l3 3" />
             </svg>
@@ -326,10 +636,11 @@
             Não há lançamentos de horas cadastrados ou que atendam aos filtros aplicados.
           </p>
           <div class="empty-action">
-            <a href="{% if filtros.atividade_id %}{{ url_for('lancamento_horas_cadastrar', atividade_id=filtros.atividade_id) }}{% else %}{{ url_for('lancamento_horas_cadastrar') }}{% endif %}" class="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" 
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <a href="{% if filtros.atividade_id %}{{ url_for('lancamento_horas_cadastrar', atividade_id=filtros.atividade_id) }}{% else %}{{ url_for('lancamento_horas_cadastrar') }}{% endif %}"
+              class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                 <path d="M12 5l0 14" />
                 <path d="M5 12l14 0" />
               </svg>
@@ -358,7 +669,8 @@
                 <select name="projeto_id" class="form-select" id="filtro-projeto">
                   <option value="">Todos os projetos</option>
                   {% for projeto in projetos %}
-                  <option value="{{ projeto.id }}" {% if filtros.projeto_id|string == projeto.id|string %}selected{% endif %}>
+                  <option value="{{ projeto.id }}" {% if filtros.projeto_id|string==projeto.id|string %}selected{% endif
+                    %}>
                     {{ projeto.nome_projeto }}
                   </option>
                   {% endfor %}
@@ -369,7 +681,8 @@
                 <select name="atividade_id" class="form-select" id="filtro-atividade">
                   <option value="">Todas as atividades</option>
                   {% for atividade in atividades %}
-                  <option value="{{ atividade.id }}" {% if filtros.atividade_id|string == atividade.id|string %}selected{% endif %}>
+                  <option value="{{ atividade.id }}" {% if filtros.atividade_id|string==atividade.id|string %}selected{%
+                    endif %}>
                     {{ atividade.titulo }}
                   </option>
                   {% endfor %}
@@ -380,7 +693,8 @@
                 <select name="usuario_id" class="form-select">
                   <option value="">Todos os usuários</option>
                   {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}" {% if filtros.usuario_id|string == usuario.id|string %}selected{% endif %}>
+                  <option value="{{ usuario.id }}" {% if filtros.usuario_id|string==usuario.id|string %}selected{% endif
+                    %}>
                     {{ usuario.nome }} {{ usuario.sobrenome }}
                   </option>
                   {% endfor %}
@@ -388,13 +702,11 @@
               </div>
               <div class="col-md-3 mb-3">
                 <label class="form-label">Data Início</label>
-                <input type="date" name="data_inicio" class="form-control" 
-                  value="{{ filtros.data_inicio or '' }}">
+                <input type="date" name="data_inicio" class="form-control" value="{{ filtros.data_inicio or '' }}">
               </div>
               <div class="col-md-3 mb-3">
                 <label class="form-label">Data Fim</label>
-                <input type="date" name="data_fim" class="form-control" 
-                  value="{{ filtros.data_fim or '' }}">
+                <input type="date" name="data_fim" class="form-control" value="{{ filtros.data_fim or '' }}">
               </div>
             </div>
           </div>
@@ -403,9 +715,8 @@
               Limpar Filtros
             </a>
             <button type="submit" class="btn btn-primary ms-auto">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" class="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                 <path d="M12 5l0 14" />
                 <path d="M5 12l14 0" />
               </svg>
@@ -421,40 +732,40 @@
 </div>
 
 <script>
-// Filtro dinâmico de atividades baseado no projeto selecionado
-document.getElementById('filtro-projeto').addEventListener('change', function() {
+  // Filtro dinâmico de atividades baseado no projeto selecionado
+  document.getElementById('filtro-projeto').addEventListener('change', function () {
     const projetoId = this.value;
     const atividadeSelect = document.getElementById('filtro-atividade');
-    
-    if (projetoId) {
-        fetch(`/api/atividades-por-projeto/${projetoId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    atividadeSelect.innerHTML = '<option value="">Todas as atividades</option>';
-                    data.atividades.forEach(atividade => {
-                        const option = document.createElement('option');
-                        option.value = atividade.id;
-                        option.textContent = atividade.titulo;
-                        atividadeSelect.appendChild(option);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao carregar atividades:', error);
-            });
-    } else {
-        // Restaurar todas as atividades
-        location.reload();
-    }
-});
 
-// Inicializar tooltips
-document.addEventListener('DOMContentLoaded', function() {
+    if (projetoId) {
+      fetch(`/api/atividades-por-projeto/${projetoId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            atividadeSelect.innerHTML = '<option value="">Todas as atividades</option>';
+            data.atividades.forEach(atividade => {
+              const option = document.createElement('option');
+              option.value = atividade.id;
+              option.textContent = atividade.titulo;
+              atividadeSelect.appendChild(option);
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao carregar atividades:', error);
+        });
+    } else {
+      // Restaurar todas as atividades
+      location.reload();
+    }
+  });
+
+  // Inicializar tooltips
+  document.addEventListener('DOMContentLoaded', function () {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+      return new bootstrap.Tooltip(tooltipTriggerEl);
     });
-});
+  });
 </script>
 {% endblock conteudo %}

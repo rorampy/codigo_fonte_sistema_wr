@@ -109,7 +109,7 @@
                     {% for usuario in usuarios %}
                     <option value="{{ usuario.id }}" {% if dados_corretos.get('usuarioSolicitanteId') |
                       string==usuario.id | string %}selected{% endif %}>
-                      {{ usuario.nome }}
+                      {{ usuario.nome + ' ' + usuario.sobrenome }}
                     </option>
                     {% endfor %}
                   </select>
@@ -124,7 +124,7 @@
                     {% for usuario in usuarios %}
                     <option value="{{ usuario.id }}" {% if dados_corretos.get('supervisorId') | string==usuario.id |
                       string %}selected{% endif %}>
-                      {{ usuario.nome }}
+                      {{ usuario.nome + ' ' + usuario.sobrenome }}
                     </option>
                     {% endfor %}
                   </select>
@@ -139,7 +139,7 @@
                     {% for usuario in usuarios %}
                     <option value="{{ usuario.id }}" {% if dados_corretos.get('desenvolvedorId') | string==usuario.id |
                       string %}selected{% endif %}>
-                      {{ usuario.nome }}
+                      {{ usuario.nome + ' ' + usuario.sobrenome }}
                     </option>
                     {% endfor %}
                   </select>
@@ -526,65 +526,65 @@
   }
 
   // GERENCIAR TAGS (múltiplas)
-    const tagCheckboxes = document.querySelectorAll('.tag-checkbox-cadastro');
-    const tagTodas = document.getElementById('tag-todas-cadastro');
-    const tagLabel = document.getElementById('tag-label-cadastro');
-    const tagPreview = document.getElementById('tag-preview-cadastro');
-    const tagBadges = document.getElementById('tag-badges-cadastro');
+  const tagCheckboxes = document.querySelectorAll('.tag-checkbox-cadastro');
+  const tagTodas = document.getElementById('tag-todas-cadastro');
+  const tagLabel = document.getElementById('tag-label-cadastro');
+  const tagPreview = document.getElementById('tag-preview-cadastro');
+  const tagBadges = document.getElementById('tag-badges-cadastro');
 
-    function atualizarTagsLabel() {
-      const selecionadas = Array.from(tagCheckboxes).filter(cb => cb.checked);
-      
-      if (selecionadas.length === 0) {
-        tagLabel.textContent = 'Selecione as Tags';
-        tagPreview.style.display = 'none';
-      } else if (selecionadas.length === 1) {
-        // Pega o texto sem o badge
-        const nomeTag = selecionadas[0].parentElement.querySelector('span:last-child') 
-          ? selecionadas[0].parentElement.textContent.replace(/\s+/g, ' ').trim()
-          : selecionadas[0].parentElement.textContent.trim();
-        tagLabel.textContent = nomeTag;
-        atualizarPreviewBadges(selecionadas);
-      } else {
-        tagLabel.textContent = `${selecionadas.length} tags selecionadas`;
+  function atualizarTagsLabel() {
+    const selecionadas = Array.from(tagCheckboxes).filter(cb => cb.checked);
+
+    if (selecionadas.length === 0) {
+      tagLabel.textContent = 'Selecione as Tags';
+      tagPreview.style.display = 'none';
+    } else if (selecionadas.length === 1) {
+      // Pega o texto sem o badge
+      const nomeTag = selecionadas[0].parentElement.querySelector('span:last-child')
+        ? selecionadas[0].parentElement.textContent.replace(/\s+/g, ' ').trim()
+        : selecionadas[0].parentElement.textContent.trim();
+      tagLabel.textContent = nomeTag;
+      atualizarPreviewBadges(selecionadas);
+    } else {
+      tagLabel.textContent = `${selecionadas.length} tags selecionadas`;
+    }
+  }
+
+  function atualizarPreviewBadges(selecionadas) {
+    tagBadges.innerHTML = '';
+    selecionadas.forEach(cb => {
+      const badge = cb.parentElement.querySelector('.badge');
+      if (badge) {
+        const badgeClone = badge.cloneNode(true);
+        badgeClone.classList.remove('badge-sm');
+        badgeClone.classList.add('badge-outline');
+        tagBadges.appendChild(badgeClone);
+        tagBadges.innerHTML += ' ';
       }
-    }
-
-    function atualizarPreviewBadges(selecionadas) {
-      tagBadges.innerHTML = '';
-      selecionadas.forEach(cb => {
-        const badge = cb.parentElement.querySelector('.badge');
-        if (badge) {
-          const badgeClone = badge.cloneNode(true);
-          badgeClone.classList.remove('badge-sm');
-          badgeClone.classList.add('badge-outline');
-          tagBadges.appendChild(badgeClone);
-          tagBadges.innerHTML += ' ';
-        }
-      });
-      tagPreview.style.display = selecionadas.length > 0 ? 'block' : 'none';
-    }
-
-    // "Todas as Tags" sincroniza
-    if (tagTodas) {
-      tagTodas.addEventListener('change', function() {
-        tagCheckboxes.forEach(cb => cb.checked = this.checked);
-        atualizarTagsLabel();
-      });
-    }
-
-    // Checkboxes individuais
-    tagCheckboxes.forEach(cb => {
-      cb.addEventListener('change', function() {
-        if (tagTodas) {
-          tagTodas.checked = Array.from(tagCheckboxes).every(c => c.checked);
-        }
-        atualizarTagsLabel();
-      });
     });
+    tagPreview.style.display = selecionadas.length > 0 ? 'block' : 'none';
+  }
 
-    // Inicializar label
-    atualizarTagsLabel();
+  // "Todas as Tags" sincroniza
+  if (tagTodas) {
+    tagTodas.addEventListener('change', function () {
+      tagCheckboxes.forEach(cb => cb.checked = this.checked);
+      atualizarTagsLabel();
+    });
+  }
+
+  // Checkboxes individuais
+  tagCheckboxes.forEach(cb => {
+    cb.addEventListener('change', function () {
+      if (tagTodas) {
+        tagTodas.checked = Array.from(tagCheckboxes).every(c => c.checked);
+      }
+      atualizarTagsLabel();
+    });
+  });
+
+  // Inicializar label
+  atualizarTagsLabel();
 
 
 </script>

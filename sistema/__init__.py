@@ -290,6 +290,10 @@ from sistema.models_views.sistema_wr.configuracoes.gerais.variaveis_contrato imp
 from sistema.models_views.sistema_wr.configuracoes.tags import tags_model
 from sistema.models_views.sistema_wr.configuracoes.tags import tags_view
 
+# Configurações - Categorias
+from sistema.models_views.sistema_wr.configuracoes.categorias import categoria_model
+from sistema.models_views.sistema_wr.configuracoes.categorias import categoria_view
+
 # Variáveis do sistema
 from sistema.models_views.sistema_wr.parametrizacao import forma_pagamento_model
 

@@ -48,12 +48,12 @@ def lancamento_horas_listar(atividade_id=None):
     data_fim_obj = None
     if filtro_data_inicio:
         try:
-            data_inicio_obj = datetime.strptime(filtro_data_inicio, '%Y-%m-%d').date()
+            data_inicio_obj = DataHora.converter_data_str_em_objeto_datetime(filtro_data_inicio).date()
         except ValueError:
             pass
     if filtro_data_fim:
         try:
-            data_fim_obj = datetime.strptime(filtro_data_fim, '%Y-%m-%d').date()
+            data_fim_obj = DataHora.converter_data_str_em_objeto_datetime(filtro_data_fim).date()
         except ValueError:
             pass
     
@@ -95,6 +95,57 @@ def lancamento_horas_listar(atividade_id=None):
     if filtro_atividade:
         atividade_filtrada = AtividadeModel.obter_atividade_por_id(filtro_atividade)
     
+    # Calcular métricas se filtrado por usuário e user é admin
+    metricas_usuario = None
+    if filtro_usuario:
+        from sqlalchemy import func, extract
+        
+        hoje = date.today()
+        
+        # 1. Total de horas (conforme filtro aplicado - dos lançamentos já filtrados)
+        total_horas = sum(l.horas_gastas for l in lancamentos)
+        
+        # 2. Atividades fechadas no período
+        query_atividades = AtividadeModel.query.filter(
+            AtividadeModel.desenvolvedor_id == filtro_usuario,
+            AtividadeModel.situacao_id == 4,  # Concluída
+            AtividadeModel.deletado == False
+        )
+        if data_inicio_obj:
+            query_atividades = query_atividades.filter(
+                AtividadeModel.data_prazo_conclusao >= data_inicio_obj
+            )
+        if data_fim_obj:
+            query_atividades = query_atividades.filter(
+                AtividadeModel.data_prazo_conclusao <= data_fim_obj
+            )
+        atividades_fechadas = query_atividades.count()
+        
+        # 3. Horas hoje
+        horas_hoje = db.session.query(func.sum(LancamentoHorasModel.horas_gastas)).filter(
+            LancamentoHorasModel.usuario_id == filtro_usuario,
+            LancamentoHorasModel.deletado == False,
+            LancamentoHorasModel.data_lancamento == hoje
+        ).scalar() or 0.0
+        
+        # 4. Horas no mês atual
+        primeiro_dia_mes = date(hoje.year, hoje.month, 1)
+        
+        horas_mes_atual = db.session.query(func.sum(LancamentoHorasModel.horas_gastas)).filter(
+            LancamentoHorasModel.usuario_id == filtro_usuario,
+            LancamentoHorasModel.deletado == False,
+            LancamentoHorasModel.data_lancamento >= primeiro_dia_mes,
+            LancamentoHorasModel.data_lancamento <= hoje
+        ).scalar() or 0.0
+        
+        metricas_usuario = {
+            'total_horas': round(total_horas, 1),
+            'atividades_fechadas': atividades_fechadas,
+            'horas_hoje': round(horas_hoje, 1),
+            'horas_mes_atual': round(horas_mes_atual, 1),
+            'data_hoje': DataHora.converter_data_de_en_para_br(hoje)
+        }
+    
     return render_template(
         "sistema_wr/gerenciar/projetos/lancamento_horas_listar.html",
         lancamentos=lancamentos,
@@ -102,6 +153,7 @@ def lancamento_horas_listar(atividade_id=None):
         atividades=atividades,
         usuarios=usuarios,
         atividade_filtrada=atividade_filtrada,
+        metricas_usuario=metricas_usuario,
         filtros={
             'atividade_id': filtro_atividade,
             'usuario_id': filtro_usuario,
@@ -174,7 +226,7 @@ def lancamento_horas_cadastrar(atividade_id=None):
         data_lancamento_obj = None
         if data_lancamento:
             try:
-                data_lancamento_obj = datetime.strptime(data_lancamento, '%Y-%m-%d').date()
+                data_lancamento_obj = DataHora.converter_data_str_em_objeto_datetime(data_lancamento).date()
                 if data_lancamento_obj > date.today():
                     validacao_campos_erros["dataLancamento"] = "Data não pode ser futura"
                     gravar_banco = False
@@ -287,7 +339,7 @@ def lancamento_horas_editar(id):
         data_lancamento_obj = None
         if data_lancamento:
             try:
-                data_lancamento_obj = datetime.strptime(data_lancamento, '%Y-%m-%d').date()
+                data_lancamento_obj = DataHora.converter_data_str_em_objeto_datetime(data_lancamento).date()
                 if data_lancamento_obj > date.today():
                     validacao_campos_erros["dataLancamento"] = "Data não pode ser futura"
                     gravar_banco = False

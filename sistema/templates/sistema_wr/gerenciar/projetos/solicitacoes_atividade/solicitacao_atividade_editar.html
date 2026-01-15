@@ -17,11 +17,12 @@
         <div class="col-auto ms-auto d-print-none">
           <div class="btn-list">
             <a href="{{ url_for('atividade_solicitacao_visualizar', id=solicitacao.id) }}" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M5 12l14 0"/>
-                <path d="M5 12l6 6"/>
-                <path d="M5 12l6 -6"/>
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M5 12l14 0" />
+                <path d="M5 12l6 6" />
+                <path d="M5 12l6 -6" />
               </svg>
               Cancelar
             </a>
@@ -35,33 +36,34 @@
   <div class="page-body">
     <div class="container-xl">
       <form method="POST" enctype="multipart/form-data">
-        
+
         <div class="row row-cards">
-          
+
           <!-- Coluna 1: Informações da Solicitação -->
           <div class="col-md-6">
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M9 11l3 3l8 -8"/>
-                    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M9 11l3 3l8 -8" />
+                    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
                   </svg>
                   Informações da Solicitação
                 </h3>
               </div>
               <div class="card-body">
-                
+
                 <!-- Projeto -->
                 <div class="mb-3">
                   <label class="form-label required">Projeto</label>
-                  <select class="form-select {% if 'projetoId' in campos_obrigatorios %}is-invalid{% endif %}" 
-                          name="projetoId" required>
+                  <select class="form-select {% if 'projetoId' in campos_obrigatorios %}is-invalid{% endif %}"
+                    name="projetoId" required>
                     <option value="">Selecione um projeto</option>
                     {% for projeto in projetos %}
-                    <option value="{{ projeto.id }}" 
-                            {% if dados_corretos.projetoId == projeto.id|string %}selected{% endif %}>
+                    <option value="{{ projeto.id }}" {% if dados_corretos.projetoId==projeto.id|string %}selected{%
+                      endif %}>
                       {{ projeto.nome_projeto }}
                     </option>
                     {% endfor %}
@@ -74,12 +76,26 @@
                   {% endif %}
                 </div>
 
+                <!-- Categoria -->
+                <div class="mb-3">
+                  <label class="form-label">Categoria</label>
+                  <select class="form-select" name="categoriaId">
+                    <option value="">Selecione uma categoria</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}" {% if dados_corretos.categoriaId==categoria.id|string
+                      %}selected{% endif %}>
+                      {{ categoria.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+
                 <!-- Título -->
                 <div class="mb-3">
                   <label class="form-label required">Título da Solicitação</label>
-                  <input type="text" class="form-control {% if 'titulo' in campos_obrigatorios %}is-invalid{% endif %}" 
-                         name="titulo" placeholder="Ex: Implementar sistema de notificações por email" 
-                         value="{{ dados_corretos.titulo or '' }}" maxlength="200" required>
+                  <input type="text" class="form-control {% if 'titulo' in campos_obrigatorios %}is-invalid{% endif %}"
+                    name="titulo" placeholder="Ex: Implementar sistema de notificações por email"
+                    value="{{ dados_corretos.titulo or '' }}" maxlength="200" required>
                   {% if 'titulo' in campos_obrigatorios %}
                   <div class="invalid-feedback">{{ campos_obrigatorios.get('titulo') }}</div>
                   {% endif %}
@@ -89,8 +105,8 @@
                 <!-- Descrição -->
                 <div class="mb-3">
                   <label class="form-label">Descrição Detalhada</label>
-                  <textarea class="form-control" name="descricao" rows="8" 
-                            placeholder="Descreva detalhadamente a funcionalidade ou tarefa que você está solicitando:&#10;&#10;• Qual problema isso resolve?&#10;• Como deve funcionar?&#10;• Há algum requisito específico?&#10;• Existem exemplos ou referências?">{{ dados_corretos.descricao or '' }}</textarea>
+                  <textarea class="form-control" name="descricao" rows="8"
+                    placeholder="Descreva detalhadamente a funcionalidade ou tarefa que você está solicitando:&#10;&#10;• Qual problema isso resolve?&#10;• Como deve funcionar?&#10;• Há algum requisito específico?&#10;• Existem exemplos ou referências?">{{ dados_corretos.descricao or '' }}</textarea>
                   <small class="form-hint">
                     Quanto mais detalhes você fornecer, melhor será a análise da sua solicitação.
                   </small>
@@ -102,7 +118,8 @@
                   <label class="form-label">Anexos Atuais</label>
                   <div class="list-group">
                     {% for anexo in solicitacao.anexos %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center" id="anexo-{{ anexo.id }}">
+                    <div class="list-group-item d-flex justify-content-between align-items-center"
+                      id="anexo-{{ anexo.id }}">
                       <div class="d-flex align-items-center">
                         <span class="me-2">
                           {% if anexo.tipo_arquivo == 'image' %}📷
@@ -116,24 +133,26 @@
                         </div>
                       </div>
                       <div class="btn-group">
-                        <a href="{{ url_for('atividade_solicitacao_download_anexo', anexo_id=anexo.id) }}" 
-                           class="btn btn-sm btn-outline-primary" title="Baixar">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/>
-                            <path d="M7 11l5 5l5 -5"/>
-                            <path d="M12 4l0 12"/>
+                        <a href="{{ url_for('atividade_solicitacao_download_anexo', anexo_id=anexo.id) }}"
+                          class="btn btn-sm btn-outline-primary" title="Baixar">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                            <path d="M7 11l5 5l5 -5" />
+                            <path d="M12 4l0 12" />
                           </svg>
                         </a>
-                        <button type="button" class="btn btn-sm btn-outline-danger" 
-                                onclick="removerAnexo({{ anexo.id }})" title="Remover">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M4 7l16 0"/>
-                            <path d="M10 11l0 6"/>
-                            <path d="M14 11l0 6"/>
-                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/>
-                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                          onclick="removerAnexo({{ anexo.id }})" title="Remover">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M4 7l16 0" />
+                            <path d="M10 11l0 6" />
+                            <path d="M14 11l0 6" />
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                           </svg>
                         </button>
                       </div>
@@ -146,12 +165,13 @@
                 <!-- Adicionar Novos Anexos -->
                 <div class="mb-3">
                   <label class="form-label">Adicionar Novos Anexos (Opcional)</label>
-                  <input type="file" class="form-control" name="anexos[]" multiple 
-                         accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.txt,.zip,.rar">
+                  <input type="file" class="form-control" name="anexos[]" multiple
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.txt,.zip,.rar">
                   <small class="form-hint">
-                    Tipos permitidos: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, GIF, TXT, ZIP, RAR. Máximo 10MB por arquivo.
+                    Tipos permitidos: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, GIF, TXT, ZIP, RAR. Máximo 10MB por
+                    arquivo.
                   </small>
-                  
+
                   <!-- Preview dos novos anexos -->
                   <div id="preview-anexos" class="mt-2" style="display: none;">
                     <div class="list-group" id="lista-anexos"></div>
@@ -167,11 +187,13 @@
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M12 9v4"/>
-                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/>
-                    <path d="M12 16h.01"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 9v4" />
+                    <path
+                      d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                    <path d="M12 16h.01" />
                   </svg>
                   Motivo da Rejeição
                 </h3>
@@ -180,16 +202,18 @@
                 <div class="alert alert-danger">
                   <div class="d-flex">
                     <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 9v4"/>
-                        <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/>
-                        <path d="M12 16h.01"/>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
+                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 9v4" />
+                        <path
+                          d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                        <path d="M12 16h.01" />
                       </svg>
                     </div>
                     <div class="flex-fill">
-                      <div class="font-weight-medium">Sua solicitação foi rejeitada</div>
-                      <div class="text-white">
+                      <div class="font-weight-medium fw-bold">Sua solicitação foi rejeitada</div>
+                      <div class="text-red">
                         {{ solicitacao.motivo_rejeicao | replace('\n', '<br>') | safe }}
                       </div>
                     </div>
@@ -199,11 +223,12 @@
                 <div class="alert alert-info">
                   <div class="d-flex">
                     <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/>
-                        <path d="M12 9h.01"/>
-                        <path d="M11 12h1v4h1"/>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
+                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                        <path d="M12 9h.01" />
+                        <path d="M11 12h1v4h1" />
                       </svg>
                     </div>
                     <div>
@@ -224,18 +249,19 @@
                 <div class="alert alert-warning">
                   <div class="d-flex">
                     <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 8v4l3 3"/>
-                        <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
+                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 8v4l3 3" />
+                        <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
                       </svg>
                     </div>
                     <div>
                       <h4 class="alert-title">Múltiplas Rejeições</h4>
                       <div class="text-secondary">
-                        Esta solicitação já foi rejeitada <strong>{{ total_rejeicoes }} vezes</strong>. 
-                        <a href="{{ url_for('atividade_solicitacao_historico_rejeicoes', id=solicitacao.id) }}" 
-                           class="alert-link">Ver histórico completo</a> para entender melhor os ajustes necessários.
+                        Esta solicitação já foi rejeitada <strong>{{ total_rejeicoes }} vezes</strong>.
+                        <a href="{{ url_for('atividade_solicitacao_historico_rejeicoes', id=solicitacao.id) }}"
+                          class="alert-link">Ver histórico completo</a> para entender melhor os ajustes necessários.
                       </div>
                     </div>
                   </div>
@@ -254,18 +280,21 @@
             <div class="alert alert-info">
               <div class="d-flex">
                 <div>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/>
-                    <path d="M12 9h.01"/>
-                    <path d="M11 12h1v4h1"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
+                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                    <path d="M12 9h.01" />
+                    <path d="M11 12h1v4h1" />
                   </svg>
                 </div>
                 <div>
                   <h4 class="alert-title">Atenção:</h4>
                   <div class="text-secondary">
-                    Ao salvar esta solicitação, ela retornará automaticamente para o status <strong>"Em Análise"</strong> 
-                    e será reavaliada pela gestão. Certifique-se de ter ajustado todos os pontos mencionados no motivo da rejeição.
+                    Ao salvar esta solicitação, ela retornará automaticamente para o status <strong>"Em
+                      Análise"</strong>
+                    e será reavaliada pela gestão. Certifique-se de ter ajustado todos os pontos mencionados no motivo
+                    da rejeição.
                   </div>
                 </div>
               </div>
@@ -278,20 +307,23 @@
           <div class="col-12">
             <div class="card">
               <div class="card-footer text-center">
-                <a href="{{ url_for('atividade_solicitacao_visualizar', id=solicitacao.id) }}" class="btn btn-secondary me-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M5 12l14 0"/>
-                    <path d="M5 12l6 6"/>
-                    <path d="M5 12l6 -6"/>
+                <a href="{{ url_for('atividade_solicitacao_visualizar', id=solicitacao.id) }}"
+                  class="btn btn-secondary me-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M5 12l14 0" />
+                    <path d="M5 12l6 6" />
+                    <path d="M5 12l6 -6" />
                   </svg>
                   Cancelar
                 </a>
                 <button type="submit" class="btn btn-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M12 5l0 14"/>
-                    <path d="M5 12l14 0"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
                   </svg>
                   Salvar e Reenviar
                 </button>
@@ -308,58 +340,58 @@
 </div>
 
 <script>
-// Função para remover anexo
-function removerAnexo(anexoId) {
-  if (!confirm('Tem certeza que deseja remover este anexo?')) {
-    return;
+  // Função para remover anexo
+  function removerAnexo(anexoId) {
+    if (!confirm('Tem certeza que deseja remover este anexo?')) {
+      return;
+    }
+
+    fetch(`{{ url_for('solicitacoes_atividade_remover_anexo', anexo_id=0) }}`.replace('0', anexoId), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.getAttribute('content')
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById(`anexo-${anexoId}`).remove();
+          // Mostrar mensagem de sucesso se necessário
+        } else {
+          alert(data.message || 'Erro ao remover anexo');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao remover anexo');
+      });
   }
 
-  fetch(`{{ url_for('solicitacoes_atividade_remover_anexo', anexo_id=0) }}`.replace('0', anexoId), {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.getAttribute('content')
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      document.getElementById(`anexo-${anexoId}`).remove();
-      // Mostrar mensagem de sucesso se necessário
-    } else {
-      alert(data.message || 'Erro ao remover anexo');
-    }
-  })
-  .catch(error => {
-    console.error('Erro:', error);
-    alert('Erro ao remover anexo');
-  });
-}
+  // Preview de novos anexos
+  document.addEventListener('DOMContentLoaded', function () {
+    const inputAnexos = document.querySelector('input[name="anexos[]"]');
+    const previewAnexos = document.getElementById('preview-anexos');
+    const listaAnexos = document.getElementById('lista-anexos');
 
-// Preview de novos anexos
-document.addEventListener('DOMContentLoaded', function() {
-  const inputAnexos = document.querySelector('input[name="anexos[]"]');
-  const previewAnexos = document.getElementById('preview-anexos');
-  const listaAnexos = document.getElementById('lista-anexos');
+    if (inputAnexos) {
+      inputAnexos.addEventListener('change', function () {
+        const files = this.files;
+        listaAnexos.innerHTML = '';
 
-  if (inputAnexos) {
-    inputAnexos.addEventListener('change', function() {
-      const files = this.files;
-      listaAnexos.innerHTML = '';
-      
-      if (files.length > 0) {
-        previewAnexos.style.display = 'block';
-        
-        Array.from(files).forEach((file, index) => {
-          const fileType = file.type.startsWith('image/') ? '📷' : 
-                          file.type.includes('pdf') || file.type.includes('document') ? '📄' :
-                          file.type.includes('zip') || file.type.includes('rar') ? '📦' : '📎';
-          
-          const fileSize = (file.size / 1024 / 1024).toFixed(1);
-          
-          const item = document.createElement('div');
-          item.className = 'list-group-item d-flex justify-content-between align-items-center';
-          item.innerHTML = `
+        if (files.length > 0) {
+          previewAnexos.style.display = 'block';
+
+          Array.from(files).forEach((file, index) => {
+            const fileType = file.type.startsWith('image/') ? '📷' :
+              file.type.includes('pdf') || file.type.includes('document') ? '📄' :
+                file.type.includes('zip') || file.type.includes('rar') ? '📦' : '📎';
+
+            const fileSize = (file.size / 1024 / 1024).toFixed(1);
+
+            const item = document.createElement('div');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center';
+            item.innerHTML = `
             <div class="d-flex align-items-center">
               <span class="me-2">${fileType}</span>
               <div>
@@ -369,13 +401,13 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <span class="badge bg-primary">Novo</span>
           `;
-          listaAnexos.appendChild(item);
-        });
-      } else {
-        previewAnexos.style.display = 'none';
-      }
-    });
-  }
-});
+            listaAnexos.appendChild(item);
+          });
+        } else {
+          previewAnexos.style.display = 'none';
+        }
+      });
+    }
+  });
 </script>
 {% endblock %}

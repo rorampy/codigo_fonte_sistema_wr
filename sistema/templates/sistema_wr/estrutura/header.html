@@ -188,11 +188,32 @@
                 <a class="dropdown-item" href="{{ url_for('kanban_visualizar') }}">
                   Visualizar Kankan
                 </a>
-                {% if current_user.role.id == 1 %}
-                <a class="dropdown-item" href="{{ url_for('projetos_listar') }}">
-                  Projetos
-                </a>
+
+                {% if current_user.role.id in [1, 2, 3] %}
+
+                <div class="dropend">
+                  <a class="dropdown-item dropdown-toggle" href="#navbar-configuracoes" data-bs-toggle="dropdown"
+                    data-bs-auto-close="false" role="button" aria-expanded="false">
+                    Configurações
+                  </a>
+                  <div class="dropdown-menu">
+                    <div class="dropend">
+                      <a class="dropdown-item dropdown-toggle" href="#navbar-projetos" data-bs-toggle="dropdown"
+                        data-bs-auto-close="false" role="button" aria-expanded="false">
+                        Projetos
+                      </a>
+                      <div class="dropdown-menu">
+                        <a href="{{url_for('categorias_listar')}}" class="dropdown-item">
+                          Categorias de Projetos
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {% endif %}
+
+
                 <a class="dropdown-item" href="{{ url_for('solicitacoes_atividade_listar') }}">
                   Solicitações de Atividades
                 </a>
@@ -248,7 +269,7 @@
                 </div>
               </div>
               <!-- Novo Sub menu para horas devs-->
-               {%if current_user.role.id in [1] %}
+              {%if current_user.role.id in [1] %}
               <div class="dropend">
                 <a class="dropdown-item dropdown-toggle" href="#sidebar-gerais2" data-bs-toggle="dropdown"
                   data-bs-auto-close="false" role="button" aria-expanded="false">

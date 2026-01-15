@@ -64,7 +64,7 @@
 
       <!-- Filtros ativos -->
       {% if filtros and (filtros.projeto_id or filtros.prioridade_id or filtros.situacao_id or filtros.responsavel_id or
-      filtros.titulo or filtros.solicitante_id or filtros.supervisor_id or filtros.tag_id or
+      filtros.titulo or filtros.solicitante_id or filtros.supervisor_id or filtros.tag_id or filtros.categoria_id or
       filtros.data_conclusao_inicio or filtros.data_conclusao_fim) %}
       <div class="card mb-3">
         <div class="card-body py-2">
@@ -154,6 +154,17 @@
               {% for tag in tags %}
               {% if tag.id|string == tag_id|string %}
               <span class="badge badge-outline {{ tag.cor }}">Tag: {{ tag.nome }}</span>
+              {% endif %}
+              {% endfor %}
+              {% endfor %}
+              {% endif %}
+
+              <!--Categorias filtradas -->
+              {% if filtros.categoria_id %}
+              {% for categoria_id in filtros.categoria_id %}
+              {% for categoria in categorias %}
+              {% if categoria.id|string == categoria_id|string %}
+              <span class="badge badge-outline text-purple">Categoria: {{ categoria.nome }}</span>
               {% endif %}
               {% endfor %}
               {% endfor %}
@@ -299,7 +310,9 @@
                       </span>
                       <div class="text-truncate" style="max-width: 100px;"
                         title="{{ atividade.usuario_solicitante.nome }}">
-                        {{ atividade.usuario_solicitante.nome[:15] }}{% if atividade.usuario_solicitante.nome | length >
+                        {{ atividade.usuario_solicitante.nome[:15] + ' ' + atividade.usuario_solicitante.sobrenome[:1] +
+                        '.'
+                        }}{% if atividade.usuario_solicitante.nome | length >
                         15 %}...{% endif %}
                       </div>
                     </div>
@@ -314,8 +327,8 @@
                         {{ atividade.supervisor.nome[0].upper() }}
                       </span>
                       <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.supervisor.nome }}">
-                        {{ atividade.supervisor.nome[:15] }}{% if atividade.supervisor.nome | length > 15 %}...{% endif
-                        %}
+                        {{ atividade.supervisor.nome[:15] + ' ' + atividade.supervisor.sobrenome[:1] + '.' }}{% if
+                        atividade.supervisor.nome | length > 15 %}...{% endif %}
                       </div>
                     </div>
                     {% else %}
@@ -329,7 +342,8 @@
                         {{ atividade.desenvolvedor.nome[0].upper() }}
                       </span>
                       <div class="text-truncate" style="max-width: 100px;" title="{{ atividade.desenvolvedor.nome }}">
-                        {{ atividade.desenvolvedor.nome[:15] }}{% if atividade.desenvolvedor.nome | length > 15 %}...{%
+                        {{ atividade.desenvolvedor.nome[:15] + ' ' + atividade.desenvolvedor.sobrenome[:1] + '.' }}{% if
+                        atividade.desenvolvedor.nome | length > 15 %}...{%
                         endif %}
                       </div>
                     </div>
@@ -557,7 +571,7 @@
               </div>
 
               <!-- Projetos com dropdown múltiplo -->
-              <div class="col-md-4 mb-3">
+              <div class="col-md-12 mb-3">
                 <label class="form-label">Projetos</label>
                 <div class="dropdown">
                   <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -581,7 +595,7 @@
                           class="form-check-input me-2 projeto-checkbox" {% if filtros.projeto_id and projeto.id|string
                           in filtros.projeto_id %}checked{% endif %}>
                         <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ projeto.nome_projeto }}">
-                          {{ projeto.nome_projeto[:15] }}{% if projeto.nome_projeto|length > 15 %}...{% endif %}
+                          {{ projeto.nome_projeto }}
                         </span>
                       </label>
                     </li>
@@ -592,7 +606,7 @@
               </div>
 
               <!-- Prioridade com dropdown múltiplo -->
-              <div class="col-md-4 mb-3">
+              <div class="col-md-6 mb-3">
                 <label class="form-label">Prioridade</label>
                 <div class="dropdown">
                   <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -625,7 +639,7 @@
               </div>
 
               <!-- Situação com 4 colunas-->
-              <div class="col-md-4 mb-3">
+              <div class="col-md-6 mb-3">
                 <label class="form-label">Situação</label>
                 <div class="dropdown">
                   <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -682,7 +696,7 @@
                         <input type="checkbox" name="solicitante_id" value="{{ usuario.id }}"
                           class="form-check-input me-2 solicitante-checkbox" {% if filtros.solicitante_id and
                           usuario.id|string in filtros.solicitante_id %}checked{% endif %}>
-                        {{ usuario.nome }}
+                        {{ usuario.nome + ' ' + usuario.sobrenome[:1] + '.' }}
                       </label>
                     </li>
                     {% endfor %}
@@ -717,7 +731,7 @@
                         <input type="checkbox" name="supervisor_id" value="{{ usuario.id }}"
                           class="form-check-input me-2 supervisor-checkbox" {% if filtros.supervisor_id and
                           usuario.id|string in filtros.supervisor_id %}checked{% endif %}>
-                        {{ usuario.nome }}
+                        {{ usuario.nome + ' ' + usuario.sobrenome[:1] + '.' }}
                       </label>
                     </li>
                     {% endfor %}
@@ -753,7 +767,7 @@
                         <input type="checkbox" name="responsavel_id" value="{{ usuario.id }}"
                           class="form-check-input me-2 responsavel-checkbox" {% if filtros.responsavel_id and
                           usuario.id|string in filtros.responsavel_id %}checked{% endif %}>
-                        {{ usuario.nome }}
+                        {{ usuario.nome + ' ' + usuario.sobrenome[:1] + '.' }}
                       </label>
                     </li>
                     {% endfor %}
@@ -763,7 +777,7 @@
               </div>
 
               <!-- FILTRO: MULTI TAGS-->
-              <div class="col-md-12 mb-3">
+              <div class="col-md-6 mb-3">
                 <label class="form-label">Tags</label>
                 <div class="dropdown">
                   <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -787,6 +801,37 @@
                           filtros.tag_id %}checked{% endif %}>
                         <span class="badge badge-sm {{ tag.cor }} me-1"></span>
                         {{ tag.nome }}
+                      </label>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <small class="text-muted ps-2">Selecione múltiplas opções</small>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Categorias</label>
+                <div class="dropdown">
+                  <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span id="categoria-label">Selecione as Categorias</span>
+                  </button>
+                  <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="categoria_id" value="" class="form-check-input me-2" id="categoria-todas">
+                        Todas as Categorias
+                      </label>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
+                    {% for categoria in categorias %}
+                    <li>
+                      <label class="dropdown-item">
+                        <input type="checkbox" name="categoria_id" value="{{ categoria.id }}"
+                          class="form-check-input me-2 categoria-checkbox" {% if filtros.categoria_id and categoria.id|string in
+                          filtros.categoria_id %}checked{% endif %}>
+                        {{ categoria.nome }}
                       </label>
                     </li>
                     {% endfor %}
@@ -837,7 +882,8 @@
       { name: 'solicitante', checkbox: '.solicitante-checkbox', allCheckbox: '#solicitante-todos', label: '#solicitante-label' },
       { name: 'supervisor', checkbox: '.supervisor-checkbox', allCheckbox: '#supervisor-todos', label: '#supervisor-label' },
       { name: 'responsavel', checkbox: '.responsavel-checkbox', allCheckbox: '#responsavel-todos', label: '#responsavel-label' },
-      { name: 'tag', checkbox: '.tag-checkbox', allCheckbox: '#tag-todas', label: '#tag-label' }
+      { name: 'tag', checkbox: '.tag-checkbox', allCheckbox: '#tag-todas', label: '#tag-label' },
+      { name: 'categoria', checkbox: '.categoria-checkbox', allCheckbox: '#categoria-todas', label: '#categoria-label' }
     ];
 
     // Função para configurar cada filtro múltiplo
@@ -858,7 +904,8 @@
           'solicitante': 'Solicitantes',
           'supervisor': 'Supervisores',
           'responsavel': 'DEVs',
-          'tag': 'Tags'
+          'tag': 'Tags',
+          'categoria': 'Categorias'
         };
 
         if (checked.length === 0) {
@@ -951,7 +998,8 @@
             'prioridade': 'Prioridades',
             'solicitante': 'Solicitantes',
             'supervisor': 'Supervisores',
-            'responsavel': 'DEVs'
+            'responsavel': 'DEVs',
+            'categoria': 'Categorias'
           };
 
           if (checked.length === 0) {
@@ -1126,7 +1174,6 @@
 </script>
 
 <style>
-  
   .dropdown-menu {
     z-index: 9999 !important;
   }
@@ -1135,18 +1182,18 @@
     z-index: 10000 !important;
   }
 
-  
+
   .footer-transparent {
     z-index: 1000 !important;
   }
 
-  
+
   .dropdown-menu-tags {
     max-width: 300px;
     min-width: 180px;
   }
 
-  
+
   .dropdown-menu {
     max-height: 300px;
     overflow-y: auto;

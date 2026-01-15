@@ -143,6 +143,15 @@ def principal():
     ).scalar() or 0.0
     metricas['horas_mes'] = round(horas_mes, 1)
     
+    # 7. Horas trabalhadas hoje
+    horas_hoje = db.session.query(func.sum(LancamentoHorasModel.horas_gastas)).filter(
+        LancamentoHorasModel.usuario_id == current_user.id,
+        LancamentoHorasModel.deletado == False,
+        LancamentoHorasModel.data_lancamento == hoje
+    ).scalar() or 0.0
+    metricas['horas_hoje'] = round(horas_hoje, 1)
+
+    
     return render_template(
         "sistema_wr/estrutura/dashboard.html",
         metricas=metricas

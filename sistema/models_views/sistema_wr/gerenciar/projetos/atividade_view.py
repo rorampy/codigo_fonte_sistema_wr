@@ -9,6 +9,7 @@ from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_solicitacao_mo
 from sistema.models_views.sistema_wr.gerenciar.projetos.projeto_model import ProjetoModel
 from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioModel
 from sistema.models_views.sistema_wr.configuracoes.tags.tags_model import TagModel
+from sistema.models_views.sistema_wr.configuracoes.categorias.categoria_model import CategoriaModel
 from sistema._utilitarios import *
 from datetime import datetime
 import os
@@ -250,7 +251,10 @@ def atividades_listar(projeto_id=None):
     filtros_responsavel = request.args.getlist('responsavel_id')
     filtros_solicitante = request.args.getlist('solicitante_id')
     filtros_supervisor = request.args.getlist('supervisor_id')
+    filtros_categoria = request.args.getlist('categoria_id')
     
+
+
     filtros_tag = [t for t in request.args.getlist('tag_id') if t and str(t).strip()]
 
     filtro_titulo = request.args.get('titulo')
@@ -267,14 +271,15 @@ def atividades_listar(projeto_id=None):
     filtros_responsavel = [r for r in filtros_responsavel if r and r.strip()]
     filtros_solicitante = [s for s in filtros_solicitante if s and s.strip()]
     filtros_supervisor = [s for s in filtros_supervisor if s and s.strip()]
-    
+    filtros_categoria = [c for c in filtros_categoria if c and c.strip()]
 
     atividades = AtividadeModel.query.filter(
         AtividadeModel.deletado == False
     ).options(
         joinedload(AtividadeModel.tags)
     )
-    
+
+
     if filtro_data_conclusao_inicio:
         try:
             data_inicio_obj = datetime.strptime(filtro_data_conclusao_inicio, '%Y-%m-%d').date()
@@ -320,11 +325,15 @@ def atividades_listar(projeto_id=None):
     if filtro_titulo:
         atividades = atividades.filter(AtividadeModel.titulo.ilike(f"%{filtro_titulo}%"))
     
+    if filtros_categoria:
+        atividades = atividades.filter(AtividadeModel.categoria_id.in_(filtros_categoria))
+    
     atividades = atividades.order_by(
         AtividadeModel.id.desc(),
         AtividadeModel.data_cadastro.desc()
     ).all()
     
+    categorias = CategoriaModel.listar_categorias_ativas()
     projetos = ProjetoModel.obter_projetos_asc_nome()
     prioridades = PrioridadeAtividadeModel.listar_prioridades_ativas()
     situacoes = AndamentoAtividadeModel.listar_andamentos_ativos()
@@ -338,6 +347,7 @@ def atividades_listar(projeto_id=None):
         situacoes=situacoes,
         usuarios=usuarios,
         tags=TagModel.listar_tags_ativas(),
+        categorias=categorias,
         filtros={
             'data_conclusao_inicio': filtro_data_conclusao_inicio,
             'data_conclusao_fim': filtro_data_conclusao_fim,
@@ -348,7 +358,8 @@ def atividades_listar(projeto_id=None):
             'solicitante_id': filtros_solicitante,
             'supervisor_id': filtros_supervisor,
             'tag_id': filtros_tag,
-            'titulo': filtro_titulo
+            'titulo': filtro_titulo,
+            'categoria_id': filtros_categoria
         }
     )
 
@@ -648,6 +659,7 @@ def atividade_editar(atividade_id):
     situacoes = AndamentoAtividadeModel.listar_andamentos_ativos()
     usuarios = UsuarioModel.obter_usuarios_asc_nome()
     tags = TagModel.listar_tags_ativas()
+    categorias = CategoriaModel.listar_categorias_ativas()
     
 
     if request.method == "POST":
@@ -663,6 +675,7 @@ def atividade_editar(atividade_id):
         supervisor_id = request.form.get("supervisorId")
         desenvolvedor_id = request.form.get("desenvolvedorId")
         usuario_solicitante_id = request.form.get("usuarioSolicitanteId")
+        categoria_id = request.form.get("categoria_id", "").strip() or None
         
         tag_ids_str = _extrair_tag_ids_do_request(request.form, "tag_id")
 
@@ -772,6 +785,7 @@ def atividade_editar(atividade_id):
                 atividade.supervisor_id = supervisor_id if supervisor_id else None
                 atividade.desenvolvedor_id = desenvolvedor_id if desenvolvedor_id else None
                 atividade.usuario_solicitante_id = usuario_solicitante_id if usuario_solicitante_id else None
+                atividade.categoria_id = categoria_id
                 
                 atividade.tags = tags_processadas
 
@@ -846,6 +860,7 @@ def atividade_editar(atividade_id):
         situacoes=situacoes,
         usuarios=usuarios,
         tags=tags,
+        categorias=categorias,
         TagModel=TagModel,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,

@@ -21,7 +21,8 @@
       {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
       <div class="col-12">
-        <form class="card" action="{{ url_for('atividade_editar', atividade_id=atividade.id) }}" method="POST"
+        <form id="formEditarAtividade" class="card"
+          action="{{ url_for('atividade_editar', atividade_id=atividade.id) }}" method="POST"
           enctype="multipart/form-data">
           <div class="card-body">
 
@@ -46,7 +47,8 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-6">
+
+              <div class="col-md-5">
                 <div class="mb-3">
                   <label class="form-label required">Título</label>
                   <input type="text" name="titulo" value="{{ dados_corretos.get('titulo', '') }}"
@@ -58,14 +60,30 @@
                 </div>
               </div>
 
-              <!-- Campo Tags (Múltiplas) -->
-              <div class="col-md-3">
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label class="form-label">Categoria</label>
+                  <select name="categoria_id" class="form-select">
+                    <option value="">Nenhuma</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}" {% if
+                      dados_corretos.get('categoria_id')|string==categoria.id|string or (not
+                      dados_corretos.get('categoria_id') and atividade.categoria_id==categoria.id) %}selected{% endif
+                      %}>
+                      {{ categoria.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-2">
                 <div class="mb-3">
                   <label class="form-label">Tags</label>
                   <div class="dropdown">
                     <button class="form-select text-start {% if 'tag_id' in campos_erros %}is-invalid{% endif %}"
                       type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      <span id="tag-label-cadastro">Selecione as Tags</span>
+                      <span id="tag-label-cadastro">Selecione...</span>
                     </button>
                     <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
                       <li>
@@ -95,19 +113,14 @@
                     {{ campos_erros.get('tag_id') }}
                   </div>
                   {% endif %}
-                  <small class="form-hint">Selecione múltiplas tags para categorizar</small>
                 </div>
-
               </div>
-
             </div>
 
-
-
-            <!-- Atribuição e Status -->
-            <h3 class="text-primary mb-3 mt-4">Atribuição e Status</h3>
+            <!-- Atribuição -->
+            <h3 class="text-primary mb-3 mt-4">Atribuição</h3>
             <div class="row">
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <!--Bloquear usuários comuns de alterarem o solicitante (somente root)-->
                 {% if current_user.role_id == 1 %}
                 <div class="mb-3">
@@ -117,7 +130,7 @@
                     {% for usuario in usuarios %}
                     <option value="{{ usuario.id }}" {% if
                       dados_corretos.get('usuarioSolicitanteId')|string==usuario.id|string %}selected{% endif %}>
-                      {{ usuario.nome }}
+                      {{ usuario.nome + ' ' + usuario.sobrenome }}
                     </option>
                     {% endfor %}
                   </select>
@@ -130,67 +143,57 @@
                     value="{{ atividade.usuario_solicitante.nome if atividade.usuario_solicitante else 'Não informado' }}"
                     readonly disabled>
                   <input type="hidden" name="usuarioSolicitanteId" value="{{ atividade.usuario_solicitante_id }}">
-                  <small class="form-hint text-muted mt-2">Somente administradores podem alterar o solicitante!</small>
+                  <small class="form-hint text-muted">Somente administradores podem alterar</small>
                 </div>
                 {% endif %}
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Supervisor</label>
-                  {% if current_user.id == atividade.supervisor_id or current_user.role_id == 1%}
+                  {% if current_user.id == atividade.supervisor_id or current_user.role_id == 1 %}
                   <select name="supervisorId" class="form-select">
                     <option value="">Não atribuído</option>
                     {% for usuario in usuarios %}
                     <option value="{{ usuario.id }}" {% if dados_corretos.get('supervisorId')|string==usuario.id|string
                       %}selected{% endif %}>
-                      {{ usuario.nome }}
+                      {{ usuario.nome + ' ' + usuario.sobrenome }}
                     </option>
                     {% endfor %}
                   </select>
-                  <small class="form-hint">Responsável por supervisionar e aprovar a atividade</small>
+                  <small class="form-hint">Responsável por supervisionar</small>
                   {% else %}
-                  <!-- Usuário não pode alterar -->
                   <input type="text" class="form-control"
-                    value="{{atividade.supervisor.nome if atividade.supervisor else 'Não atribuído'}}" readonly
+                    value="{{ atividade.supervisor.nome if atividade.supervisor else 'Não atribuído' }}" readonly
                     disabled>
-                  <input type="hidden" name="supervisorId" value="{{atividade.supervisor_id}}">
-                  <small class="form-hint text-muted mt-2">
-                    {% if atividade.supervisor %}
-                    Apenas o supervisor atual ({{atividade.supervisor.nome}}) pode alterar o supervisor!
-                    {% else %}
-                    Somente administradores podem definir o supervisor!
-                    {% endif %}
+                  <input type="hidden" name="supervisorId" value="{{ atividade.supervisor_id }}">
+                  <small class="form-hint text-muted">
+                    {% if atividade.supervisor %}Apenas {{ atividade.supervisor.nome }} pode alterar{% else %}Somente
+                    administradores{% endif %}
                   </small>
                   {% endif %}
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Desenvolvedor</label>
-                  <!--Somente os administradores podem alterar o desenvolvedor-->
                   {% if current_user.role_id == 1 %}
                   <select name="desenvolvedorId" class="form-select">
                     <option value="">Não atribuído</option>
                     {% for usuario in usuarios %}
                     <option value="{{ usuario.id }}" {% if
                       dados_corretos.get('desenvolvedorId')|string==usuario.id|string %}selected{% endif %}>
-                      {{ usuario.nome }}
+                      {{ usuario.nome + ' ' + usuario.sobrenome }}
                     </option>
                     {% endfor %}
                   </select>
-                  <small class="form-hint">Responsável por executar e desenvolver a atividade</small>
+                  <small class="form-hint">Responsável pelo desenvolvimento</small>
                   {% else %}
-                  <!--Usuário que NÃO pode alterar-->
                   <input type="text" class="form-control"
-                    value="{{atividade.desenvolvedor.nome if atividade.desenvolvedor.nome else 'Não Atribuído'}}"
-                    readonly disabled>
-                  <input type="hidden" name="desenvolvedorId" value="{{atividade.desenvolvedorId}}">
-                  <small class="form-hint text-muted mt-2">
-                    {% if atividade.desenvolvedor %}
-                    Somente administradores podem definir o desenvolvedor!
-                    {% else %}
-                    Um desenvolvedor ainda não foi atribuído a essa tarefa!
-                    {% endif %}
+                    value="{{ atividade.desenvolvedor.nome if atividade.desenvolvedor else 'Não atribuído' }}" readonly
+                    disabled>
+                  <input type="hidden" name="desenvolvedorId" value="{{ atividade.desenvolvedor_id }}">
+                  <small class="form-hint text-muted">
+                    {% if atividade.desenvolvedor %}Somente administradores{% else %}Aguardando atribuição{% endif %}
                   </small>
                   {% endif %}
                 </div>
@@ -198,8 +201,9 @@
             </div>
 
             <!-- Status e Prioridade -->
+            <h3 class="text-primary mb-3 mt-4">Status</h3>
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label required">Prioridade</label>
                   <select name="prioridadeId"
@@ -217,9 +221,8 @@
                   </div>
                 </div>
               </div>
-              <!-- Status de Prioridade -->
               {% if current_user.role_id == 1 %}
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label required">Situação</label>
                   <select name="situacaoId"
@@ -235,10 +238,7 @@
                   <div class="invalid-feedback">
                     {{ campos_obrigatorios.get('situacaoId') }}
                   </div>
-                  <small class="form-hint">
-                    <strong>Importante:</strong> Uma atividade só pode ser marcada como "Concluída" se tiver pelo menos
-                    1 lançamento de horas.
-                  </small>
+                  <small class="form-hint">Requer lançamento de horas para concluir</small>
                 </div>
               </div>
               {% else %}
@@ -302,7 +302,7 @@
             <!-- Progresso Visual -->
             {% if atividade.horas_necessarias > 0 %}
             <div class="row">
-              <div class="col-md-12">
+              <div class="col-md-12 mt-4">
                 <div class="mb-3">
                   <label class="form-label">Progresso da Atividade</label>
                   <div class="progress mb-2">
@@ -482,49 +482,101 @@
 
           </div>
 
-          <div class="card-footer text-center text-md-end">
-            <a href="{{ url_for('atividades_listar') }}" class="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24"
-                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M5 12l14 0"></path>
-                <path d="M5 12l6 6"></path>
-                <path d="M5 12l6 -6"></path>
-              </svg>
-              Cancelar
-            </a>
-            <button type="submit" class="btn btn-success">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M5 12l5 5l10 -10"></path>
-              </svg>
-              Salvar Alterações
-            </button>
-            <!--Marcar como concluía-->
 
 
-            {% if (current_user.id == atividade.usuario_solicitante_id or current_user.id == atividade.supervisor_id)
-            and atividade.situacao_id != 4 %}
+          <div class="card-footer d-flex justify-content-between align-items-center">
+            <!-- Botão Cancelar (esquerda) -->
+            <div>
+              <a href="{{ url_for('atividades_listar') }}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24"
+                  height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M5 12l14 0"></path>
+                  <path d="M5 12l6 6"></path>
+                  <path d="M5 12l6 -6"></path>
+                </svg>
+                Cancelar
+              </a>
+            </div>
 
-            <button type="submit" name="acao" value="concluir" class="btn btn-dark">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-checkup-list">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                <path d="M9 14h.01" />
-                <path d="M9 17h.01" />
-                <path d="M12 16l1 1l3 -3" />
-              </svg>
-              Marcar Como Concluída
-            </button>
-            {% endif %}
+            <!-- Botões Salvar e Concluir (direita) -->
+            <div>
+
+              {% if (current_user.id == atividade.usuario_solicitante_id or current_user.id == atividade.supervisor_id)
+              and atividade.situacao_id != 4 %}
+              <button type="button" class="btn btn-dark " data-bs-toggle="modal"
+                data-bs-target="#modalConcluirAtividade">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-checkup-list">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                  <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                  <path d="M9 14h.01" />
+                  <path d="M9 17h.01" />
+                  <path d="M12 16l1 1l3 -3" />
+                </svg>
+                Marcar Como Concluída
+              </button>
+              {% endif %}
+
+              <button type="submit" class="btn btn-success">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24"
+                  height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M5 12l5 5l10 -10"></path>
+                </svg>
+                Salvar Alterações
+              </button>
+
+
+            </div>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal Confirmar Conclusão -->
+  <div class="modal modal-blur fade" id="modalConcluirAtividade" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-status bg-success"></div>
+        <div class="modal-body text-center py-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="green"
+            stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mb-2">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+            <path d="M9 5a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2" />
+            <path d="M9 14l2 2l4 -4" />
+          </svg>
+          <h3>Concluir Atividade?</h3>
+          <div class="text-secondary">
+            Tem certeza que deseja marcar esta atividade como concluída?<br><br>
+            <strong>Atenção:</strong> Esta ação irá alterar o status da atividade.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100">
+            <div class="row">
+              <div class="col">
+                <button type="button" class="btn w-100" data-bs-dismiss="modal">
+                  Cancelar
+                </button>
+              </div>
+              <div class="col">
+                <button type="submit" name="acao" value="concluir" form="formEditarAtividade"
+                  class="btn btn-success w-100">
+                  Sim, Concluir
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -727,11 +779,13 @@
   const tagBadges = document.getElementById('tag-badges-cadastro');
 
   function atualizarTagsLabel() {
+    if (!tagLabel) return; // Sair se o elemento não existir
+
     const selecionadas = Array.from(tagCheckboxes).filter(cb => cb.checked);
 
     if (selecionadas.length === 0) {
       tagLabel.textContent = 'Selecione as Tags';
-      tagPreview.style.display = 'none';
+      if (tagPreview) tagPreview.style.display = 'none';
     } else if (selecionadas.length === 1) {
       // Pega o texto sem o badge
       const nomeTag = selecionadas[0].parentElement.querySelector('span:last-child')
@@ -745,6 +799,8 @@
   }
 
   function atualizarPreviewBadges(selecionadas) {
+    if (!tagBadges || !tagPreview) return; // Sair se os elementos não existirem
+
     tagBadges.innerHTML = '';
     selecionadas.forEach(cb => {
       const badge = cb.parentElement.querySelector('.badge');

@@ -14,9 +14,9 @@
         <div class="col-12 col-md-auto ms-auto d-print-none">
           <div class="d-flex gap-2">
             <a href="{{ url_for('projetos_listar') }}" class="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
-                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M5 12l14 0"></path>
                 <path d="M5 12l6 6"></path>
@@ -25,9 +25,8 @@
               Voltar para Listagem
             </a>
             <a href="{{ url_for('projeto_editar', id=projeto.id) }}" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
                 <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
@@ -114,15 +113,16 @@
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label class="form-label">Data de Início</label>
-                    <input type="text" class="form-control" 
-                      value="{{ projeto.data_inicio | formatar_data_para_brl }}" disabled>
+                    <input type="text" class="form-control" value="{{ projeto.data_inicio | formatar_data_para_brl }}"
+                      disabled>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label class="form-label">Data de Fim</label>
-                    <input type="text" class="form-control" 
-                      value="{% if projeto.data_fim %}{{ projeto.data_fim | formatar_data_para_brl }}{% else %}Em andamento{% endif %}" disabled>
+                    <input type="text" class="form-control"
+                      value="{% if projeto.data_fim %}{{ projeto.data_fim | formatar_data_para_brl }}{% else %}Em andamento{% endif %}"
+                      disabled>
                   </div>
                 </div>
               </div>
@@ -131,8 +131,9 @@
                 <div class="col-md-12">
                   <div class="mb-3">
                     <label class="form-label">Responsável Técnico</label>
-                    <input type="text" class="form-control" 
-                      value="{{ projeto.responsavel_tecnico.nome }} {{ projeto.responsavel_tecnico.sobrenome }}" disabled>
+                    <input type="text" class="form-control"
+                      value="{{ projeto.responsavel_tecnico.nome }} {{ projeto.responsavel_tecnico.sobrenome }}"
+                      disabled>
                   </div>
                 </div>
               </div>
@@ -172,7 +173,8 @@
                   </span>
                   {% endif %}
                   <div>
-                    <div class="font-weight-medium">{{ projeto.responsavel_tecnico.nome }} {{ projeto.responsavel_tecnico.sobrenome }}</div>
+                    <div class="font-weight-medium">{{ projeto.responsavel_tecnico.nome }} {{
+                      projeto.responsavel_tecnico.sobrenome }}</div>
                     <div class="text-secondary small">{{ projeto.responsavel_tecnico.role.cargo }}</div>
                   </div>
                 </div>

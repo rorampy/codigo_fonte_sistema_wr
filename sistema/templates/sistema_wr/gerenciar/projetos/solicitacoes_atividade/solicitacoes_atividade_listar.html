@@ -107,6 +107,18 @@
               {% endfor %}
               {% endif %}
 
+              {% if filtros.categoria_id %}
+              {% for categoria_id in filtros.categoria_id %}
+              {% for categoria in categorias %}
+              {% if categoria.id|string == categoria_id|string %}
+              <span class="badge badge-outline text-blue">Categoria: {{ categoria.nome }}</span>
+              {% endif %}
+              {% endfor %}
+              {% endfor %}
+              {% endif %}
+
+
+
               {% if filtros.titulo %}
               <span class="badge badge-outline text-blue">Título: "{{ filtros.titulo }}"</span>
               {% endif %}
@@ -145,6 +157,7 @@
                     <th>Projeto</th>
                     <th>Título</th>
                     <th>Solicitante</th>
+                    <th class="text-center">Categoria</th>
                     <th>Status</th>
                     {% if current_user.role_id == 1 %}
                     <th>Prazo</th>
@@ -161,31 +174,32 @@
                       <span class="text-secondary">#{{ solicitacao.id }}</span>
                     </td>
                     <td>
-                      <span class="badge badge-outline text-blue">{{ solicitacao.projeto.nome_projeto[:25] }}{% if solicitacao.projeto.nome_projeto|length > 25 %}...{% endif %}</span>
+                      <span class="badge badge-outline text-blue">{{ solicitacao.projeto.nome_projeto[:20] }}{% if
+                        solicitacao.projeto.nome_projeto|length > 20 %}...{% endif %}</span>
                     </td>
                     <td>
-                      <div class="d-flex py-1 align-items-center">
-                        <div class="flex-fill">
-                          {% if solicitacao.titulo %}
-                          <div class="fw-bold">
-                            {{ solicitacao.titulo[:50] }}{% if solicitacao.titulo|length > 50 %}...{% endif %}
-                          </div>
-                          {% endif %}
-                          {% if solicitacao.descricao %}
-                          <div class="text-secondary">
-                            {{ solicitacao.descricao[:50] }}{% if solicitacao.descricao|length > 50 %}...{% endif %}
-                          </div>
-                          {% endif %}
-                        </div>
+                      {% if solicitacao.titulo %}
+                      <div class="fw-bold">
+                        {{ solicitacao.titulo[:40] }}{% if solicitacao.titulo|length > 40 %}...{% endif %}
                       </div>
+                      {% endif %}
+                      {% if solicitacao.descricao %}
+                      <div class="text-secondary small">
+                        {{ solicitacao.descricao[:45] }}{% if solicitacao.descricao|length > 25 %}...{% endif %}
+                      </div>
+                      {% endif %}
                     </td>
                     <td>
-                      <div class="d-flex py-1 align-items-center ms-2">
-                        <div class="flex-fill">
-                          <div class="fw-bold">{{ solicitacao.usuario_solicitante.nome }}</div>
-                          <div class="text-secondary">{{ solicitacao.usuario_solicitante.role.cargo }}</div>
-                        </div>
-                      </div>
+                      <div class="fw-bold">{{ solicitacao.usuario_solicitante.nome }}</div>
+                      <small class="text-secondary">{{ solicitacao.usuario_solicitante.role.cargo }}</small>
+                    </td>
+                    <td class="text-center">
+                      {% if solicitacao.categoria %}
+                      <span class="badge badge-outline {{ solicitacao.categoria.cor }}">{{ solicitacao.categoria.nome
+                        }}</span>
+                      {% else %}
+                      <span class="text-secondary">—</span>
+                      {% endif %}
                     </td>
                     <td>
                       {% if solicitacao.situacao_id == 7 %}
@@ -306,7 +320,7 @@
                   </tr>
                   {% else %}
                   <tr>
-                    <td colspan="8" class="text-center text-secondary">
+                    <td colspan="10" class="text-center text-secondary">
                       <div class="empty">
                         <div class="empty-img">
                           <img src="{{ url_for('static', filename='tabler/img/undraw_printing_invoices_5r4r.svg') }}"
@@ -409,7 +423,7 @@
             </div>
 
             <!-- Projeto com dropdown múltiplo -->
-            <div class="col-md-6 mb-3">
+            <div class="col-md-12 mb-3">
               <label class="form-label">Projeto</label>
               <div class="dropdown">
                 <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -483,6 +497,40 @@
                       Aceita
                     </label>
                   </li>
+                </ul>
+              </div>
+              <small class="text-muted ps-2">Selecione múltiplas opções</small>
+            </div>
+
+            <!-- Categoria com dropdown múltiplo -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Categoria</label>
+              <div class="dropdown">
+                <button class="form-select text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span id="categoria-label">Selecione as Categorias</span>
+                </button>
+                <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="categoria_id" value="" class="form-check-input me-2"
+                        id="categoria-todas">
+                      Todas as Categorias
+                    </label>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  {% for categoria in categorias %}
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" name="categoria_id" value="{{ categoria.id }}"
+                        class="form-check-input me-2 categoria-checkbox" {% if filtros.categoria_id and
+                        categoria.id|string in filtros.categoria_id %}checked{% endif %}>
+                      <span class="badge badge-outline {{ categoria.cor }} me-2">{{ categoria.nome }}</span>
+
+                    </label>
+                  </li>
+                  {% endfor %}
                 </ul>
               </div>
               <small class="text-muted ps-2">Selecione múltiplas opções</small>
@@ -649,7 +697,8 @@
     const multiSelectFilters = [
       { name: 'projeto', checkbox: '.projeto-checkbox', allCheckbox: '#projeto-todos', label: '#projeto-label' },
       { name: 'situacao', checkbox: '.situacao-checkbox', allCheckbox: '#situacao-todas', label: '#situacao-label' },
-      { name: 'usuario', checkbox: '.usuario-checkbox', allCheckbox: '#usuario-todos', label: '#usuario-label' }
+      { name: 'usuario', checkbox: '.usuario-checkbox', allCheckbox: '#usuario-todos', label: '#usuario-label' },
+      { name: 'categoria', checkbox: '.categoria-checkbox', allCheckbox: '#categoria-todas', label: '#categoria-label' }
     ];
 
     // Função para configurar cada filtro múltiplo
@@ -666,7 +715,8 @@
         const labelTexts = {
           'projeto': 'Selecione os Projetos',
           'situacao': 'Selecione os Status',
-          'usuario': 'Selecione os Solicitantes'
+          'usuario': 'Selecione os Solicitantes',
+          'categoria': 'Selecione as Categorias'
         };
 
         if (checked.length === 0) {
@@ -756,7 +806,8 @@
           const labelTexts = {
             'projeto': 'Selecione os Projetos',
             'situacao': 'Selecione os Status',
-            'usuario': 'Selecione os Solicitantes'
+            'usuario': 'Selecione os Solicitantes',
+            'categoria': 'Selecione as Categorias'
           };
 
           if (checked.length === 0) {
