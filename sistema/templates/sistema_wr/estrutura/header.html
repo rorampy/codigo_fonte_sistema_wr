@@ -82,7 +82,7 @@
           </a>
         </li>
         {% if current_user.role.id in [1, 2, 3, 4] %}
-        <li class="nav-item">
+        <li class="nav-item {% if request.endpoint == 'movimentacao_financeira' %} active {% endif %}">
           <a class="nav-link" href="{{url_for('movimentacao_financeira')}}">
             <span class="nav-link-icon d-md-none d-lg-inline-block">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -100,7 +100,8 @@
         </li>
         {% endif %}
         {% if current_user.role.id in [1, 2, 3, 4] %}
-        <li class="nav-item">
+        <li
+          class="nav-item {% if request.endpoint in ['lancamentos_receber', 'informar_recebimento', 'cancelar_informe_recebimento'] %} active {% endif %}">
           <a class="nav-link" href="{{url_for('lancamentos_receber')}}">
             <span class="nav-link-icon d-md-none d-lg-inline-block">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -121,7 +122,8 @@
         </li>
         {% endif %}
         {% if current_user.role.id in [1, 2, 3, 4] %}
-        <li class="nav-item">
+        <li
+          class="nav-item {% if request.endpoint in ['contrato_listar', 'contrato_cadastrar', 'contrato_editar', 'contrato_excluir', 'contrato_exportar_pdf', 'cadastrar_contrato_assinado'] %} active {% endif %}">
           <a class="nav-link" href="{{url_for('contrato_listar')}}">
             <span class="nav-link-icon d-md-none d-lg-inline-block">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -188,32 +190,6 @@
                 <a class="dropdown-item" href="{{ url_for('kanban_visualizar') }}">
                   Visualizar Kankan
                 </a>
-
-                {% if current_user.role.id in [1, 2, 3] %}
-
-                <div class="dropend">
-                  <a class="dropdown-item dropdown-toggle" href="#navbar-configuracoes" data-bs-toggle="dropdown"
-                    data-bs-auto-close="false" role="button" aria-expanded="false">
-                    Configurações
-                  </a>
-                  <div class="dropdown-menu">
-                    <div class="dropend">
-                      <a class="dropdown-item dropdown-toggle" href="#navbar-projetos" data-bs-toggle="dropdown"
-                        data-bs-auto-close="false" role="button" aria-expanded="false">
-                        Projetos
-                      </a>
-                      <div class="dropdown-menu">
-                        <a href="{{url_for('categorias_listar')}}" class="dropdown-item">
-                          Categorias de Projetos
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {% endif %}
-
-
                 <a class="dropdown-item" href="{{ url_for('solicitacoes_atividade_listar') }}">
                   Solicitações de Atividades
                 </a>
@@ -230,7 +206,8 @@
           </div>
         </li>
 
-        <li class="nav-item dropdown">
+        <li
+          class="nav-item dropdown {% if request.endpoint in ['demonstrativo_de_resultados', 'exportar_movimentacao_financeira', 'exportar_relatorio_horas_dev'] %} active {% endif %}">
           <a class="nav-link dropdown-toggle" href="#navbar-gerenciar2" data-bs-toggle="dropdown"
             data-bs-auto-close="false" role="button" aria-expanded="false">
             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -288,7 +265,8 @@
         </li>
 
         {% if current_user.role.id in [1, 2, 3, 4, 5] %}
-        <li class="nav-item dropdown">
+        <li
+          class="nav-item dropdown {% if request.endpoint in ['listar_clientes', 'cadastrar_cliente', 'editar_cliente', 'desativar_cliente', 'ativar_cliente', 'listar_produtos', 'cadastrar_produto', 'editar_produto', 'ativar_produto', 'desativar_produto'] %} active {% endif %}">
           <a class="nav-link dropdown-toggle" href="#navbar-gerenciar2" data-bs-toggle="dropdown"
             data-bs-auto-close="false" role="button" aria-expanded="false">
             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -329,22 +307,42 @@
         {% endif %}
 
         <li class="nav-item dropdown 
-                {% if request.endpoint == 'variaveis_sistema_editar' or 
-                      request.endpoint == 'usuarios_listar' or
-                      request.endpoint == 'usuario_cadastrar' or
-                      request.endpoint == 'usuario_editar' or
-                      request.endpoint == 'usuario_desativar' or
-                      request.endpoint == 'usuario_ativar' or
-                      request.endpoint == 'usuario_excluir' or
-                      request.endpoint == 'usuario_reenvio_email' or
-                      request.endpoint == 'roles_listar' or
-                      request.endpoint == 'role_cadastrar' or
-                      request.endpoint == 'role_editar' or
-                      request.endpoint == 'role_excluir' or
-                      request.endpoint == 'andamentos_listar' or
-                      request.endpoint == 'andamento_cadastrar' or
-                      request.endpoint == 'andamento_editar'
-                %} 
+                {% if request.endpoint in [
+                      'variaveis_sistema_editar',
+                      'usuarios_listar',
+                      'usuario_cadastrar',
+                      'usuario_editar',
+                      'usuario_desativar',
+                      'usuario_ativar',
+                      'usuario_excluir',
+                      'usuario_reenvio_email',
+                      'roles_listar',
+                      'role_cadastrar',
+                      'role_editar',
+                      'role_excluir',
+                      'andamentos_listar',
+                      'andamento_cadastrar',
+                      'andamento_editar',
+                      'andamentos_atividade_listar',
+                      'andamento_atividade_cadastrar',
+                      'andamento_atividade_editar',
+                      'prioridades_atividade_listar',
+                      'prioridade_atividade_cadastrar',
+                      'prioridade_atividade_editar',
+                      'categorias_listar',
+                      'categoria_cadastrar',
+                      'categoria_editar',
+                      'listar_modelos_contratos',
+                      'cadastrar_modelo_contrato',
+                      'editar_modelo_contrato',
+                      'excluir_modelo_contrato',
+                      'listar_plano_contas',
+                      'criar_subcategoria',
+                      'editar_categoria',
+                      'excluir_categoria',
+                      'tags_listar',
+                      'changelog_listar'
+                ] %} 
                   active 
                 {% endif %}">
           <a class="nav-link dropdown-toggle" href="#navbar-configuracoes2" data-bs-toggle="dropdown"
@@ -398,13 +396,17 @@
                   </div>
                 </div>
                 {% endif %}
-                {% if current_user.role.id in [1] %}
+                {% if current_user.role.id in [1, 2, 3] %}
                 <div class="dropend">
                   <a class="dropdown-item dropdown-toggle" href="#sidebar-projetos2" data-bs-toggle="dropdown"
                     data-bs-auto-close="false" role="button" aria-expanded="false">
                     Projetos
                   </a>
                   <div class="dropdown-menu">
+                    {% if current_user.role.id in [1] %}
+                    <a class="dropdown-item" href="{{ url_for('projetos_listar') }}">
+                      Projetos
+                    </a>
                     <a href="{{ url_for('andamentos_listar') }}" class="dropdown-item">
                       Andamentos de Projeto
                     </a>
@@ -414,6 +416,13 @@
                     <a href="{{ url_for('prioridades_atividade_listar')}}" class="dropdown-item">
                       Prioridades de Atividades
                     </a>
+                    {% endif %}
+
+                    {% if current_user.role.id in [1, 2, 3] %}
+                    <a href="{{url_for('categorias_listar')}}" class="dropdown-item">
+                      Categorias de Projetos
+                    </a>
+                    {% endif %}
                   </div>
                 </div>
                 {% endif %}
@@ -433,6 +442,7 @@
                   </div>
                 </div>
                 {% endif %}
+
                 {% if current_user.role.id in [1] %}
                 <a class="dropdown-item" href="{{ url_for('variaveis_sistema_editar', id=1)}}">
                   Variáveis de Sistema
@@ -449,7 +459,7 @@
           </div>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item {% if request.endpoint == 'usuario_minha_conta' %} active {% endif %}">
           <a class="nav-link" href="{{ url_for('usuario_minha_conta', id=current_user.id) }}">
             <span class="nav-link-icon d-md-none d-lg-inline-block">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"

@@ -242,6 +242,12 @@ def lancamento_horas_cadastrar(atividade_id=None):
         
         if gravar_banco:
             try:
+
+                # Verifica se horas necessárias foram definidas
+                if atividade.horas_necessarias <= 0:
+                    flash(("As horas estimadas não foram definidas!", "warning"))
+                    return redirect(url_for("lancamento_horas_cadastrar", atividade_id=atividade_id_form))
+
                 lancamento = LancamentoHorasModel(
                     atividade_id=atividade_id_form,
                     usuario_id=usuario_id,
