@@ -127,6 +127,25 @@ def changelog_editar(id):
         changelog=changelog,
         campos_obrigatorios=validacao_campos_obrigatorios
     )
+
+
+@app.route('/changelog/deletar/<int:id>', methods=['POST'])
+@login_required
+@requires_roles
+def changelog_deletar(id):
+    changelog = ChangelogModel.query.get_or_404(id)
     
+    try:
+        changelog.deletado = 1
+        changelog.ativo = 0
+        db.session.commit()
+        flash(('Changelog excluído com sucesso!', 'success'))
+        flask_logger.info(f'Changelog ID={id} excluído pelo usuário com ID={current_user.id}.')
+    except Exception as e:
+        db.session.rollback()
+        flash(('Erro ao excluir o changelog!', 'danger'))
+        flask_logger.error(f'Erro ao excluir changelog ID={id}: {str(e)}')
+    
+    return redirect(url_for('changelog_listar'))
 
 
