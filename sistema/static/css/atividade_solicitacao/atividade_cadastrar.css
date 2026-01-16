@@ -1,0 +1,626 @@
+/* ========================================
+   SOLICITAÇÃO DE ATIVIDADE - CADASTRO
+   ======================================== */
+
+/* Modernização sutil da página */
+.page-solicitacao .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.page-solicitacao .card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.page-solicitacao .card-body {
+    padding: 2rem;
+}
+
+.page-solicitacao .card-footer {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 1.25rem 2rem;
+}
+
+/* Inputs com foco modernizado */
+.page-solicitacao .form-control:focus,
+.page-solicitacao .form-select:focus {
+    border-color: #206bc4;
+    box-shadow: 0 0 0 3px rgba(32, 107, 196, 0.15);
+}
+
+.page-solicitacao .form-control,
+.page-solicitacao .form-select {
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+/* Título da seção */
+.page-solicitacao .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.page-solicitacao .section-title h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.page-solicitacao .section-title .icon {
+    width: 24px;
+    height: 24px;
+    color: #206bc4;
+}
+
+/* Timeline do processo */
+.process-timeline {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+}
+
+.process-timeline-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #0369a1;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.process-timeline-title svg {
+    width: 20px;
+    height: 20px;
+}
+
+.process-timeline-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.process-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.process-step-number {
+    width: 24px;
+    height: 24px;
+    background: #206bc4;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.process-step-content {
+    font-size: 0.85rem;
+    color: #475569;
+    line-height: 1.4;
+}
+
+.process-step-content strong {
+    color: #1e293b;
+    display: block;
+    margin-bottom: 2px;
+}
+
+/* Botões modernizados */
+.page-solicitacao .btn-primary {
+    background: linear-gradient(135deg, #206bc4 0%, #3b82f6 100%);
+    border: none;
+    padding: 0.625rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.page-solicitacao .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(32, 107, 196, 0.35);
+}
+
+.page-solicitacao .btn-secondary {
+    border-radius: 8px;
+    padding: 0.625rem 1.5rem;
+}
+
+/* Labels melhorados */
+.page-solicitacao .form-label {
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 0.5rem;
+}
+
+.page-solicitacao .form-label.required::after {
+    content: ' *';
+    color: #dc2626;
+}
+
+.page-solicitacao .form-hint {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+/* Textarea placeholder */
+.page-solicitacao textarea::placeholder {
+    color: #94a3b8;
+}
+
+/* Preview de anexos */
+.page-solicitacao #preview-anexos h6 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.page-solicitacao .list-group-item {
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ========================================
+   BOTÃO GUIA COM ANIMAÇÃO PULSANTE
+   ======================================== */
+
+.btn-guia-solicitacao {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: #206bc4;
+    transition: all 0.3s ease;
+    z-index: 1;
+    vertical-align: middle;
+    transform: translateY(-1px);
+}
+
+.btn-guia-solicitacao:hover {
+    color: #1a56a0;
+    transform: translateY(-1px) scale(1.15);
+}
+
+/* Tooltip customizado moderno */
+.btn-guia-solicitacao::before,
+.btn-guia-solicitacao::after {
+    position: absolute;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.btn-guia-solicitacao::before {
+    content: attr(data-tooltip);
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-8px);
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-guia-solicitacao::after {
+    content: '';
+    left: calc(100% + 6px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-8px);
+    border: 6px solid transparent;
+    border-right-color: #1e293b;
+}
+
+.btn-guia-solicitacao:hover::before,
+.btn-guia-solicitacao:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0);
+}
+
+
+.pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #206bc4;
+    animation: pulse-glow 2s ease-out infinite;
+    pointer-events: none;
+}
+
+.pulse-ring.pulse-stopped {
+    animation: none;
+    opacity: 0;
+}
+
+@keyframes pulse-glow {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   MODAL GUIA DE SOLICITAÇÃO
+   ======================================== */
+
+/* Animações de entrada para os passos */
+.guide-step {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: stepFadeIn 0.5s ease forwards;
+}
+
+.guide-step:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.guide-step:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.guide-step:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.guide-step:nth-child(4) {
+    animation-delay: 0.25s;
+}
+
+.guide-step:nth-child(5) {
+    animation-delay: 0.3s;
+}
+
+.guide-step:nth-child(6) {
+    animation-delay: 0.35s;
+}
+
+.guide-step:nth-child(7) {
+    animation-delay: 0.4s;
+}
+
+.guide-step:nth-child(8) {
+    animation-delay: 0.45s;
+}
+
+@keyframes stepFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animação suave para abertura/fechamento */
+.guide-step-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    padding: 0 20px 0 66px;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.guide-step.active .guide-step-content {
+    max-height: 1000px;
+    padding: 0 20px 20px 66px;
+}
+
+/* Hover com brilho sutil */
+.guide-step-header:hover .guide-step-number {
+    box-shadow: 0 0 12px rgba(32, 107, 196, 0.5);
+}
+
+/* Modal branco moderno */
+#modal-guia-solicitacao .modal-dialog {
+    max-width: 720px;
+}
+
+#modal-guia-solicitacao .modal-content {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+}
+
+#modal-guia-solicitacao .modal-header {
+    background: linear-gradient(135deg, #206bc4 0%, #4299e1 100%);
+    border: none;
+    padding: 1.5rem 2rem;
+}
+
+#modal-guia-solicitacao .modal-title {
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#modal-guia-solicitacao .modal-title .icon-title {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+}
+
+#modal-guia-solicitacao .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+}
+
+#modal-guia-solicitacao .btn-close:hover {
+    opacity: 1;
+}
+
+#modal-guia-solicitacao .modal-body {
+    padding: 2rem;
+    max-height: 65vh;
+    overflow-y: auto;
+    background: #f8fafc;
+}
+
+/* Accordion de passos */
+.guide-step {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.guide-step:hover {
+    border-color: #206bc4;
+    box-shadow: 0 4px 12px rgba(32, 107, 196, 0.1);
+}
+
+.guide-step-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.guide-step-number {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #206bc4 0%, #4299e1 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.guide-step-title {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1e293b;
+    margin: 0;
+}
+
+.guide-step-toggle {
+    color: #94a3b8;
+    transition: transform 0.2s;
+}
+
+.guide-step.active .guide-step-toggle {
+    transform: rotate(180deg);
+}
+
+.guide-step-content p {
+    margin: 0 0 12px 0;
+}
+
+.guide-step-content ul {
+    margin: 12px 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.guide-step-content li {
+    padding: 8px 0 8px 28px;
+    position: relative;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s;
+}
+
+.guide-step-content li:last-child {
+    border-bottom: none;
+}
+
+.guide-step-content li:hover {
+    background: #f8fafc;
+    border-radius: 6px;
+}
+
+.guide-step-content li::before {
+    content: '→';
+    position: absolute;
+    left: 6px;
+    color: #206bc4;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.guide-step-content li strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+/* Exemplos com ícones */
+.example-box {
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 0.875rem;
+    line-height: 1.8;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.example-box:hover {
+    transform: translateX(4px);
+    box-shadow: -4px 0 0 0 currentColor;
+}
+
+.example-box.good {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-left: 4px solid #10b981;
+    color: #065f46;
+}
+
+.example-box.bad {
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+    border-left: 4px solid #ef4444;
+    color: #991b1b;
+}
+
+.example-box.neutral {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-left: 4px solid #206bc4;
+    color: #1e40af;
+}
+
+.example-label {
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.example-label.good::before {
+    content: '✓';
+    font-size: 0.9rem;
+}
+
+.example-label.bad::before {
+    content: '✗';
+    font-size: 0.9rem;
+}
+
+.example-label.neutral::before {
+    content: '💡';
+    font-size: 0.8rem;
+}
+
+.example-label.good {
+    color: #059669;
+}
+
+.example-label.bad {
+    color: #dc2626;
+}
+
+.example-label.neutral {
+    color: #2563eb;
+}
+
+
+/* Dica inline melhorada */
+.tip-inline {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: #92400e;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid #fcd34d;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.15);
+}
+
+.tip-inline svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    animation: pulse-tip 2s ease-in-out infinite;
+}
+
+@keyframes pulse-tip {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.tip-inline strong {
+    font-weight: 700;
+    color: #78350f;
+}
+
+/* Footer do modal */
+#modal-guia-solicitacao .modal-footer {
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem 2rem;
+    justify-content: center;
+}
+
+#modal-guia-solicitacao .btn-entendi {
+    background: linear-gradient(135deg, #206bc4 0%, #4299e1 100%);
+    border: none;
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(32, 107, 196, 0.35);
+    transition: all 0.3s;
+}
+
+#modal-guia-solicitacao .btn-entendi:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(32, 107, 196, 0.4);
+}

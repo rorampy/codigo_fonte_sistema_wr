@@ -2,6 +2,8 @@
 {% block conteudo %}
 {% include 'sistema_wr/estrutura/header.html' %}
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/atividade_solicitacao/atividade_cadastrar.css') }}">
+
 <div class="page-wrapper">
   <!-- Page header -->
   <div class="page-header d-print-none">
@@ -20,12 +22,21 @@
     <div class="container-xl">
       {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
-      <div class="col-12">
+      <div class="col-12 page-solicitacao">
         <form class="card" method="POST" enctype="multipart/form-data">
           <div class="card-body">
 
             <!-- Informações da Solicitação -->
-            <h3 class="text-primary mb-3">Informações da Solicitação</h3>
+            <div class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                <path d="M9 17h6" />
+                <path d="M9 13h6" />
+              </svg>
+              <h3 class="text-primary">Informações da Solicitação</h3>
+            </div>
 
             <div class="row">
               <div class="col-md-12">
@@ -86,17 +97,31 @@
                     {% endif %}
                   </div>
 
-                  <div class="char-counter">
-                    <span id="charCountTitulo" style="margin-left:.8rem;">0</span>
+                  <small class="form-hint ms-1">Seja claro e específico sobre o que precisa ser desenvolvido.</small>
+
+                  <div class="char-counter form-hint">
+                    <span id="charCountTitulo" class="ms-2">0</span>
                     <span>/ 100</span>
                   </div>
-
-                  <small class="form-hint">Seja claro e específico sobre o que precisa ser desenvolvido.</small>
                 </div>
 
                 <!-- Descrição -->
-                <div class="mb-3">
-                  <label class="form-label">Descrição Detalhada</label>
+                <div class=" mb-3">
+                  <label class="form-label">Descrição Detalhada
+                    <a href="#" class="btn-guia-solicitacao" data-bs-toggle="modal"
+                      data-bs-target="#modal-guia-solicitacao"
+                      data-tooltip="Clique para ver dicas de como criar uma boa solicitação">
+                      <span class="pulse-ring"></span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                        <path d="M12 9h.01" />
+                        <path d="M11 12h1v4h1" />
+                      </svg>
+                    </a>
+                  </label>
                   <textarea class="form-control" name="descricao" rows="6"
                     placeholder="Descreva detalhadamente a funcionalidade ou tarefa que você está solicitando:&#10;&#10;• Qual problema isso resolve?&#10;• Como deve funcionar?&#10;• Há algum requisito específico?&#10;• Existem exemplos ou referências?">{{ dados_corretos.descricao or '' }}</textarea>
                   <small class="form-hint">
@@ -126,31 +151,46 @@
               </div>
             </div>
 
-            <!-- Informações Adicionais -->
-            <div class="row mt-3">
+            <!-- Timeline do Processo -->
+            <div class="row mt-4">
               <div class="col-md-12">
-                <div class="alert alert-info border-0 shadow-sm">
-                  <div class="d-flex">
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
-                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                        <path d="M12 9h.01" />
-                        <path d="M11 12h1v4h1" />
-                      </svg>
+                <div class="process-timeline">
+                  <div class="process-timeline-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                      <path d="M12 9h.01" />
+                      <path d="M11 12h1v4h1" />
+                    </svg>
+                    Como funciona o processo
+                  </div>
+                  <div class="process-timeline-steps">
+                    <div class="process-step">
+                      <span class="process-step-number">1</span>
+                      <div class="process-step-content">
+                        <strong>Solicitação</strong>
+                        Você cria com os detalhes do que precisa
+                      </div>
                     </div>
-                    <div>
-                      <h4 class="alert-title">Como funciona o processo:</h4>
-                      <div class="text-secondary">
-                        <strong>1. Solicitação:</strong> Você cria uma solicitação com os detalhes do que precisa<br>
-                        <strong>2. Análise:</strong> A gestão irá analisar sua solicitação e poderá aceitar ou
-                        solicitar
-                        ajustes<br>
-                        <strong>3. Aprovação:</strong> Se aprovada, sua solicitação será convertida em uma atividade
-                        oficial<br>
-                        <strong>4. Desenvolvimento:</strong> A atividade entrará no fluxo normal de desenvolvimento
+                    <div class="process-step">
+                      <span class="process-step-number">2</span>
+                      <div class="process-step-content">
+                        <strong>Análise</strong>
+                        A gestão analisa e pode solicitar ajustes
+                      </div>
+                    </div>
+                    <div class="process-step">
+                      <span class="process-step-number">3</span>
+                      <div class="process-step-content">
+                        <strong>Aprovação</strong>
+                        Vira uma atividade oficial do sistema
+                      </div>
+                    </div>
+                    <div class="process-step">
+                      <span class="process-step-number">4</span>
+                      <div class="process-step-content">
+                        <strong>Desenvolvimento</strong>
+                        Entra no fluxo normal de trabalho
                       </div>
                     </div>
                   </div>
@@ -205,8 +245,6 @@
       function updateCounter() {
         const length = inputTitulo.value.length;
         charCountTitulo.textContent = length;
-
-        counterTitulo.classList.remove('warning', 'limit');
 
         // Muda a cor direto no estilo
         if (length >= maxLength) {
@@ -300,18 +338,337 @@
 
     function getFileIcon(filename) {
       const ext = filename.split('.').pop().toLowerCase();
-      const icons = {
-        'pdf': '📄',
-        'doc': '📝', 'docx': '📝',
-        'xls': '📊', 'xlsx': '📊',
-        'png': '🖼️', 'jpg': '🖼️', 'jpeg': '🖼️', 'gif': '🖼️',
-        'txt': '📄',
-        'zip': '📦', 'rar': '📦'
+
+      // Ícones Tabler outline para cada tipo de arquivo
+      const iconSvgs = {
+        'pdf': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-danger"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" /><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" /><path d="M17 18h2" /><path d="M20 15h-3v6" /><path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" /></svg>',
+        'doc': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 17h6" /><path d="M9 13h6" /></svg>',
+        'docx': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 17h6" /><path d="M9 13h6" /></svg>',
+        'xls': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M10 12h4" /><path d="M10 16h4" /><path d="M8 12v4" /><path d="M16 12v4" /></svg>',
+        'xlsx': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M10 12h4" /><path d="M10 16h4" /><path d="M8 12v4" /><path d="M16 12v4" /></svg>',
+        'png': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-info"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></svg>',
+        'jpg': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-info"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></svg>',
+        'jpeg': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-info"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></svg>',
+        'gif': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-info"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></svg>',
+        'txt': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 9l1 0" /><path d="M9 13l6 0" /><path d="M9 17l6 0" /></svg>',
+        'zip': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 20.735a2 2 0 0 1 -1 -1.735v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2h-1" /><path d="M11 17a2 2 0 0 1 2 2v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-2a2 2 0 0 1 2 -2z" /><path d="M11 5l0 2" /><path d="M13 7l0 2" /><path d="M11 9l0 2" /><path d="M13 11l0 2" /><path d="M11 13l0 2" /></svg>',
+        'rar': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 20.735a2 2 0 0 1 -1 -1.735v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2h-1" /><path d="M11 17a2 2 0 0 1 2 2v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-2a2 2 0 0 1 2 -2z" /><path d="M11 5l0 2" /><path d="M13 7l0 2" /><path d="M11 9l0 2" /><path d="M13 11l0 2" /><path d="M11 13l0 2" /></svg>'
       };
-      return icons[ext] || '📎';
+
+      // Ícone padrão para arquivos desconhecidos
+      const defaultIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>';
+
+      return iconSvgs[ext] || defaultIcon;
     }
   });
 
+  // Accordion behavior - abre apenas um item por vez
+  function toggleGuideStep(element) {
+    const allSteps = document.querySelectorAll('.guide-step');
+    const isActive = element.classList.contains('active');
+
+    // Fecha todos os passos
+    allSteps.forEach(step => step.classList.remove('active'));
+
+    // Abre o passo clicado (se não estava ativo)
+    if (!isActive) {
+      element.classList.add('active');
+    }
+  }
+  window.toggleGuideStep = toggleGuideStep;
+
+  // Para a animação pulsante após clicar no botão (apenas na sessão atual)
+  const btnGuia = document.querySelector('.btn-guia-solicitacao');
+  const pulseRing = document.querySelector('.btn-guia-solicitacao .pulse-ring');
+
+  if (btnGuia && pulseRing) {
+    // Para ao clicar
+    btnGuia.addEventListener('click', function () {
+      pulseRing.classList.add('pulse-stopped');
+    });
+
+    // Para automaticamente após 15 segundos
+    setTimeout(function () {
+      pulseRing.classList.add('pulse-stopped');
+    }, 15000);
+  }
 
 </script>
+
+
+
+<!-- Modal Guia de Solicitação - Branco Moderno -->
+<div class="modal modal-blur fade" id="modal-guia-solicitacao" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <span class="icon-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
+              class="icon icon-tabler icons-tabler-filled icon-tabler-shield-check">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M11.998 2l.118 .007l.059 .008l.061 .013l.111 .034a.993 .993 0 0 1 .217 .112l.104 .082l.255 .218a11 11 0 0 0 7.189 2.537l.342 -.01a1 1 0 0 1 1.005 .717a13 13 0 0 1 -9.208 16.25a1 1 0 0 1 -.502 0a13 13 0 0 1 -9.209 -16.25a1 1 0 0 1 1.005 -.717a11 11 0 0 0 7.531 -2.527l.263 -.225l.096 -.075a.993 .993 0 0 1 .217 -.112l.112 -.034a.97 .97 0 0 1 .119 -.021l.115 -.007zm3.71 7.293a1 1 0 0 0 -1.415 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" />
+            </svg>
+          </span>
+          Como criar uma boa solicitação
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Passo 1 -->
+        <div class="guide-step active">
+          <div class="guide-step-header" onclick="toggleGuideStep(this.parentElement)">
+            <span class="guide-step-number">1</span>
+            <h6 class="guide-step-title">Escreva um título claro e específico</h6>
+            <svg class="guide-step-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6l6 -6" />
+            </svg>
+          </div>
+          <div class="guide-step-content">
+            <p>O título deve dizer <strong>exatamente o que será feito</strong> e <strong>onde</strong>.</p>
+
+            <div class="example-box good">
+              <span class="example-label good">Bons exemplos</span>
+              "Adicionar filtro por data no Relatório de Vendas"<br>
+              "Corrigir erro ao salvar Atividade sem categoria"<br>
+              "Exibir total de horas no topo da tela de Lançamento"
+            </div>
+
+            <div class="example-box bad">
+              <span class="example-label bad">Evite</span>
+              "Melhorar relatório" - "Bug urgente" - "Não funciona"
+            </div>
+
+            <div class="tip-inline">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                <path d="M12 9h.01" />
+                <path d="M11 12h1v4h1" />
+              </svg>
+              <span>Comece com um verbo: <strong>Adicionar / Corrigir / Ajustar / Exibir / Remover / Validar /
+                  Bloquear</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Passo 2 -->
+        <div class="guide-step">
+          <div class="guide-step-header" onclick="toggleGuideStep(this.parentElement)">
+            <span class="guide-step-number">2</span>
+            <h6 class="guide-step-title">Informe onde acontece e qual é o objetivo</h6>
+            <svg class="guide-step-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6l6 -6" />
+            </svg>
+          </div>
+          <div class="guide-step-content">
+            <p>Elimine suposições do time técnico. Inclua:</p>
+            <ul>
+              <li><strong>Sistema / Módulo / Tela:</strong> onde exatamente é</li>
+              <li><strong>Quem usa:</strong> perfil/área (financeiro, operador, admin)</li>
+              <li><strong>Objetivo:</strong> o que você precisa conseguir fazer</li>
+              <li><strong>Impacto:</strong> atrasa trabalho? bloqueia? é melhoria?</li>
+            </ul>
+
+            <div class="example-box neutral">
+              <span class="example-label neutral">Exemplo</span>
+              "Na tela de Lançamento de Horas, o líder precisa ver o total de horas do período filtrado para validar o
+              fechamento do mês. Hoje ele soma manualmente."
+            </div>
+          </div>
+        </div>
+
+        <!-- Passo 3 -->
+        <div class="guide-step">
+          <div class="guide-step-header" onclick="toggleGuideStep(this.parentElement)">
+            <span class="guide-step-number">3</span>
+            <h6 class="guide-step-title">Descreva o cenário atual (o que existe hoje)</h6>
+            <svg class="guide-step-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6l6 -6" />
+            </svg>
+          </div>
+          <div class="guide-step-content">
+            <p>Explique brevemente <strong>como está funcionando hoje</strong> antes de pedir mudanças:</p>
+
+            <div class="example-box neutral">
+              <span class="example-label neutral">Exemplo</span>
+              "Hoje, ao acessar o Relatório de Vendas, não há opção de filtrar por período. O usuário precisa exportar
+              todos os dados e filtrar manualmente no Excel."
+            </div>
+
+            <div class="tip-inline">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                <path d="M12 9h.01" />
+                <path d="M11 12h1v4h1" />
+              </svg>
+              <span>Isso ajuda a classificar: <strong>Bug</strong> (algo quebrado), <strong>Melhoria</strong> (funciona,
+                mas poderia ser melhor) ou <strong>Novo recurso</strong>.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Passo 4 -->
+        <div class="guide-step">
+          <div class="guide-step-header" onclick="toggleGuideStep(this.parentElement)">
+            <span class="guide-step-number">4</span>
+            <h6 class="guide-step-title">Se for erro: explique como replicar</h6>
+            <svg class="guide-step-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6l6 -6" />
+            </svg>
+          </div>
+          <div class="guide-step-content">
+            <p>Essa é a etapa que <strong>mais acelera correções</strong>. Inclua o passo a passo:</p>
+            <ul>
+              <li><strong>Acesse:</strong> tela/caminho do menu</li>
+              <li><strong>Faça:</strong> ações exatas</li>
+              <li><strong>Preencha:</strong> dados usados</li>
+              <li><strong>Clique em:</strong> botão/ação</li>
+              <li><strong>Resultado atual:</strong> o que acontece</li>
+              <li><strong>Resultado esperado:</strong> o que deveria acontecer</li>
+              <li><strong>Frequência:</strong> sempre / às vezes / depende de quê?</li>
+            </ul>
+
+            <div class="example-box neutral">
+              <span class="example-label neutral">Exemplo de como replicar</span>
+              1. Ir em "Solicitação de Atividade" → "Nova"<br>
+              2. Preencher título e descrição<br>
+              3. Deixar categoria em branco<br>
+              4. Clicar em "Salvar"<br><br>
+              <strong>Atual:</strong> aparece erro 500<br>
+              <strong>Esperado:</strong> mostrar "Categoria é obrigatória"<br>
+              <strong>Frequência:</strong> sempre
+            </div>
+          </div>
+        </div>
+
+        <!-- Passo 5 -->
+        <div class="guide-step">
+          <div class="guide-step-header" onclick="toggleGuideStep(this.parentElement)">
+            <span class="guide-step-number">5</span>
+            <h6 class="guide-step-title">Defina o comportamento esperado (critérios de aceite)</h6>
+            <svg class="guide-step-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6l6 -6" />
+            </svg>
+          </div>
+          <div class="guide-step-content">
+            <p>Diga como deve ficar "quando estiver pronto". Pense como checklist:</p>
+            <ul>
+              <li>Quais ações o usuário poderá fazer?</li>
+              <li>Qual resultado deve aparecer?</li>
+              <li>Quais regras de negócio entram?</li>
+              <li>O que <strong>não pode</strong> acontecer?</li>
+            </ul>
+
+            <div class="example-box good">
+              <span class="example-label good">Exemplo objetivo</span>
+              • Deve permitir filtrar por Data Inicial e Data Final<br>
+              • Deve atualizar a lista e o resumo de totais<br>
+              • Deve manter os filtros atuais (usuário/status)<br>
+              • Não deve quebrar exportação/relatório atual
+            </div>
+          </div>
+        </div>
+
+        <!-- Passo 6 -->
+        <div class="guide-step">
+          <div class="guide-step-header" onclick="toggleGuideStep(this.parentElement)">
+            <span class="guide-step-number">6</span>
+            <h6 class="guide-step-title">Inclua referências visuais e evidências</h6>
+            <svg class="guide-step-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6l6 -6" />
+            </svg>
+          </div>
+          <div class="guide-step-content">
+            <p>Isso reduz muito idas e vindas. Inclua:</p>
+            <ul>
+              <li>Prints de tela (com setas/circulado)</li>
+              <li>Vídeo curto (quando for fluxo)</li>
+              <li>Exemplo de sistema parecido (link)</li>
+              <li>Log/mensagem de erro (se tiver)</li>
+            </ul>
+
+            <div class="tip-inline">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                <path d="M12 9h.01" />
+                <path d="M11 12h1v4h1" />
+              </svg>
+              <span>Marque no print: "Aqui deveria aparecer…" ou "Esse botão deveria…"</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Passo 7 -->
+        <div class="guide-step">
+          <div class="guide-step-header" onclick="toggleGuideStep(this.parentElement)">
+            <span class="guide-step-number">7</span>
+            <h6 class="guide-step-title">Informe restrições e contexto técnico</h6>
+            <svg class="guide-step-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6l6 -6" />
+            </svg>
+          </div>
+          <div class="guide-step-content">
+            <p>Quando souber, informe:</p>
+            <ul>
+              <li>Prazo (se realmente for crítico)</li>
+              <li>Limitações conhecidas</li>
+              <li>Regras específicas do setor</li>
+              <li>Dependências (ex.: "depende do cadastro X estar pronto")</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Passo 8 -->
+        <div class="guide-step">
+          <div class="guide-step-header" onclick="toggleGuideStep(this.parentElement)">
+            <span class="guide-step-number">8</span>
+            <h6 class="guide-step-title">Ajude a priorizar (impacto + urgência)</h6>
+            <svg class="guide-step-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6l6 -6" />
+            </svg>
+          </div>
+          <div class="guide-step-content">
+            <p>Em vez de "urgente", diga o <strong>porquê</strong>:</p>
+            <ul>
+              <li><strong>Alta:</strong> bloqueia operação / impede faturamento / erro frequente</li>
+              <li><strong>Média:</strong> reduz produtividade / causa retrabalho</li>
+              <li><strong>Baixa:</strong> estética / melhoria desejável</li>
+            </ul>
+            <p>E detalhe: <em>Quantas pessoas são afetadas? Existe workaround (solução temporária)?</em></p>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-entendi" data-bs-dismiss="modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+            <path d="M5 12l5 5l10 -10" />
+          </svg>
+          Entendi!
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock conteudo %}
