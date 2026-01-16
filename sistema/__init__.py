@@ -286,6 +286,10 @@ from sistema.models_views.sistema_wr.configuracoes.gerais.modelo_contrato import
 from sistema.models_views.sistema_wr.configuracoes.gerais.modelo_contrato import modelo_contrato_view
 from sistema.models_views.sistema_wr.configuracoes.gerais.variaveis_contrato import variavel_modelo_contrato_model
 
+# Configurações - Email Atividades
+from sistema.models_views.sistema_wr.configuracoes.email_atividades import email_atividade_model
+from sistema.models_views.sistema_wr.configuracoes.email_atividades import email_atividade_view
+
 # Configurações - Tags
 from sistema.models_views.sistema_wr.configuracoes.tags import tags_model
 from sistema.models_views.sistema_wr.configuracoes.tags import tags_view

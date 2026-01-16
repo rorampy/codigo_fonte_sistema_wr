@@ -14,7 +14,7 @@ DB_PATH = os.path.join(BASE_DIR, 'bd_tarefas.db')
 huey = SqliteHuey(filename=DB_PATH)
 
 
-@huey.task(retries=3, retry_delay=30)
+@huey.task(retries=3, retry_delay=30) # mantido 1 retrie considerando alguma falha de conexão
 def enviar_email_html(titulo, corpo, destinatario):
     server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORTA, timeout=10)
     

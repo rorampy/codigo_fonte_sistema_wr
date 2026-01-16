@@ -107,10 +107,12 @@
                   <select name="usuarioSolicitanteId" class="form-select">
                     <option value="">Não informado</option>
                     {% for usuario in usuarios %}
+                    {% if usuario.ativo and usuario.deletado == 0 %}
                     <option value="{{ usuario.id }}" {% if dados_corretos.get('usuarioSolicitanteId') |
                       string==usuario.id | string %}selected{% endif %}>
                       {{ usuario.nome + ' ' + usuario.sobrenome }}
                     </option>
+                    {% endif %}
                     {% endfor %}
                   </select>
                   <small class="form-hint">Usuário que solicitou esta atividade</small>
@@ -122,10 +124,12 @@
                   <select name="supervisorId" class="form-select">
                     <option value="">Não atribuído</option>
                     {% for usuario in usuarios %}
+                    {% if usuario.ativo and usuario.deletado == 0 %}
                     <option value="{{ usuario.id }}" {% if dados_corretos.get('supervisorId') | string==usuario.id |
                       string %}selected{% endif %}>
                       {{ usuario.nome + ' ' + usuario.sobrenome }}
                     </option>
+                    {% endif %}
                     {% endfor %}
                   </select>
                   <small class="form-hint">Responsável por supervisionar e aprovar a atividade</small>
@@ -137,10 +141,14 @@
                   <select name="desenvolvedorId" class="form-select">
                     <option value="">Não atribuído</option>
                     {% for usuario in usuarios %}
+                    {% if usuario.ativo and usuario.deletado == 0 %}
                     <option value="{{ usuario.id }}" {% if dados_corretos.get('desenvolvedorId') | string==usuario.id |
                       string %}selected{% endif %}>
+
                       {{ usuario.nome + ' ' + usuario.sobrenome }}
+
                     </option>
+                    {% endif %}
                     {% endfor %}
                   </select>
                   <small class="form-hint">Responsável por executar e desenvolver a atividade</small>

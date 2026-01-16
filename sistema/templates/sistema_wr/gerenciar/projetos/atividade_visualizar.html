@@ -83,7 +83,7 @@
                         <span class="avatar avatar-sm me-2">
                           {{ atividade.usuario_solicitante.nome[0].upper() }}
                         </span>
-                        {{ atividade.usuario_solicitante.nome }}
+                        {{ atividade.usuario_solicitante.nome + ' ' + (atividade.usuario_solicitante.sobrenome[0] + '.' or '') }}
                       </div>
                       {% else %}
                       <span class="text-muted">Não informado</span>
@@ -101,7 +101,7 @@
                         <span class="avatar avatar-sm me-2">
                           {{ atividade.supervisor.nome[0].upper() }}
                         </span>
-                        {{ atividade.supervisor.nome }}
+                        {{ atividade.supervisor.nome + ' ' + (atividade.supervisor.sobrenome[0] + '.' or '') }}
                       </div>
                       {% else %}
                       <span class="text-muted">Não atribuído</span>
@@ -121,7 +121,7 @@
                         <span class="avatar avatar-sm me-2">
                           {{ atividade.desenvolvedor.nome[0].upper() }}
                         </span>
-                        {{ atividade.desenvolvedor.nome }}
+                        {{ atividade.desenvolvedor.nome + ' ' + (atividade.desenvolvedor.sobrenome[0] + '.' or '') }}
                       </div>
                       {% else %}
                       <span class="text-muted">Não atribuído</span>

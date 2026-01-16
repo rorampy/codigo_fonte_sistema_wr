@@ -9,6 +9,7 @@ from sistema.models_views.sistema_wr.gerenciar.projetos.atividade_andamento_mode
 from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioModel
 from sistema.models_views.sistema_wr.parametrizacao.variavel_sistema_model import VariavelSistemaModel
 from sistema.models_views.sistema_wr.configuracoes.categorias.categoria_model import CategoriaModel
+from sistema.models_views.sistema_wr.configuracoes.email_atividades.email_atividade_model import EmailAtividadeModel
 from sistema._utilitarios import *
 from datetime import datetime, timedelta
 import os
@@ -377,6 +378,12 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
                         continue
                 
                 db.session.commit()
+
+                EmailAtividadeModel.enviar_email(
+                    tipo_evento='solicitacao_criada',
+                    email_destino=solicitacao.usuario_solicitante.email,
+                    solicitacao=solicitacao
+                )
                 
                 # Mensagem de sucesso
                 mensagem_sucesso = (f"Solicitação registrada com sucesso. " f"Prazo estimado para retorno: {prazo_resposta_dias} dia(s).")
@@ -714,6 +721,15 @@ def atividade_solicitacao_aceitar(id):
                 anexos_copiados += 1
         
         db.session.commit()
+
+        if solicitacao.usuario_solicitante and solicitacao.usuario_solicitante.email:
+            EmailAtividadeModel.enviar_email(
+                tipo_evento='solicitacao_aceita',
+                email_destino=solicitacao.usuario_solicitante.email,  #TODO Colocar o email do solicitante
+                solicitacao=solicitacao,
+                atividade=nova_atividade,
+                usuario_acao=current_user
+            )
         
         mensagem_sucesso = f"Solicitação aceita com sucesso! Atividade #{nova_atividade.id} criada."
         if anexos_copiados > 0:
@@ -769,6 +785,15 @@ def atividade_solicitacao_rejeitar(id):
         solicitacao.motivo_rejeicao = motivo  # Mantém o último motivo para exibição rápida
         
         db.session.commit()
+
+        if solicitacao.usuario_solicitante and solicitacao.usuario_solicitante.email:
+            EmailAtividadeModel.enviar_email(
+                tipo_evento='solicitacao_rejeitada',
+                email_destino=solicitacao.usuario_solicitante.email,  #TODO Colocar o email do solicitante
+                solicitacao=solicitacao,
+                atividade=None,
+                usuario_acao=current_user
+            )
         
         return jsonify({
             'success': True, 

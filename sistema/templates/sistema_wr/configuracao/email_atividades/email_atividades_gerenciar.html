@@ -1,0 +1,990 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<style>
+  .template-card {
+    border: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .template-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .template-header {
+    cursor: pointer;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+  }
+
+  .template-header:hover {
+    background-color: rgba(32, 107, 196, 0.04);
+  }
+
+  .template-header[aria-expanded="true"] {
+    background-color: rgba(32, 107, 196, 0.06);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .template-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 1.25rem;
+  }
+
+  .var-tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+  }
+
+  .var-tag:hover {
+    transform: translateY(-1px);
+  }
+
+  .textarea-email {
+    font-family: inherit;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 180px;
+  }
+
+  .toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1080;
+  }
+
+  /* INÍCIO DO MODAL DE PREVIEW  */
+
+
+
+  #modalPreview .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+
+
+  /* FIM DO MODAL DE PREVIEW  */
+
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .status-indicator.active {
+    background-color: #2fb344;
+  }
+
+  .status-indicator.inactive {
+    background-color: #929dab;
+  }
+</style>
+
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">CONFIGURAÇÕES</div>
+          <h2 class="page-title">Templates de E-mail - Atividades</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+
+      {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+
+      <!-- Cards de resumo -->
+      <div class="row row-deck row-cards mb-4">
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="bg-blue text-white avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                      stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
+                      <path d="M3 7l9 6l9 -6" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="col">
+                  <div class="font-weight-medium">4 Templates</div>
+                  <div class="text-secondary">Tipos de notificação</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="bg-green text-white avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                      stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M5 12l5 5l10 -10" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="col">
+                  <div class="font-weight-medium" id="contador-ativos">
+                    {{ [templates['solicitacao_criada'].ativo, templates['solicitacao_aceita'].ativo,
+                    templates['solicitacao_rejeitada'].ativo, templates['atividade_concluida'].ativo] | select | list |
+                    length }} Ativos
+                  </div>
+                  <div class="text-secondary">Envio automático</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="bg-azure text-white avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                      stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M7 8l-4 4l4 4" />
+                      <path d="M17 8l4 4l-4 4" />
+                      <path d="M14 4l-4 16" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="col">
+                  <div class="font-weight-medium">Variáveis</div>
+                  <div class="text-secondary">Personalização dinâmica</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="bg-purple text-white avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                      stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                      <path d="M12 7v5l3 3" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="col">
+                  <div class="font-weight-medium">Automático</div>
+                  <div class="text-secondary">Enviado via Huey</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion de Templates -->
+      <div class="accordion" id="accordionTemplates">
+
+        <!-- Template: Solicitação Criada -->
+        <div class="card template-card mb-3">
+          <div class="template-header" data-bs-toggle="collapse" data-bs-target="#template-criada"
+            aria-expanded="false">
+            <div class="d-flex align-items-center">
+              <div class="template-icon bg-blue-lt text-blue me-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+                  <path d="M12 12l8 -4.5" />
+                  <path d="M12 12l0 9" />
+                  <path d="M12 12l-8 -4.5" />
+                </svg>
+              </div>
+              <div class="flex-fill">
+                <div class="d-flex align-items-center">
+                  <h4 class="mb-0 me-2">Nova Solicitação Criada</h4>
+                  <span class="badge badge-outline text-blue">Criação</span>
+                </div>
+                <div class="text-secondary small">Enviado quando uma nova solicitação de atividade é registrada</div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span
+                  class="status-indicator {% if templates['solicitacao_criada'].ativo %}active{% else %}inactive{% endif %}"
+                  data-status="solicitacao_criada"></span>
+                <span
+                  class="badge {% if templates['solicitacao_criada'].ativo %}bg-green-lt text-green{% else %}bg-secondary-lt text-secondary{% endif %}"
+                  id="badge-solicitacao_criada">
+                  {% if templates['solicitacao_criada'].ativo %}Ativo{% else %}Inativo{% endif %}
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-2 text-secondary" width="24" height="24"
+                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M6 9l6 6l6 -6" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div id="template-criada" class="collapse" data-bs-parent="#accordionTemplates">
+            <div class="card-body border-top">
+              <form id="form-solicitacao_criada" data-tipo="solicitacao_criada">
+                <div class="row g-4">
+                  <div class="col-lg-8">
+                    <!-- Status -->
+                    <div class="mb-4">
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="ativo" {% if
+                          templates['solicitacao_criada'].ativo %}checked{% endif %}>
+                        <span class="form-check-label fw-medium">Ativar envio automático deste template</span>
+                      </label>
+                      <div class="form-hint">Quando ativo, o e-mail será enviado automaticamente ao criar uma
+                        solicitação</div>
+                    </div>
+
+                    <!-- Assunto -->
+                    <div class="mb-3">
+                      <label class="form-label required">Assunto do E-mail</label>
+                      <input type="text" class="form-control" name="assunto"
+                        value="{{ templates['solicitacao_criada'].assunto }}"
+                        placeholder="Ex: Nova Solicitação #[SOLICITACAO_ID] - [PROJETO_NOME]">
+                    </div>
+
+                    <!-- Corpo -->
+                    <div class="mb-3">
+                      <label class="form-label required">Corpo da Mensagem</label>
+                      <textarea class="form-control textarea-email" name="corpo_email" rows="8"
+                        placeholder="Olá [SOLICITANTE_NOME],&#10;&#10;Sua solicitação foi registrada com sucesso.&#10;&#10;Detalhes:&#10;- Projeto: [PROJETO_NOME]&#10;- Prazo para resposta: [DATA_LIMITE]">{{ templates['solicitacao_criada'].corpo_email }}</textarea>
+                      <div class="form-hint">O layout padrão do sistema será aplicado automaticamente ao enviar</div>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+                          <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                          <path d="M14 4l0 4l-6 0l0 -4" />
+                        </svg>
+                        Salvar Template
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary btn-preview"
+                        data-tipo="solicitacao_criada">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                          <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                        </svg>
+                        Pré-visualizar
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="card bg-azure-lt border-0">
+                      <div class="card-header bg-transparent border-0 pb-0">
+                        <h4 class="card-title mb-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M7 8l-4 4l4 4" />
+                            <path d="M17 8l4 4l-4 4" />
+                            <path d="M14 4l-4 16" />
+                          </svg>
+                          Variáveis Disponíveis
+                        </h4>
+                      </div>
+                      <div class="card-body">
+                        <p class="text-secondary small mb-3"><strong>Clique para copiar e cole no assunto ou
+                            mensagem:</strong></p>
+                        <div class="d-flex flex-wrap gap-1">
+                          {% for var in variaveis['solicitacao_criada'] %}
+                          <button type="button" class="btn btn-sm var-tag btn-outline-azure btn-copiar-variavel"
+                            data-variavel="[{{ var }}]">
+                            [{{ var }}]
+                          </button>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template: Solicitação Aceita -->
+        <div class="card template-card mb-3">
+          <div class="template-header" data-bs-toggle="collapse" data-bs-target="#template-aceita"
+            aria-expanded="false">
+            <div class="d-flex align-items-center">
+              <div class="template-icon bg-green-lt text-green me-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                  <path d="M9 12l2 2l4 -4" />
+                </svg>
+              </div>
+              <div class="flex-fill">
+                <div class="d-flex align-items-center">
+                  <h4 class="mb-0 me-2">Solicitação Aceita</h4>
+                  <span class="badge badge-outline text-green">Aprovação</span>
+                </div>
+                <div class="text-secondary small">Enviado quando uma solicitação é aprovada e vira atividade</div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span
+                  class="status-indicator {% if templates['solicitacao_aceita'].ativo %}active{% else %}inactive{% endif %}"
+                  data-status="solicitacao_aceita"></span>
+                <span
+                  class="badge {% if templates['solicitacao_aceita'].ativo %}bg-green-lt text-green{% else %}bg-secondary-lt text-secondary{% endif %}"
+                  id="badge-solicitacao_aceita">
+                  {% if templates['solicitacao_aceita'].ativo %}Ativo{% else %}Inativo{% endif %}
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-2 text-secondary" width="24" height="24"
+                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M6 9l6 6l6 -6" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div id="template-aceita" class="collapse" data-bs-parent="#accordionTemplates">
+            <div class="card-body border-top">
+              <form id="form-solicitacao_aceita" data-tipo="solicitacao_aceita">
+                <div class="row g-4">
+                  <div class="col-lg-8">
+                    <div class="mb-4">
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="ativo" {% if
+                          templates['solicitacao_aceita'].ativo %}checked{% endif %}>
+                        <span class="form-check-label fw-medium">Ativar envio automático deste template</span>
+                      </label>
+                      <div class="form-hint">Quando ativo, o e-mail será enviado ao aprovar uma solicitação</div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label required">Assunto do E-mail</label>
+                      <input type="text" class="form-control" name="assunto"
+                        value="{{ templates['solicitacao_aceita'].assunto }}"
+                        placeholder="Ex: Solicitação Aprovada - [PROJETO_NOME]">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label required">Corpo da Mensagem</label>
+                      <textarea class="form-control textarea-email" name="corpo_email" rows="8"
+                        placeholder="Olá [SOLICITANTE_NOME],&#10;&#10;Sua solicitação foi aprovada!&#10;&#10;Uma nova atividade foi criada: [ATIVIDADE_TITULO]">{{ templates['solicitacao_aceita'].corpo_email }}</textarea>
+                      <div class="form-hint">O layout padrão do sistema será aplicado automaticamente</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+                          <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                          <path d="M14 4l0 4l-6 0l0 -4" />
+                        </svg>
+                        Salvar Template
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary btn-preview"
+                        data-tipo="solicitacao_aceita">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                          <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                        </svg>
+                        Pré-visualizar
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="card bg-green-lt border-0">
+                      <div class="card-header bg-transparent border-0 pb-0">
+                        <h4 class="card-title mb-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M7 8l-4 4l4 4" />
+                            <path d="M17 8l4 4l-4 4" />
+                            <path d="M14 4l-4 16" />
+                          </svg>
+                          Variáveis Disponíveis
+                        </h4>
+                      </div>
+                      <div class="card-body">
+                        <p class="text-secondary small mb-3"><strong>Clique para copiar:</strong></p>
+                        <div class="d-flex flex-wrap gap-1">
+                          {% for var in variaveis['solicitacao_aceita'] %}
+                          <button type="button" class="btn btn-sm var-tag btn-outline-green btn-copiar-variavel"
+                            data-variavel="[{{ var }}]">
+                            [{{ var }}]
+                          </button>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template: Solicitação Rejeitada -->
+        <div class="card template-card mb-3">
+          <div class="template-header" data-bs-toggle="collapse" data-bs-target="#template-rejeitada"
+            aria-expanded="false">
+            <div class="d-flex align-items-center">
+              <div class="template-icon bg-red-lt text-red me-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                  <path d="M10 10l4 4m0 -4l-4 4" />
+                </svg>
+              </div>
+              <div class="flex-fill">
+                <div class="d-flex align-items-center">
+                  <h4 class="mb-0 me-2">Solicitação Rejeitada</h4>
+                  <span class="badge badge-outline text-red">Rejeição</span>
+                </div>
+                <div class="text-secondary small">Enviado quando uma solicitação é recusada</div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span
+                  class="status-indicator {% if templates['solicitacao_rejeitada'].ativo %}active{% else %}inactive{% endif %}"
+                  data-status="solicitacao_rejeitada"></span>
+                <span
+                  class="badge {% if templates['solicitacao_rejeitada'].ativo %}bg-green-lt text-green{% else %}bg-secondary-lt text-secondary{% endif %}"
+                  id="badge-solicitacao_rejeitada">
+                  {% if templates['solicitacao_rejeitada'].ativo %}Ativo{% else %}Inativo{% endif %}
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-2 text-secondary" width="24" height="24"
+                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M6 9l6 6l6 -6" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div id="template-rejeitada" class="collapse" data-bs-parent="#accordionTemplates">
+            <div class="card-body border-top">
+              <form id="form-solicitacao_rejeitada" data-tipo="solicitacao_rejeitada">
+                <div class="row g-4">
+                  <div class="col-lg-8">
+                    <div class="mb-4">
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="ativo" {% if
+                          templates['solicitacao_rejeitada'].ativo %}checked{% endif %}>
+                        <span class="form-check-label fw-medium">Ativar envio automático deste template</span>
+                      </label>
+                      <div class="form-hint">Quando ativo, o e-mail será enviado ao rejeitar uma solicitação</div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label required">Assunto do E-mail</label>
+                      <input type="text" class="form-control" name="assunto"
+                        value="{{ templates['solicitacao_rejeitada'].assunto }}"
+                        placeholder="Ex: Solicitação não aprovada - [PROJETO_NOME]">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label required">Corpo da Mensagem</label>
+                      <textarea class="form-control textarea-email" name="corpo_email" rows="8"
+                        placeholder="Olá [SOLICITANTE_NOME],&#10;&#10;Infelizmente sua solicitação não foi aprovada.&#10;&#10;Motivo: [MOTIVO_REJEICAO]">{{ templates['solicitacao_rejeitada'].corpo_email }}</textarea>
+                      <div class="form-hint">O layout padrão do sistema será aplicado automaticamente</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+                          <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                          <path d="M14 4l0 4l-6 0l0 -4" />
+                        </svg>
+                        Salvar Template
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary btn-preview"
+                        data-tipo="solicitacao_rejeitada">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                          <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                        </svg>
+                        Pré-visualizar
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="card bg-red-lt border-0">
+                      <div class="card-header bg-transparent border-0 pb-0">
+                        <h4 class="card-title mb-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M7 8l-4 4l4 4" />
+                            <path d="M17 8l4 4l-4 4" />
+                            <path d="M14 4l-4 16" />
+                          </svg>
+                          Variáveis Disponíveis
+                        </h4>
+                      </div>
+                      <div class="card-body">
+                        <p class="text-secondary small mb-3"><strong>Clique para copiar:</strong></p>
+                        <div class="d-flex flex-wrap gap-1">
+                          {% for var in variaveis['solicitacao_rejeitada'] %}
+                          <button type="button" class="btn btn-sm var-tag btn-outline-red btn-copiar-variavel"
+                            data-variavel="[{{ var }}]">
+                            [{{ var }}]
+                          </button>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template: Atividade Concluída -->
+        <div class="card template-card mb-3">
+          <div class="template-header" data-bs-toggle="collapse" data-bs-target="#template-concluida"
+            aria-expanded="false">
+            <div class="d-flex align-items-center">
+              <div class="template-icon bg-purple-lt text-purple me-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                  <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                  <path d="M9 12l2 2l4 -4" />
+                </svg>
+              </div>
+              <div class="flex-fill">
+                <div class="d-flex align-items-center">
+                  <h4 class="mb-0 me-2">Atividade Concluída</h4>
+                  <span class="badge badge-outline text-purple">Conclusão</span>
+                </div>
+                <div class="text-secondary small">Enviado quando uma atividade é finalizada</div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span
+                  class="status-indicator {% if templates['atividade_concluida'].ativo %}active{% else %}inactive{% endif %}"
+                  data-status="atividade_concluida"></span>
+                <span
+                  class="badge {% if templates['atividade_concluida'].ativo %}bg-green-lt text-green{% else %}bg-secondary-lt text-secondary{% endif %}"
+                  id="badge-atividade_concluida">
+                  {% if templates['atividade_concluida'].ativo %}Ativo{% else %}Inativo{% endif %}
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-2 text-secondary" width="24" height="24"
+                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M6 9l6 6l6 -6" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div id="template-concluida" class="collapse" data-bs-parent="#accordionTemplates">
+            <div class="card-body border-top">
+              <form id="form-atividade_concluida" data-tipo="atividade_concluida">
+                <div class="row g-4">
+                  <div class="col-lg-8">
+                    <div class="mb-4">
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="ativo" {% if
+                          templates['atividade_concluida'].ativo %}checked{% endif %}>
+                        <span class="form-check-label fw-medium">Ativar envio automático deste template</span>
+                      </label>
+                      <div class="form-hint">Quando ativo, o e-mail será enviado ao concluir uma atividade</div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label required">Assunto do E-mail</label>
+                      <input type="text" class="form-control" name="assunto"
+                        value="{{ templates['atividade_concluida'].assunto }}"
+                        placeholder="Ex: Atividade Concluída - [ATIVIDADE_TITULO]">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label required">Corpo da Mensagem</label>
+                      <textarea class="form-control textarea-email" name="corpo_email" rows="8"
+                        placeholder="Olá [SOLICITANTE_NOME],&#10;&#10;A atividade foi concluída com sucesso!&#10;&#10;Detalhes:&#10;- Atividade: [ATIVIDADE_TITULO]&#10;- Concluída em: [DATA_CONCLUSAO]">{{ templates['atividade_concluida'].corpo_email }}</textarea>
+                      <div class="form-hint">O layout padrão do sistema será aplicado automaticamente</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+                          <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                          <path d="M14 4l0 4l-6 0l0 -4" />
+                        </svg>
+                        Salvar Template
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary btn-preview"
+                        data-tipo="atividade_concluida">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                          <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                        </svg>
+                        Pré-visualizar
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="card bg-purple-lt border-0">
+                      <div class="card-header bg-transparent border-0 pb-0">
+                        <h4 class="card-title mb-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M7 8l-4 4l4 4" />
+                            <path d="M17 8l4 4l-4 4" />
+                            <path d="M14 4l-4 16" />
+                          </svg>
+                          Variáveis Disponíveis
+                        </h4>
+                      </div>
+                      <div class="card-body">
+                        <p class="text-secondary small mb-3"><strong>Clique para copiar:</strong></p>
+                        <div class="d-flex flex-wrap gap-1">
+                          {% for var in variaveis['atividade_concluida'] %}
+                          <button type="button" class="btn btn-sm var-tag btn-outline-purple btn-copiar-variavel"
+                            data-variavel="[{{ var }}]">
+                            [{{ var }}]
+                          </button>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+<!-- Modal de Preview -->
+<div class="modal modal-blur fade" id="modalPreview" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24"
+            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
+            <path d="M3 7l9 6l9 -6" />
+          </svg>
+          Pré-visualização do E-mail
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <!-- Abas para alternar entre visualizações -->
+        <ul class="nav nav-tabs px-3 pt-3" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="preview-html-tab" data-bs-toggle="tab" data-bs-target="#preview-html"
+              type="button" role="tab">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+                <path d="M12 12l8 -4.5" />
+                <path d="M12 12l0 9" />
+                <path d="M12 12l-8 -4.5" />
+              </svg>
+              Layout Final
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="preview-texto-tab" data-bs-toggle="tab" data-bs-target="#preview-texto"
+              type="button" role="tab">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+                <path d="M13.5 6.5l4 4" />
+              </svg>
+              Texto Simples
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Aba: Layout HTML -->
+          <div class="tab-pane fade show active p-3" id="preview-html" role="tabpanel">
+            <div id="preview-html-content"
+              style="max-height: 70vh; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+              <!-- HTML será injetado aqui -->
+            </div>
+          </div>
+
+          <!-- Aba: Texto Simples -->
+          <div class="tab-pane fade p-3" id="preview-texto" role="tabpanel">
+            <div class="mb-3">
+              <label class="form-label text-secondary fw-bold">Assunto</label>
+              <div id="preview-assunto" class="p-3 bg-light rounded"></div>
+            </div>
+            <div>
+              <label class="form-label text-secondary fw-bold">Mensagem</label>
+              <div id="preview-corpo" class="p-3 border rounded bg-white"
+                style="white-space: pre-wrap; min-height: 200px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info m-3 mt-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+            <path d="M12 9h.01" />
+            <path d="M11 12h1v4h1" />
+          </svg>
+          As variáveis estão com valores de exemplo; no envio real, serão preenchidas automaticamente com dados
+          reais.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+
+    // Função para mostrar toast
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toastId = 'toast-' + Date.now();
+
+      const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+      const icon = type === 'success'
+        ? '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg>';
+
+      const html = `
+      <div id="${toastId}" class="toast show ${bgClass} text-white" role="alert">
+        <div class="toast-body d-flex align-items-center">
+          ${icon}
+          <span class="ms-2">${message}</span>
+        </div>
+      </div>
+    `;
+
+      container.insertAdjacentHTML('beforeend', html);
+
+      setTimeout(() => {
+        const toast = document.getElementById(toastId);
+        if (toast) toast.remove();
+      }, 4000);
+    }
+
+    // Salvar template via AJAX
+    document.querySelectorAll('form[id^="form-"]').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const tipo = form.dataset.tipo;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalContent = submitBtn.innerHTML;
+
+        // Loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Salvando...';
+
+        const formData = new FormData(form);
+        const dados = {
+          assunto: formData.get('assunto'),
+          corpo_email: formData.get('corpo_email'),
+          ativo: form.querySelector('[name="ativo"]').checked
+        };
+
+        try {
+          const response = await fetch(`/configuracoes/email-atividades/salvar/${tipo}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showToast(result.message, 'success');
+
+            // Atualizar badge de status
+            const badge = document.getElementById(`badge-${tipo}`);
+            const indicator = document.querySelector(`[data-status="${tipo}"]`);
+
+            if (dados.ativo) {
+              badge.className = 'badge bg-green-lt text-green';
+              badge.textContent = 'Ativo';
+              indicator.classList.remove('inactive');
+              indicator.classList.add('active');
+            } else {
+              badge.className = 'badge bg-secondary-lt text-secondary';
+              badge.textContent = 'Inativo';
+              indicator.classList.remove('active');
+              indicator.classList.add('inactive');
+            }
+          } else {
+            showToast(result.message, 'error');
+          }
+        } catch (error) {
+          showToast('Erro ao salvar template: ' + error, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalContent;
+        }
+      });
+    });
+
+    // Copiar variável para clipboard
+    document.querySelectorAll('.btn-copiar-variavel').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const variavel = this.dataset.variavel;
+
+        navigator.clipboard.writeText(variavel).then(() => {
+          const original = this.innerHTML;
+          this.innerHTML = '✓ Copiado!';
+          this.classList.add('btn-success');
+          this.classList.remove('btn-outline-azure', 'btn-outline-green', 'btn-outline-red', 'btn-outline-purple');
+
+          setTimeout(() => {
+            this.innerHTML = original;
+            this.classList.remove('btn-success');
+            // Restaurar classe original baseada no contexto
+            const parentCard = this.closest('.card');
+            if (parentCard.classList.contains('bg-azure-lt')) this.classList.add('btn-outline-azure');
+            else if (parentCard.classList.contains('bg-green-lt')) this.classList.add('btn-outline-green');
+            else if (parentCard.classList.contains('bg-red-lt')) this.classList.add('btn-outline-red');
+            else if (parentCard.classList.contains('bg-purple-lt')) this.classList.add('btn-outline-purple');
+          }, 1500);
+        });
+      });
+    });
+
+    // Preview do e-mail com variáveis substituídas
+    document.querySelectorAll('.btn-preview').forEach(btn => {
+      btn.addEventListener('click', async function () {
+        const tipo = this.dataset.tipo;
+        const form = document.getElementById(`form-${tipo}`);
+
+        const assunto = form.querySelector('[name="assunto"]').value || '(Assunto não definido)';
+        const corpo = form.querySelector('[name="corpo_email"]').value || '(Mensagem não definida)';
+
+        // Mostrar modal com loading
+        document.getElementById('preview-assunto').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processando...';
+        document.getElementById('preview-corpo').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processando variáveis...';
+        document.getElementById('preview-html-content').innerHTML = '<div class="text-center p-5"><span class="spinner-border text-primary"></span><p class="mt-3">Gerando preview...</p></div>';
+        new bootstrap.Modal(document.getElementById('modalPreview')).show();
+
+        // Fazer requisição ao backend para processar variáveis
+        try {
+          const response = await fetch(`/configuracoes/email-atividades/preview/${tipo}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              assunto: assunto,
+              corpo_email: corpo
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Atualizar aba de texto simples
+            document.getElementById('preview-assunto').textContent = result.assunto;
+            document.getElementById('preview-corpo').textContent = result.corpo;
+
+            // Atualizar aba de HTML (layout final)
+            document.getElementById('preview-html-content').innerHTML = result.html;
+          } else {
+            // Em caso de erro, mostrar sem processar
+            document.getElementById('preview-assunto').textContent = assunto;
+            document.getElementById('preview-corpo').textContent = corpo;
+            document.getElementById('preview-html-content').innerHTML = '<div class="alert alert-warning m-3">Erro ao gerar preview HTML</div>';
+            showToast(result.message || 'Erro ao processar preview', 'error');
+          }
+        } catch (error) {
+          // Em caso de erro, mostrar sem processar
+          console.error('Erro ao gerar preview:', error);
+          document.getElementById('preview-assunto').textContent = assunto;
+          document.getElementById('preview-corpo').textContent = corpo;
+          document.getElementById('preview-html-content').innerHTML = '<div class="alert alert-danger m-3">Erro ao conectar com servidor</div>';
+          showToast('Erro ao processar preview', 'error');
+        }
+      });
+    });
+
+  });
+</script>
+
+{% endblock %}

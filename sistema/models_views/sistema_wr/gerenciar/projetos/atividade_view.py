@@ -10,6 +10,7 @@ from sistema.models_views.sistema_wr.gerenciar.projetos.projeto_model import Pro
 from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioModel
 from sistema.models_views.sistema_wr.configuracoes.tags.tags_model import TagModel
 from sistema.models_views.sistema_wr.configuracoes.categorias.categoria_model import CategoriaModel
+from sistema.models_views.sistema_wr.configuracoes.email_atividades.email_atividade_model import EmailAtividadeModel
 from sistema._utilitarios import *
 from datetime import datetime
 import os
@@ -637,6 +638,16 @@ def atividade_editar(atividade_id):
                         atividade.data_alteracao = datetime.now()
                         db.session.commit()
 
+                        # Enviar e-mail de conclusão
+                        if atividade.usuario_solicitante and atividade.usuario_solicitante.email:
+                            EmailAtividadeModel.enviar_email(
+                                tipo_evento='atividade_concluida',
+                                email_destino=atividade.usuario_solicitante.email,
+                                solicitacao=None,
+                                atividade=atividade,
+                                usuario_acao=current_user
+                            )
+
                         flash(('Atividade marcada como concluída!', 'success'))
                         return redirect(url_for('atividade_visualizar', atividade_id = atividade_id))
                     except Exception as e:
@@ -789,6 +800,8 @@ def atividade_editar(atividade_id):
                 
                 atividade.tags = tags_processadas
 
+
+
                 # Processa novos anexos (se houver)
                 anexos_adicionados = 0
                 for arquivo in anexos_validos:
@@ -819,6 +832,16 @@ def atividade_editar(atividade_id):
                         continue
                 
                 db.session.commit()
+
+                # Enviar e-mail se a atividade foi marcada como concluída
+                if situacao_id == "4" and atividade.usuario_solicitante and atividade.usuario_solicitante.email:
+                    EmailAtividadeModel.enviar_email(
+                        tipo_evento='atividade_concluida',
+                        email_destino=atividade.usuario_solicitante.email, 
+                        solicitacao=None,
+                        atividade=atividade,
+                        usuario_acao=current_user
+                    )
                 
                 mensagem_sucesso = "Atividade atualizada com sucesso!"
                 if anexos_adicionados > 0:
