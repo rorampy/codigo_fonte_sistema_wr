@@ -64,7 +64,7 @@
 
 
                   <!-- Categoria (Opcional) -->
-                  <div class="col-md-6 mb-3">
+                  <div class="col-md-3 mb-3">
                     <label class="form-label">Categoria</label>
                     <select class="form-select" name="categoriaId">
                       <option value="">Nenhuma categoria</option>
@@ -77,6 +77,23 @@
                     </select>
                     <small class="form-hint">Classifique sua solicitação para facilitar a organização (opcional)</small>
                   </div>
+
+
+                  <!-- Area (Opcional) -->
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label">Área</label>
+                    <select class="form-select" name="areaId">
+                      <option value="">Nenhuma área</option>
+                      {% for area in areas %}
+                      <option value="{{ area.id }}" {% if dados_corretos.get('areaId')==area.id|string %}selected{%
+                        endif %}>
+                        {{ area.nome }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                    <small class="form-hint">Defina a área da sua solicitação para melhor organização (opcional)</small>
+                  </div>
+
                 </div>
 
 

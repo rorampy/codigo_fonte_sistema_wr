@@ -17,18 +17,20 @@ class SolicitacaoAtividadeModel(BaseModel):
     motivo_rejeicao = db.Column(db.Text, nullable=True)
     prazo_resposta_dias = db.Column(db.Integer, nullable=False, default=7)  # Novo campo para prazo de resposta em dias
     categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=True)  # Categoria da solicitação (opcional)
+    area_id = db.Column(db.Integer, db.ForeignKey('atividade_areas.id'), nullable=True)  # Área da solicitação (opcional)
     
     # Relacionamentos
     projeto = db.relationship('ProjetoModel', backref='proj_solicitacao_atividade')
     usuario_solicitante = db.relationship('UsuarioModel', backref='solicitacoes_atividade')
     situacao = db.relationship('AndamentoAtividadeModel', backref='proj_solicitacao_atividade')
     categoria = db.relationship('CategoriaModel', backref='solicitacoes_atividade')
+    area = db.relationship('AreaModel', backref='solicitacoes', foreign_keys=[area_id])
     anexos = db.relationship('SolicitacaoAtividadeAnexoModel', backref='proj_solicitacao_atividade', lazy='dynamic',
                             primaryjoin="and_(SolicitacaoAtividadeModel.id==SolicitacaoAtividadeAnexoModel.solicitacao_id, "
                                        "SolicitacaoAtividadeAnexoModel.deletado==False)")
     
     
-    def __init__(self, projeto_id, titulo, descricao, usuario_solicitante_id, situacao_id=7, prazo_resposta_dias=7, categoria_id=None):
+    def __init__(self, projeto_id, titulo, descricao, usuario_solicitante_id, situacao_id=7, prazo_resposta_dias=7, categoria_id=None, area_id=None):
         self.projeto_id = projeto_id
         self.titulo = titulo
         self.descricao = descricao
@@ -36,6 +38,7 @@ class SolicitacaoAtividadeModel(BaseModel):
         self.situacao_id = situacao_id
         self.prazo_resposta_dias = prazo_resposta_dias
         self.categoria_id = categoria_id
+        self.area_id = area_id
     
     def prazo_vencido(self):
         """

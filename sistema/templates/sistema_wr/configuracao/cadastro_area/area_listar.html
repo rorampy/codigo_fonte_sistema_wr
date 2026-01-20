@@ -1,0 +1,389 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<div class="page-wrapper">
+
+    <!-- Header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">CONFIGURAÇÕES</div>
+                    <h2 class="page-title">Áreas de Atividades</h2>
+                </div>
+
+                <div class="col-auto ms-auto">
+                    <button class="btn btn-primary" onclick="novaArea()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Nova Área
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="page-body">
+        <div class="container-xl">
+            {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+
+            <div class="card">
+                <div class="card-body">
+                    {% include 'sistema_wr/configuracao/cadastro_area/area_tabela.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+
+<!-- ==================== MODAL CADASTRAR/EDITAR ==================== -->
+<div class="modal modal-blur fade" id="modalArea" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formArea">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAreaTitle">Nova Área</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="area-id">
+
+                    <!-- Alerta de vínculos (só aparece ao editar) -->
+                    <div id="alerta-vinculos" class="alert alert-warning d-none mb-3">
+                        <div class="d-flex">
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M12 9v4" />
+                                    <path
+                                        d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                                    <path d="M12 16h.01" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="alert-title">Atenção!</h4>
+                                <div class="text-secondary" id="mensagem-vinculos"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="mb-3">
+                                <label class="form-label required">Nome da Área</label>
+                                <input type="text" name="nome" id="area-nome" class="form-control" maxlength="100"
+                                    placeholder="Ex: Desenvolvimento, Infraestrutura" required>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="mb-3">
+                                <label class="form-label required">Cor</label>
+                                <select id="area-cor" name="cor" class="form-select" required>
+                                    <option value="">Selecione</option>
+                                    {% for cor in cores_permitidas %}
+                                    <option value="{{ cor }}">
+                                        {{ AreaModel.obter_nome_cor(cor) }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Descrição
+                            <span class="form-label-description">Opcional</span>
+                        </label>
+                        <textarea id="area-descricao" name="descricao" class="form-control" rows="3" maxlength="255"
+                            placeholder="Breve descrição da área..."></textarea>
+                        <small class="form-hint">Máximo de 255 caracteres</small>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer d-flex justify-content-between">
+                    <a href="#" class="text-muted" data-bs-dismiss="modal">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M5 12l5 5l10 -10" />
+                        </svg>
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL DELETAR ==================== -->
+<div class="modal modal-blur fade" id="modalDeletarArea" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24"
+                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 9v4" />
+                    <path
+                        d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                    <path d="M12 16h.01" />
+                </svg>
+                <input type="hidden" id="delete-area-id">
+                <h3>Tem certeza?</h3>
+                <div class="text-secondary" id="delete-mensagem">
+                    Carregando...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn w-100" data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-danger w-100" id="btnConfirmarDelete">
+                                Excluir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL FEEDBACK ==================== -->
+<div class="modal modal-blur fade" id="modalFeedback" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status" id="feedback-status"></div>
+            <div class="modal-body text-center py-4">
+                <svg id="feedback-icon-warning" xmlns="http://www.w3.org/2000/svg"
+                    class="icon mb-2 text-warning icon-lg d-none" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 9v4" />
+                    <path
+                        d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                    <path d="M12 16h.01" />
+                </svg>
+                <svg id="feedback-icon-danger" xmlns="http://www.w3.org/2000/svg"
+                    class="icon mb-2 text-danger icon-lg d-none" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M18 6l-12 12" />
+                    <path d="M6 6l12 12" />
+                </svg>
+                <h3 id="feedback-titulo">Atenção</h3>
+                <div class="text-secondary" id="feedback-mensagem"></div>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <button class="btn btn-primary w-100" data-bs-dismiss="modal">
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== JS ==================== -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const modalArea = new bootstrap.Modal(document.getElementById('modalArea'));
+        const modalDeletar = new bootstrap.Modal(document.getElementById('modalDeletarArea'));
+        const modalFeedback = new bootstrap.Modal(document.getElementById('modalFeedback'));
+        const formArea = document.getElementById('formArea');
+
+        // -------- MOSTRAR FEEDBACK MODAL --------
+        function mostrarFeedback(mensagem, tipo = 'warning') {
+            document.getElementById('feedback-mensagem').innerHTML = mensagem;
+            document.getElementById('feedback-status').className = 'modal-status bg-' + tipo;
+
+            // Toggle icons
+            document.getElementById('feedback-icon-warning').classList.add('d-none');
+            document.getElementById('feedback-icon-danger').classList.add('d-none');
+
+            if (tipo === 'warning') {
+                document.getElementById('feedback-icon-warning').classList.remove('d-none');
+                document.getElementById('feedback-titulo').textContent = 'Atenção';
+            } else if (tipo === 'danger') {
+                document.getElementById('feedback-icon-danger').classList.remove('d-none');
+                document.getElementById('feedback-titulo').textContent = 'Erro';
+            }
+
+            modalFeedback.show();
+        }
+
+        // -------- NOVA ÁREA --------
+        window.novaArea = function () {
+            // Limpar formulário
+            formArea.reset();
+            document.getElementById('area-id').value = '';
+            document.getElementById('modalAreaTitle').textContent = 'Nova Área';
+            document.getElementById('alerta-vinculos').classList.add('d-none');
+
+            modalArea.show();
+        };
+
+        // -------- EDITAR ÁREA --------
+        window.editarArea = function (id, nome, cor, descricao) {
+            document.getElementById('area-id').value = id;
+            document.getElementById('area-nome').value = nome;
+            document.getElementById('area-cor').value = cor;
+            document.getElementById('area-descricao').value = descricao || '';
+            document.getElementById('modalAreaTitle').textContent = 'Editar Área';
+
+            // Buscar vínculos
+            fetch(`/configuracoes/areas/contar-vinculadas/${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.sucesso && data.total > 0) {
+                        let msg = 'Esta área está vinculada a:<br>';
+                        if (data.total_solicitacoes > 0) {
+                            msg += `• <strong>${data.total_solicitacoes}</strong> solicitação(ões)<br>`;
+                        }
+                        if (data.total_atividades > 0) {
+                            msg += `• <strong>${data.total_atividades}</strong> atividade(s)<br>`;
+                        }
+                        msg += '<br>Alterações afetarão todas elas.';
+                        document.getElementById('mensagem-vinculos').innerHTML = msg;
+                        document.getElementById('alerta-vinculos').classList.remove('d-none');
+                    } else {
+                        document.getElementById('alerta-vinculos').classList.add('d-none');
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('alerta-vinculos').classList.add('d-none');
+                });
+
+            modalArea.show();
+        };
+
+        // -------- SALVAR (CRIAR/EDITAR) --------
+        formArea.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const id = document.getElementById('area-id').value;
+            const btn = this.querySelector('button[type="submit"]');
+            const formData = new FormData(this);
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Salvando...';
+
+            const url = id ? `/configuracoes/areas/editar/${id}` : '/configuracoes/areas/cadastrar';
+
+            fetch(url, { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        location.reload();
+                    } else {
+                        mostrarFeedback(data.mensagem || 'Erro ao salvar área', 'warning');
+                        btn.disabled = false;
+                        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 12l5 5l10 -10" /></svg> Salvar';
+                    }
+                })
+                .catch(() => {
+                    mostrarFeedback('Erro ao salvar área. Tente novamente.', 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 12l5 5l10 -10" /></svg> Salvar';
+                });
+        });
+
+        // -------- CONFIRMAR DELETAR --------
+        window.confirmarDeletar = function (id, nome) {
+            document.getElementById('delete-area-id').value = id;
+            document.getElementById('delete-mensagem').innerHTML = 'Carregando...';
+
+            // Buscar vínculos
+            fetch(`/configuracoes/areas/contar-vinculadas/${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        let mensagem = `Você está prestes a excluir a área <strong>"${nome}"</strong>.<br><br>`;
+
+                        if (data.total > 0) {
+                            mensagem += `<strong>Itens vinculados que perderão esta classificação:</strong><br>`;
+                            if (data.total_solicitacoes > 0) {
+                                mensagem += `• <strong>${data.total_solicitacoes}</strong> solicitação(ões)<br>`;
+                            }
+                            if (data.total_atividades > 0) {
+                                mensagem += `• <strong>${data.total_atividades}</strong> atividade(s)<br>`;
+                            }
+                            mensagem += `<br>`;
+                        }
+
+                        mensagem += `Esta ação não pode ser desfeita.`;
+
+                        document.getElementById('delete-mensagem').innerHTML = mensagem;
+                    } else {
+                        document.getElementById('delete-mensagem').innerHTML =
+                            `Deseja realmente excluir a área <strong>"${nome}"</strong>?<br>Esta ação não pode ser desfeita.`;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('delete-mensagem').innerHTML =
+                        `Deseja realmente excluir a área <strong>"${nome}"</strong>?<br>Esta ação não pode ser desfeita.`;
+                });
+
+            modalDeletar.show();
+        };
+
+        // -------- DELETAR --------
+        document.getElementById('btnConfirmarDelete').addEventListener('click', function () {
+            const id = document.getElementById('delete-area-id').value;
+
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Excluindo...';
+
+            fetch(`/configuracoes/areas/deletar/${id}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        location.reload();
+                    } else {
+                        modalDeletar.hide();
+                        mostrarFeedback(data.mensagem || 'Erro ao deletar área', 'danger');
+                        document.getElementById('btnConfirmarDelete').disabled = false;
+                        document.getElementById('btnConfirmarDelete').innerHTML = 'Excluir';
+                    }
+                })
+                .catch(() => {
+                    modalDeletar.hide();
+                    mostrarFeedback('Erro ao deletar área. Tente novamente.', 'danger');
+                    document.getElementById('btnConfirmarDelete').disabled = false;
+                    document.getElementById('btnConfirmarDelete').innerHTML = 'Excluir';
+                });
+        });
+
+    });
+</script>
+
+{% endblock conteudo %}

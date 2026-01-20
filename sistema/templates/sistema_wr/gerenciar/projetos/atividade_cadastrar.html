@@ -27,7 +27,8 @@
             <!-- Informações Básicas -->
             <h3 class="text-primary mb-3">Informações Básicas</h3>
             <div class="row">
-              <div class="col-md-3">
+
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label required">Projeto</label>
                   <select name="projetoId"
@@ -45,6 +46,7 @@
                   </div>
                 </div>
               </div>
+
               <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label required">Título</label>
@@ -54,8 +56,41 @@
                 </div>
               </div>
 
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Categoria</label>
+                  <select name="categoria_id" class="form-select">
+                    <option value="">Nenhuma</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}" {% if
+                      dados_corretos.get('categoria_id')|string==categoria.id|string %}selected{% endif %}>
+                      {{ categoria.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Área</label>
+                  <select name="area_id" class="form-select">
+                    <option value="">Nenhuma</option>
+                    {% for area in areas %}
+                    <option value="{{ area.id }}" {% if dados_corretos.get('area_id')|string==area.id|string
+                      %}selected{% endif %}>
+                      {{ area.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
               <!-- Campo Tags (Múltiplas) -->
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Tags</label>
                   <div class="dropdown">
@@ -93,9 +128,7 @@
                   {% endif %}
                   <small class="form-hint">Selecione múltiplas tags para categorizar</small>
                 </div>
-
               </div>
-
             </div>
 
             <!-- Atribuição e Status -->
@@ -285,12 +318,14 @@
                     <div>
                       <h4 class="alert-title">Dicas para cadastrar atividades:</h4>
                       <div class="text-secondary">
-                        • <strong>Título claro:</strong> Use títulos descritivos que indiquem claramente o que deve ser
+                        • <strong>Título claro:</strong> Use títulos descritivos que indiquem claramente o que deve
+                        ser
                         feito<br>
                         • <strong>Descrição detalhada:</strong> Inclua todos os requisitos, critérios de aceitação e
                         informações relevantes<br>
                         • <strong>Estimativas realistas:</strong> Base suas estimativas em experiências anteriores<br>
-                        • <strong>Prioridade adequada:</strong> Considere impacto e urgência ao definir a prioridade<br>
+                        • <strong>Prioridade adequada:</strong> Considere impacto e urgência ao definir a
+                        prioridade<br>
                         • <strong>Anexos:</strong> Após criar a atividade, você poderá adicionar anexos como imagens,
                         documentos e arquivos
                       </div>

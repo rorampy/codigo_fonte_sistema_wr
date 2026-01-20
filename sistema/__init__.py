@@ -298,6 +298,10 @@ from sistema.models_views.sistema_wr.configuracoes.tags import tags_view
 from sistema.models_views.sistema_wr.configuracoes.categorias import categoria_model
 from sistema.models_views.sistema_wr.configuracoes.categorias import categoria_view
 
+# Configurações - Areas
+from sistema.models_views.sistema_wr.configuracoes.area_atividades import area_atividade_model
+from sistema.models_views.sistema_wr.configuracoes.area_atividades import area_atividade_view
+
 # Variáveis do sistema
 from sistema.models_views.sistema_wr.parametrizacao import forma_pagamento_model
 

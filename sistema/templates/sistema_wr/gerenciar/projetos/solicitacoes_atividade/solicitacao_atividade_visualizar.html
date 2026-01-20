@@ -75,15 +75,26 @@
                 <span class="badge bg-blue text-white">{{ solicitacao.projeto.nome_projeto }}</span>
               </div>
 
-              <!-- Categoria -->
-              {% if solicitacao.categoria %}
-              <div class="mb-3">
-                <h4 class="subheader">Categoria</h4>
-                <span class="badge badge-outline {{ solicitacao.categoria.cor }}">
-                  {{ solicitacao.categoria.nome }}
-                </span>
+              <!-- Categoria e Área -->
+              <div class="row mb-3">
+                {% if solicitacao.categoria %}
+                <div class="col-md-6">
+                  <h4 class="subheader">Categoria</h4>
+                  <span class="badge badge-outline {{ solicitacao.categoria.cor }}">
+                    {{ solicitacao.categoria.nome }}
+                  </span>
+                </div>
+                {% endif %}
+
+                {% if solicitacao.area %}
+                <div class="col-md-6">
+                  <h4 class="subheader">Área</h4>
+                  <span class="badge badge-outline {{ solicitacao.area.cor }}">
+                    {{ solicitacao.area.nome }}
+                  </span>
+                </div>
+                {% endif %}
               </div>
-              {% endif %}
 
               <!-- Título -->
               <div class="mb-3">

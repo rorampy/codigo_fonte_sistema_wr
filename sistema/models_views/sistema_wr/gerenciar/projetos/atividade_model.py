@@ -26,6 +26,7 @@ class AtividadeModel(BaseModel):
     situacao_id = db.Column(db.Integer, db.ForeignKey('z_sys_andamento_atividade.id'), nullable=False)
 
     categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=True)
+    area_id = db.Column(db.Integer, db.ForeignKey('atividade_areas.id'), nullable=True)
     
     supervisor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
     desenvolvedor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
@@ -40,6 +41,7 @@ class AtividadeModel(BaseModel):
     situacao = db.relationship('AndamentoAtividadeModel', backref='proj_atividade')
     anexos = db.relationship('AtividadeAnexoModel', backref='proj_atividade', lazy='dynamic', cascade='all, delete-orphan')
     categoria = db.relationship('CategoriaModel', backref='atividades')
+    area = db.relationship('AreaModel', backref='atividades', foreign_keys=[area_id])
 
     tags = db.relationship(
         'TagModel',
@@ -49,7 +51,7 @@ class AtividadeModel(BaseModel):
 
     def __init__(self, projeto_id, titulo, prioridade_id, situacao_id, descricao=None, 
                  supervisor_id=None, desenvolvedor_id=None, usuario_solicitante_id=None,
-                 horas_necessarias=0.0, horas_utilizadas=0.0, data_prazo_conclusao=None, valor_atividade_100=0, categoria_id=None):
+                 horas_necessarias=0.0, horas_utilizadas=0.0, data_prazo_conclusao=None, valor_atividade_100=0, categoria_id=None, area_id=None):
         self.projeto_id = projeto_id
         self.titulo = titulo
         self.descricao = descricao
@@ -63,6 +65,7 @@ class AtividadeModel(BaseModel):
         self.prioridade_id = prioridade_id
         self.situacao_id = situacao_id
         self.categoria_id = categoria_id
+        self.area_id = area_id
         
     
     

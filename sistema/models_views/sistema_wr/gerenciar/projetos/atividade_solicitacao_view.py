@@ -10,6 +10,7 @@ from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioMo
 from sistema.models_views.sistema_wr.parametrizacao.variavel_sistema_model import VariavelSistemaModel
 from sistema.models_views.sistema_wr.configuracoes.categorias.categoria_model import CategoriaModel
 from sistema.models_views.sistema_wr.configuracoes.email_atividades.email_atividade_model import EmailAtividadeModel
+from sistema.models_views.sistema_wr.configuracoes.area_atividades.area_atividade_model import AreaModel
 from sistema._utilitarios import *
 from datetime import datetime, timedelta
 import os
@@ -81,6 +82,7 @@ def solicitacoes_atividade_listar():
     filtros_situacao = request.args.getlist('situacao_id')
     filtros_usuario = request.args.getlist('usuario_id')
     filtros_categoria = request.args.getlist('categoria_id')
+    filtros_area = request.args.getlist('area_id')
     filtro_titulo = request.args.get('titulo')
 
     # Remover valores vazios dos filtros múltiplos
@@ -88,6 +90,7 @@ def solicitacoes_atividade_listar():
     filtros_situacao = [s for s in filtros_situacao if s and s.strip()]
     filtros_usuario = [u for u in filtros_usuario if u and u.strip()]
     filtros_categoria = [c for c in filtros_categoria if c and c.strip()]
+    filtros_area = [a for a in filtros_area if a and a.strip()]
     
     # Filtrar solicitações
     atividades = SolicitacaoAtividadeModel.query.filter(
@@ -106,6 +109,9 @@ def solicitacoes_atividade_listar():
     
     if filtros_categoria:
         atividades = atividades.filter(SolicitacaoAtividadeModel.categoria_id.in_(filtros_categoria))
+    
+    if filtros_area:
+        atividades = atividades.filter(SolicitacaoAtividadeModel.area_id.in_(filtros_area))
     
     if filtro_titulo and filtro_titulo.strip():
         atividades = atividades.filter(SolicitacaoAtividadeModel.titulo.ilike(f'%{filtro_titulo}%'))
@@ -192,6 +198,7 @@ def solicitacoes_atividade_listar():
         'situacao_id': filtros_situacao,
         'usuario_id': filtros_usuario,
         'categoria_id': filtros_categoria,
+        'area_id': filtros_area,
         'titulo': filtro_titulo if filtro_titulo and filtro_titulo.strip() else None,
         'data_conclusao_inicio': filtro_data_inicio,
         'data_limite_fim': filtro_data_fim
@@ -220,6 +227,9 @@ def solicitacoes_atividade_listar():
     # Buscar categorias ativas
     categorias = CategoriaModel.listar_categorias_ativas()
     
+    # Buscar areas ativas
+    areas = AreaModel.listar_areas_ativas()
+    
     return render_template(
         "sistema_wr/gerenciar/projetos/solicitacoes_atividade/solicitacoes_atividade_listar.html",
         solicitacoes=solicitacoes,
@@ -227,7 +237,9 @@ def solicitacoes_atividade_listar():
         situacoes=situacoes,
         usuarios=usuarios,
         categorias=categorias,
+        areas=areas,
         CategoriaModel=CategoriaModel,
+        AreaModel=AreaModel,
         dados_corretos=dados_corretos,
         get_cor_situacao=get_cor_situacao_solicitacao,
         filtros={
@@ -237,6 +249,7 @@ def solicitacoes_atividade_listar():
             'situacao_id': filtros_situacao,
             'usuario_id': filtros_usuario,
             'categoria_id': filtros_categoria,
+            'area_id': filtros_area,
             'titulo': filtro_titulo,
             'tipo_filtro': opcaoRadioData
         }
@@ -261,12 +274,16 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
     
     # Buscar categorias ativas
     categorias = CategoriaModel.listar_categorias_ativas()
+
+    # Buscar areas ativas
+    areas = AreaModel.listar_areas_ativas()
     
     if request.method == "POST":
         projeto_id = request.form["projetoId"]
         titulo = request.form["titulo"]
         descricao = request.form.get("descricao", "")
         categoria_id = request.form.get("categoriaId", "").strip() or None
+        area_id = request.form.get("areaId", "").strip() or None
 
 
         if len(titulo) > 100:
@@ -340,7 +357,8 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
                     usuario_solicitante_id=current_user.id,
                     situacao_id=7,  # Em Análise
                     prazo_resposta_dias=prazo_resposta_dias,
-                    categoria_id=categoria_id
+                    categoria_id=categoria_id,
+                    area_id=area_id
                 )
                 
                 db.session.add(solicitacao)
@@ -402,6 +420,7 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
         "sistema_wr/gerenciar/projetos/solicitacoes_atividade/solicitacao_atividade_cadastrar.html",
         projetos=projetos,
         categorias=categorias,
+        areas=areas,
         projeto_id_url=projeto_id,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,
@@ -481,6 +500,7 @@ def atividade_solicitacao_editar(id):
     
     solicitacao = SolicitacaoAtividadeModel.obter_solicitacao_por_id(id)
     categorias = CategoriaModel.listar_categorias_ativas()
+    areas = AreaModel.listar_areas_ativas()
     
     if not solicitacao:
         flash(("Solicitação não encontrada!", "warning"))
@@ -491,8 +511,8 @@ def atividade_solicitacao_editar(id):
         flash(("Você não tem permissão para editar esta solicitação!", "warning"))
         return redirect(url_for("solicitacoes_atividade_listar"))
     
-    if solicitacao.situacao_id != 8:  # 8 = Rejeitada
-        flash(("Apenas solicitações rejeitadas podem ser editadas!", "warning"))
+    if solicitacao.situacao_id == 3:  # 3 = Aceita/Aprovada
+        flash(("Apenas solicitações ainda não aceitas podem ser editadas!", "warning"))
         return redirect(url_for("atividade_solicitacao_visualizar", id=id))
     
     validacao_campos_obrigatorios = {}
@@ -512,6 +532,9 @@ def atividade_solicitacao_editar(id):
         categoria_id = request.form.get("categoriaId")
         if not categoria_id:
             categoria_id = None
+        area_id = request.form.get("areaId")
+        if not area_id:
+            area_id = None
         
         # Campos obrigatórios
         campos = {
@@ -544,6 +567,7 @@ def atividade_solicitacao_editar(id):
                 solicitacao.situacao_id = 7  # 7 = Em Análise (volta para análise)
                 solicitacao.prazo_resposta_dias = prazo_resposta_dias 
                 solicitacao.categoria_id = categoria_id
+                solicitacao.area_id = area_id
                 
                 # Processar anexos se houver
                 anexos = request.files.getlist('anexos[]')
@@ -601,7 +625,8 @@ def atividade_solicitacao_editar(id):
             'projetoId': str(solicitacao.projeto_id),
             'titulo': solicitacao.titulo,
             'descricao': solicitacao.descricao or '',
-            'categoriaId': str(solicitacao.categoria_id)
+            'categoriaId': str(solicitacao.categoria_id) if solicitacao.categoria_id else '',
+            'areaId': str(solicitacao.area_id) if solicitacao.area_id else ''
         }
     
     return render_template(
@@ -611,7 +636,8 @@ def atividade_solicitacao_editar(id):
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,
         dados_corretos=dados_corretos,
-        categorias=categorias
+        categorias=categorias,
+        areas=areas
     )
 
 

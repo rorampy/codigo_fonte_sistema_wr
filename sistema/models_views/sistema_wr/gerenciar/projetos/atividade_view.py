@@ -11,6 +11,7 @@ from sistema.models_views.sistema_wr.autenticacao.usuario_model import UsuarioMo
 from sistema.models_views.sistema_wr.configuracoes.tags.tags_model import TagModel
 from sistema.models_views.sistema_wr.configuracoes.categorias.categoria_model import CategoriaModel
 from sistema.models_views.sistema_wr.configuracoes.email_atividades.email_atividade_model import EmailAtividadeModel
+from sistema.models_views.sistema_wr.configuracoes.area_atividades.area_atividade_model import AreaModel
 from sistema._utilitarios import *
 from datetime import datetime
 import os
@@ -131,9 +132,12 @@ def get_cor_situacao(situacao_id):
     cores = {
         1: 'secondary', # Não iniciada
         2: 'warning',   # Em andamento
-        3: 'success',   # Concluída
-        4: 'danger',    # Cancelada
-        5: 'info'       # Pausada
+        3: 'info',      # Pausada
+        4: 'success',   # Concluída
+        5: 'danger',    # Cancelada
+        6: 'orange',    # Atrasada
+        7: 'primary',   # Em Análise
+        8: 'dark'       # Rejeitada
     }
     return cores.get(situacao_id, 'secondary')
 
@@ -253,6 +257,7 @@ def atividades_listar(projeto_id=None):
     filtros_solicitante = request.args.getlist('solicitante_id')
     filtros_supervisor = request.args.getlist('supervisor_id')
     filtros_categoria = request.args.getlist('categoria_id')
+    filtros_area = request.args.getlist('area_id')
     
 
 
@@ -273,6 +278,7 @@ def atividades_listar(projeto_id=None):
     filtros_solicitante = [s for s in filtros_solicitante if s and s.strip()]
     filtros_supervisor = [s for s in filtros_supervisor if s and s.strip()]
     filtros_categoria = [c for c in filtros_categoria if c and c.strip()]
+    filtros_area = [a for a in filtros_area if a and a.strip()]
 
     atividades = AtividadeModel.query.filter(
         AtividadeModel.deletado == False
@@ -329,12 +335,16 @@ def atividades_listar(projeto_id=None):
     if filtros_categoria:
         atividades = atividades.filter(AtividadeModel.categoria_id.in_(filtros_categoria))
     
+    if filtros_area:
+        atividades = atividades.filter(AtividadeModel.area_id.in_(filtros_area))
+    
     atividades = atividades.order_by(
         AtividadeModel.id.desc(),
         AtividadeModel.data_cadastro.desc()
     ).all()
     
     categorias = CategoriaModel.listar_categorias_ativas()
+    areas = AreaModel.listar_areas_ativas()
     projetos = ProjetoModel.obter_projetos_asc_nome()
     prioridades = PrioridadeAtividadeModel.listar_prioridades_ativas()
     situacoes = AndamentoAtividadeModel.listar_andamentos_ativos()
@@ -349,6 +359,7 @@ def atividades_listar(projeto_id=None):
         usuarios=usuarios,
         tags=TagModel.listar_tags_ativas(),
         categorias=categorias,
+        areas=areas,
         filtros={
             'data_conclusao_inicio': filtro_data_conclusao_inicio,
             'data_conclusao_fim': filtro_data_conclusao_fim,
@@ -360,10 +371,319 @@ def atividades_listar(projeto_id=None):
             'supervisor_id': filtros_supervisor,
             'tag_id': filtros_tag,
             'titulo': filtro_titulo,
-            'categoria_id': filtros_categoria
+            'categoria_id': filtros_categoria,
+            'area_id': filtros_area
         }
     )
 
+
+@app.route("/gerenciar/atividades/exportar")
+@login_required
+@requires_roles
+def atividades_exportar():
+    """Exporta atividades filtradas para Excel com design moderno e resumo"""
+    from io import BytesIO
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+    from openpyxl.utils import get_column_letter
+    
+    # Obter filtros
+    data_inicio = request.args.get('data_inicio')
+    data_fim = request.args.get('data_fim')
+    filtros_projeto = [p for p in request.args.getlist('projeto_id') if p and p.strip()]
+    filtros_situacao = [s for s in request.args.getlist('situacao_id') if s and s.strip()]
+    filtros_categoria = [c for c in request.args.getlist('categoria_id') if c and c.strip()]
+    filtros_area = [a for a in request.args.getlist('area_id') if a and a.strip()]
+    
+    # Query base
+    atividades = AtividadeModel.query.filter(AtividadeModel.deletado == False)
+    
+    # Aplicar filtros
+    if data_inicio:
+        try:
+            data_inicio_obj = datetime.strptime(data_inicio, '%Y-%m-%d').date()
+            atividades = atividades.filter(AtividadeModel.data_prazo_conclusao >= data_inicio_obj)
+        except ValueError:
+            pass
+    
+    if data_fim:
+        try:
+            data_fim_obj = datetime.strptime(data_fim, '%Y-%m-%d').date()
+            atividades = atividades.filter(AtividadeModel.data_prazo_conclusao <= data_fim_obj)
+        except ValueError:
+            pass
+    
+    if filtros_projeto:
+        atividades = atividades.filter(AtividadeModel.projeto_id.in_(filtros_projeto))
+    
+    if filtros_situacao:
+        atividades = atividades.filter(AtividadeModel.situacao_id.in_(filtros_situacao))
+    
+    if filtros_categoria:
+        atividades = atividades.filter(AtividadeModel.categoria_id.in_(filtros_categoria))
+    
+    if filtros_area:
+        atividades = atividades.filter(AtividadeModel.area_id.in_(filtros_area))
+    
+    atividades = atividades.order_by(AtividadeModel.id.desc()).all()
+    
+    # Criar workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Relatorio de Atividades"
+    
+    # ========== PALETA DE CORES ==========
+    AZUL_PRIMARIO = "1a73e8"
+    AZUL_ESCURO = "0d47a1"
+    VERDE_SUCESSO = "34a853"
+    AMARELO_ALERTA = "fbbc04"
+    VERMELHO_PERIGO = "ea4335"
+    CINZA_CLARO = "f8f9fa"
+    CINZA_MEDIO = "e9ecef"
+    BRANCO = "ffffff"
+    PRETO = "212529"
+    
+    # ========== ESTILOS ==========
+    thin_border = Border(
+        left=Side(style='thin', color=CINZA_MEDIO),
+        right=Side(style='thin', color=CINZA_MEDIO),
+        top=Side(style='thin', color=CINZA_MEDIO),
+        bottom=Side(style='thin', color=CINZA_MEDIO)
+    )
+    
+    # ========== CABEÇALHO DO RELATÓRIO ==========
+    num_colunas = 12  # Total de colunas da tabela
+    ws.merge_cells(f'A1:{get_column_letter(num_colunas)}1')
+    header_cell = ws['A1']
+    header_cell.value = "RELATORIO DE ATIVIDADES WR"
+    header_cell.font = Font(bold=True, size=20, color=BRANCO)
+    header_cell.fill = PatternFill(start_color=AZUL_ESCURO, end_color=AZUL_ESCURO, fill_type="solid")
+    header_cell.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[1].height = 35
+    
+    # Subtítulo
+    ws.merge_cells(f'A2:{get_column_letter(num_colunas)}2')
+    subtitle_cell = ws['A2']
+    subtitle_cell.value = f"Gerado em: {datetime.now().strftime('%d/%m/%Y as %H:%M')} | Por: {current_user.nome} {current_user.sobrenome}"
+    subtitle_cell.font = Font(italic=True, size=10, color=BRANCO)
+    subtitle_cell.fill = PatternFill(start_color=AZUL_PRIMARIO, end_color=AZUL_PRIMARIO, fill_type="solid")
+    subtitle_cell.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[2].height = 22
+    
+    # ========== FILTROS APLICADOS ==========
+    filtros_texto = []
+    if data_inicio:
+        filtros_texto.append(f"Data Início: {datetime.strptime(data_inicio, '%Y-%m-%d').strftime('%d/%m/%Y')}")
+    if data_fim:
+        filtros_texto.append(f"Data Fim: {datetime.strptime(data_fim, '%Y-%m-%d').strftime('%d/%m/%Y')}")
+    if filtros_projeto:
+        from sistema.models_views.sistema_wr.gerenciar.projetos.projeto_model import ProjetoModel
+        nomes_projetos = [p.nome_projeto for p in ProjetoModel.query.filter(ProjetoModel.id.in_(filtros_projeto)).all()]
+        filtros_texto.append(f"Projetos: {', '.join(nomes_projetos[:3])}{'...' if len(nomes_projetos) > 3 else ''}")
+    if filtros_situacao:
+        nomes_situacoes = [s.nome for s in AndamentoAtividadeModel.query.filter(AndamentoAtividadeModel.id.in_(filtros_situacao)).all()]
+        filtros_texto.append(f"Situações: {', '.join(nomes_situacoes)}")
+    if filtros_categoria:
+        nomes_categorias = [c.nome for c in CategoriaModel.query.filter(CategoriaModel.id.in_(filtros_categoria)).all()]
+        filtros_texto.append(f"Categorias: {', '.join(nomes_categorias[:3])}{'...' if len(nomes_categorias) > 3 else ''}")
+    if filtros_area:
+        from sistema.models_views.sistema_wr.configuracoes.area_atividades.area_atividade_model import AreaModel
+        nomes_areas = [a.nome for a in AreaModel.query.filter(AreaModel.id.in_(filtros_area)).all()]
+        filtros_texto.append(f"Áreas: {', '.join(nomes_areas)}")
+    
+    # Linha de filtros (linha 3), só aparece se houver filtros
+    current_row = 3
+    if filtros_texto:
+        ws.merge_cells(f'A{current_row}:{get_column_letter(num_colunas)}{current_row}')
+        filtros_cell = ws.cell(row=current_row, column=1)
+        filtros_cell.value = "FILTROS: " + "  |  ".join(filtros_texto)
+        filtros_cell.font = Font(size=9, color="666666", italic=True)
+        filtros_cell.fill = PatternFill(start_color=CINZA_CLARO, end_color=CINZA_CLARO, fill_type="solid")
+        filtros_cell.alignment = Alignment(horizontal="center", vertical="center")
+        ws.row_dimensions[current_row].height = 20
+        current_row += 1
+    
+    # ========== CALCULAR MÉTRICAS ==========
+    hoje = datetime.now().date()
+    total_atividades = len(atividades)
+    total_horas_necessarias = sum(a.horas_necessarias or 0 for a in atividades)
+    total_horas_utilizadas = sum(a.horas_utilizadas or 0 for a in atividades)
+    total_valor = sum((a.valor_atividade_100 or 0) / 100 for a in atividades)
+    
+    nao_iniciadas = sum(1 for a in atividades if a.situacao_id == 1)
+    em_andamento = sum(1 for a in atividades if a.situacao_id == 2)
+    pausadas = sum(1 for a in atividades if a.situacao_id == 3)
+    concluidas = sum(1 for a in atividades if a.situacao_id == 4)
+    canceladas = sum(1 for a in atividades if a.situacao_id == 5)
+    atrasadas = sum(1 for a in atividades if a.situacao_id == 6)
+    
+    # ========== RESUMO EXECUTIVO - CARDS MODERNOS ==========
+    ws.merge_cells(f'A{current_row}:{get_column_letter(num_colunas)}{current_row}')
+    resumo_title = ws.cell(row=current_row, column=1)
+    resumo_title.value = "DASHBOARD DE INDICADORES"
+    resumo_title.font = Font(bold=True, size=14, color=AZUL_ESCURO)
+    resumo_title.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[current_row].height = 28
+    current_row += 1
+    
+    # KPI Cards - 2 linhas (Label em cima, Valor embaixo)
+    kpi_label_row = current_row
+    kpi_value_row = current_row + 1
+    
+    kpi_configs = [
+        # (label, value, bg_color, text_color, cols_start, cols_end)
+        ("TOTAL", str(total_atividades), "e3f2fd", AZUL_ESCURO, 1, 2),
+        ("NÃO INICIADAS", str(nao_iniciadas), "e0e0e0", "6c757d", 3, 4),
+        ("EM ANDAMENTO", str(em_andamento), "fff3e0", "e65100", 5, 6),
+        ("PAUSADAS", str(pausadas), "e1f5fe", "0277bd", 7, 8),
+        ("CONCLUÍDAS", str(concluidas), "e8f5e9", VERDE_SUCESSO, 9, 10),
+        ("CANCELADAS", str(canceladas), "ffebee", VERMELHO_PERIGO, 11, 12)
+    ]
+    
+    for label, value, bg_color, text_color, col_start, col_end in kpi_configs:
+        # Merge cells para o card
+        ws.merge_cells(start_row=kpi_label_row, start_column=col_start, end_row=kpi_label_row, end_column=col_end)
+        ws.merge_cells(start_row=kpi_value_row, start_column=col_start, end_row=kpi_value_row, end_column=col_end)
+        
+        fill = PatternFill(start_color=bg_color, end_color=bg_color, fill_type="solid")
+        border_card = Border(
+            left=Side(style='thin', color=CINZA_MEDIO),
+            right=Side(style='thin', color=CINZA_MEDIO),
+            top=Side(style='thin', color=CINZA_MEDIO),
+            bottom=Side(style='thin', color=CINZA_MEDIO)
+        )
+        
+        # Label
+        label_cell = ws.cell(row=kpi_label_row, column=col_start, value=label)
+        label_cell.font = Font(bold=True, size=8, color="666666")
+        label_cell.fill = fill
+        label_cell.alignment = Alignment(horizontal="center", vertical="bottom")
+        label_cell.border = border_card
+        
+        # Value
+        value_cell = ws.cell(row=kpi_value_row, column=col_start, value=value)
+        value_cell.font = Font(bold=True, size=16, color=text_color)
+        value_cell.fill = fill
+        value_cell.alignment = Alignment(horizontal="center", vertical="top")
+        value_cell.border = border_card
+    
+    ws.row_dimensions[kpi_label_row].height = 22
+    ws.row_dimensions[kpi_value_row].height = 32
+    current_row += 2
+    
+    # ========== TABELA DE DADOS ==========
+    ws.merge_cells(f'A{current_row}:{get_column_letter(num_colunas)}{current_row}')
+    table_title = ws.cell(row=current_row, column=1)
+    table_title.value = "LISTA DETALHADA DE ATIVIDADES"
+    table_title.font = Font(bold=True, size=12, color=AZUL_ESCURO)
+    table_title.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[current_row].height = 25
+    current_row += 1
+    
+    # Cabeçalhos da tabela (sem Hrs Nec, Hrs Util, Valor, Cadastro)
+    headers = [
+        "ID", "Título", "Projeto", "Situação", "Prioridade", "Categoria", "Área",
+        "Solicitante", "Supervisor", "DEV", "Prazo", "Dias Atraso"
+    ]
+    
+    header_row = current_row
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=header_row, column=col, value=header)
+        cell.font = Font(bold=True, size=10, color=BRANCO)
+        cell.fill = PatternFill(start_color=AZUL_ESCURO, end_color=AZUL_ESCURO, fill_type="solid")
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        cell.border = thin_border
+    
+    ws.row_dimensions[header_row].height = 28
+    
+    # Dados
+    for idx, atividade in enumerate(atividades):
+        row = header_row + 1 + idx
+        bg_color = CINZA_CLARO if idx % 2 == 0 else BRANCO
+        fill = PatternFill(start_color=bg_color, end_color=bg_color, fill_type="solid")
+        
+        # Cores por situação: 1=Não iniciada, 2=Em andamento, 3=Pausada, 4=Concluída, 5=Cancelada, 6=Atrasada, 7=Em Análise, 8=Rejeitada
+        situacao_cores = {
+            1: "6c757d",        # Não iniciada - cinza
+            2: AMARELO_ALERTA,  # Em andamento - amarelo
+            3: "17a2b8",        # Pausada - azul info
+            4: VERDE_SUCESSO,   # Concluída - verde
+            5: VERMELHO_PERIGO, # Cancelada - vermelho
+            6: "ff6b35",        # Atrasada - laranja
+            7: "0d6efd",        # Em Análise - azul primário
+            8: "343a40"         # Rejeitada - cinza escuro
+        }
+        situacao_cor = situacao_cores.get(atividade.situacao_id, PRETO)
+        
+        # Calcular dias de atraso (não aplicável para Concluída=4, Cancelada=5, Atrasada=6)
+        dias_atraso = ""
+        if atividade.data_prazo_conclusao and atividade.situacao_id not in [4, 5, 6]:
+            diff = (hoje - atividade.data_prazo_conclusao).days
+            dias_atraso = diff if diff > 0 else 0
+        elif atividade.situacao_id in [4, 5, 6]:
+            dias_atraso = "-"
+        
+        dados = [
+            atividade.id,
+            atividade.titulo[:50] + "..." if len(atividade.titulo or "") > 50 else atividade.titulo,
+            atividade.projeto.nome_projeto[:25] + "..." if atividade.projeto and len(atividade.projeto.nome_projeto) > 25 else (atividade.projeto.nome_projeto if atividade.projeto else "-"),
+            atividade.situacao.nome if atividade.situacao else "-",
+            atividade.prioridade.nome if atividade.prioridade else "-",
+            atividade.categoria.nome if atividade.categoria else "-",
+            atividade.area.nome if atividade.area else "-",
+            f"{atividade.usuario_solicitante.nome} {atividade.usuario_solicitante.sobrenome[0]}." if atividade.usuario_solicitante else "-",
+            f"{atividade.supervisor.nome} {atividade.supervisor.sobrenome[0]}." if atividade.supervisor else "-",
+            f"{atividade.desenvolvedor.nome} {atividade.desenvolvedor.sobrenome[0]}." if atividade.desenvolvedor else "-",
+            atividade.data_prazo_conclusao.strftime('%d/%m/%Y') if atividade.data_prazo_conclusao else "-",
+            dias_atraso
+        ]
+        
+        for col, valor in enumerate(dados, 1):
+            cell = ws.cell(row=row, column=col, value=valor)
+            cell.border = thin_border
+            cell.fill = fill
+            cell.alignment = Alignment(horizontal="left" if col == 2 else "center", vertical="center")
+            cell.font = Font(size=9, color=PRETO)
+            
+            # Cor especial para situação
+            if col == 4:
+                cell.font = Font(size=9, color=situacao_cor, bold=True)
+            # Cor para dias de atraso
+            if col == 12 and isinstance(dias_atraso, int) and dias_atraso > 0:
+                cell.font = Font(size=9, color=VERMELHO_PERIGO, bold=True)
+        
+        ws.row_dimensions[row].height = 20
+    
+    # ========== APLICAR AUTOFILTRO ==========
+    last_data_row = header_row + len(atividades)
+    ws.auto_filter.ref = f"A{header_row}:{get_column_letter(num_colunas)}{last_data_row}"
+    
+    # ========== AJUSTAR LARGURA DAS COLUNAS ==========
+    column_widths = [6, 50, 28, 14, 12, 15, 15, 18, 18, 18, 12, 11]
+    for col, width in enumerate(column_widths, 1):
+        ws.column_dimensions[get_column_letter(col)].width = width
+    
+    # ========== RODAPÉ ==========
+    footer_row = last_data_row + 1
+    ws.merge_cells(f'A{footer_row}:{get_column_letter(num_colunas)}{footer_row}')
+    footer_cell = ws.cell(row=footer_row, column=1)
+    footer_cell.value = f"Total de registros: {total_atividades} | Sistema WR - {datetime.now().year}"
+    footer_cell.font = Font(italic=True, size=9, color="666666")
+    footer_cell.alignment = Alignment(horizontal="center", vertical="center")
+    
+    # Salvar
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    nome_arquivo = f"relatorio_atividades_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+    
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=nome_arquivo,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 @app.route("/gerenciar/atividades/cadastrar", methods=["GET", "POST"])
 @app.route("/gerenciar/atividades/cadastrar/<int:projeto_id>", methods=["GET", "POST"])
@@ -374,6 +694,8 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
     validacao_campos_obrigatorios = {}
     validacao_campos_erros = {}
     gravar_banco = True
+    categorias = CategoriaModel.listar_categorias_ativas()
+    areas = AreaModel.listar_areas_ativas()
 
     projetos = ProjetoModel.obter_projetos_asc_nome()
     prioridades = PrioridadeAtividadeModel.listar_prioridades_ativas()
@@ -414,7 +736,8 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
         supervisor_id = request.form.get("supervisorId")
         desenvolvedor_id = request.form.get("desenvolvedorId")
         usuario_solicitante_id = request.form.get("usuarioSolicitanteId")
-        
+        categoria_id = request.form.get("categoria_id", "").strip() or None
+        area_id = request.form.get("area_id", "").strip() or None
         tags_ids_str = _extrair_tag_ids_do_request(request.form, "tag_id")
 
         campos = {
@@ -518,6 +841,8 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
                     valor_atividade_100=valor_atividade_100,
                     prioridade_id=prioridade_id,
                     situacao_id=situacao_id,
+                    categoria_id=categoria_id,
+                    area_id=area_id 
                 )
                 
                 db.session.add(atividade)
@@ -597,7 +922,9 @@ def atividade_cadastrar(projeto_id=None, solicitacao_id=None):
         campos_erros=validacao_campos_erros,
         dados_corretos=dados_corretos,
         projeto_id_url=projeto_id,
-        solicitacao_id=solicitacao_id
+        solicitacao_id=solicitacao_id,
+        categorias=categorias,
+        areas=areas
     )
 
 
@@ -671,6 +998,7 @@ def atividade_editar(atividade_id):
     usuarios = UsuarioModel.obter_usuarios_asc_nome()
     tags = TagModel.listar_tags_ativas()
     categorias = CategoriaModel.listar_categorias_ativas()
+    areas = AreaModel.listar_areas_ativas()
     
 
     if request.method == "POST":
@@ -687,6 +1015,7 @@ def atividade_editar(atividade_id):
         desenvolvedor_id = request.form.get("desenvolvedorId")
         usuario_solicitante_id = request.form.get("usuarioSolicitanteId")
         categoria_id = request.form.get("categoria_id", "").strip() or None
+        area_id = request.form.get("area_id", "").strip() or None
         
         tag_ids_str = _extrair_tag_ids_do_request(request.form, "tag_id")
 
@@ -797,7 +1126,7 @@ def atividade_editar(atividade_id):
                 atividade.desenvolvedor_id = desenvolvedor_id if desenvolvedor_id else None
                 atividade.usuario_solicitante_id = usuario_solicitante_id if usuario_solicitante_id else None
                 atividade.categoria_id = categoria_id
-                
+                atividade.area_id = area_id
                 atividade.tags = tags_processadas
 
 
@@ -872,7 +1201,9 @@ def atividade_editar(atividade_id):
             'supervisorId': str(atividade.supervisor_id) if atividade.supervisor_id else '',
             'desenvolvedorId': str(atividade.desenvolvedor_id) if atividade.desenvolvedor_id else '',
             'usuarioSolicitanteId': str(atividade.usuario_solicitante_id) if atividade.usuario_solicitante_id else '',
-            'tag_id':[str(t.id) for t in (atividade.tags or [])]
+            'tag_id':[str(t.id) for t in (atividade.tags or [])],
+            'categoria_id': str(atividade.categoria_id) if atividade.categoria_id else '',
+            'area_id': str(atividade.area_id) if atividade.area_id else '',
         }
 
     return render_template(
@@ -884,6 +1215,7 @@ def atividade_editar(atividade_id):
         usuarios=usuarios,
         tags=tags,
         categorias=categorias,
+        areas=areas,
         TagModel=TagModel,
         campos_obrigatorios=validacao_campos_obrigatorios,
         campos_erros=validacao_campos_erros,

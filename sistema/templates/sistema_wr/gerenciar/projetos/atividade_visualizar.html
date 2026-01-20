@@ -83,7 +83,8 @@
                         <span class="avatar avatar-sm me-2">
                           {{ atividade.usuario_solicitante.nome[0].upper() }}
                         </span>
-                        {{ atividade.usuario_solicitante.nome + ' ' + (atividade.usuario_solicitante.sobrenome[0] + '.' or '') }}
+                        {{ atividade.usuario_solicitante.nome + ' ' + (atividade.usuario_solicitante.sobrenome[0] + '.'
+                        or '') }}
                       </div>
                       {% else %}
                       <span class="text-muted">Não informado</span>
@@ -142,6 +143,7 @@
                   </div>
                 </div>
               </div>
+
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
@@ -154,6 +156,8 @@
                     </div>
                   </div>
                 </div>
+
+
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label class="form-label text-muted">Categoria</label>
@@ -163,12 +167,80 @@
                         {{ atividade.categoria.nome }}
                       </span>
                       {% else %}
-                      —
+                      <span class="text-muted ms-4">—</span>
                       {% endif %}
                     </div>
                   </div>
                 </div>
+
               </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted">Área</label>
+                    <div>
+                      {% if atividade.area and atividade.area.nome %}
+                      <span class="badge badge-outline text-default">
+                        {{ atividade.area.nome }}
+                      </span>
+                      {% else %}
+                      <span class="text-muted ms-2">—</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted ms-3">Tags</label>
+                    <div>
+                      {% if atividade.tags %}
+                      {% set tags_visiveis = atividade.tags|selectattr('deletado', 'equalto', false)|list %}
+                      {% if tags_visiveis|length == 0 %}
+                      <span class="text-muted ms-2">—</span>
+                      {% elif tags_visiveis|length == 1 %}
+                      <span class="badge badge-outline {{ tags_visiveis[0].cor }} px-2 py-1">
+                        {{ tags_visiveis[0].nome }}
+                      </span>
+                      {% else %}
+                      <div class="d-inline-block position-relative">
+                        <a href="#" class="text-decoration-none text-muted" data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="#677592" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-tags ms-3">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path
+                              d="M3 8v4.172a2 2 0 0 0 .586 1.414l5.71 5.71a2.41 2.41 0 0 0 3.408 0l3.592 -3.592a2.41 2.41 0 0 0 0 -3.408l-5.71 -5.71a2 2 0 0 0 -1.414 -.586h-4.172a2 2 0 0 0 -2 2z" />
+                            <path d="M18 19l1.592 -1.592a4.82 4.82 0 0 0 0 -6.816l-4.592 -4.592" />
+                            <path d="M7 10h-.01" />
+                          </svg>
+                          <span class="badge bg-blue text-red-fg position-absolute top-0 start-100 translate-middle"
+                            style="font-size: 0.625rem; padding: 0.125rem 0.375rem;">{{ tags_visiveis|length }}</span>
+                        </a>
+                        <div class="dropdown-menu p-2" style="max-width: 200px;">
+                          <div class="dropdown-header px-0 text-center">
+                            Tags da Atividade
+                          </div>
+                          <hr class="dropdown-divider mt-1 mb-1">
+                          {% for tag in tags_visiveis %}
+                          <span class="badge badge-outline {{ tag.cor }} px-2 py-1 m-1 d-inline-block">
+                            {{ tag.nome }}
+                          </span>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      {% endif %}
+                      {% else %}
+                      <span class="text-muted ms-4">—</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </div>

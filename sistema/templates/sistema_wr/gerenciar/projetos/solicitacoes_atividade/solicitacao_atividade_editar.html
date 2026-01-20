@@ -40,7 +40,7 @@
         <div class="row row-cards">
 
           <!-- Coluna 1: Informações da Solicitação -->
-          <div class="col-md-6">
+          <div class="{% if solicitacao.situacao_id == 8 %}col-md-6{% else %}col-md-12{% endif %}">
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">
@@ -85,6 +85,19 @@
                     <option value="{{ categoria.id }}" {% if dados_corretos.categoriaId==categoria.id|string
                       %}selected{% endif %}>
                       {{ categoria.nome }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <!-- Area -->
+                <div class="mb-3">
+                  <label class="form-label">Área</label>
+                  <select class="form-select" name="areaId">
+                    <option value="">Selecione uma área</option>
+                    {% for area in areas %}
+                    <option value="{{ area.id }}" {% if dados_corretos.areaId==area.id|string %}selected{% endif %}>
+                      {{ area.nome }}
                     </option>
                     {% endfor %}
                   </select>
@@ -182,6 +195,8 @@
             </div>
           </div>
 
+          <!-- Se a solicitação tiver sido rejeitada -->
+          {% if solicitacao.situacao_id == 8 %}
           <!-- Coluna 2: Motivo da Rejeição -->
           <div class="col-md-6">
             <div class="card">
@@ -211,12 +226,14 @@
                         <path d="M12 16h.01" />
                       </svg>
                     </div>
+
                     <div class="flex-fill">
                       <div class="font-weight-medium fw-bold">Sua solicitação foi rejeitada</div>
                       <div class="text-red">
                         {{ solicitacao.motivo_rejeicao | replace('\n', '<br>') | safe }}
                       </div>
                     </div>
+
                   </div>
                 </div>
 
@@ -271,7 +288,7 @@
               </div>
             </div>
           </div>
-
+          {% endif %}
         </div>
 
         <!-- Alert de Atenção (ocupa toda a largura) -->
@@ -306,9 +323,9 @@
         <div class="row mt-3">
           <div class="col-12">
             <div class="card">
-              <div class="card-footer text-center">
+              <div class="card-footer d-flex justify-content-between">
                 <a href="{{ url_for('atividade_solicitacao_visualizar', id=solicitacao.id) }}"
-                  class="btn btn-secondary me-2">
+                  class="btn btn-secondary">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                     stroke-width="2" stroke="currentColor" fill="none">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -318,6 +335,7 @@
                   </svg>
                   Cancelar
                 </a>
+
                 <button type="submit" class="btn btn-primary">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                     stroke-width="2" stroke="currentColor" fill="none">
@@ -327,6 +345,7 @@
                   </svg>
                   Salvar e Reenviar
                 </button>
+
               </div>
             </div>
           </div>

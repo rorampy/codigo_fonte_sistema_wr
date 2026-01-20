@@ -29,7 +29,8 @@
             <!-- Informações Básicas -->
             <h3 class="text-primary mb-3">Informações Básicas</h3>
             <div class="row">
-              <div class="col-md-3">
+
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label required">Projeto</label>
                   <select name="projetoId"
@@ -48,7 +49,7 @@
                 </div>
               </div>
 
-              <div class="col-md-5">
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label required">Título</label>
                   <input type="text" name="titulo" value="{{ dados_corretos.get('titulo', '') }}"
@@ -60,59 +61,81 @@
                 </div>
               </div>
 
-              <div class="col-md-2">
-                <div class="mb-3">
-                  <label class="form-label">Categoria</label>
-                  <select name="categoria_id" class="form-select">
-                    <option value="">Nenhuma</option>
-                    {% for categoria in categorias %}
-                    <option value="{{ categoria.id }}" {% if
-                      dados_corretos.get('categoria_id')|string==categoria.id|string or (not
-                      dados_corretos.get('categoria_id') and atividade.categoria_id==categoria.id) %}selected{% endif
-                      %}>
-                      {{ categoria.nome }}
-                    </option>
-                    {% endfor %}
-                  </select>
-                </div>
-              </div>
+            </div>
 
-              <div class="col-md-2">
-                <div class="mb-3">
-                  <label class="form-label">Tags</label>
-                  <div class="dropdown">
-                    <button class="form-select text-start {% if 'tag_id' in campos_erros %}is-invalid{% endif %}"
-                      type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      <span id="tag-label-cadastro">Selecione...</span>
-                    </button>
-                    <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
-                      <li>
-                        <label class="dropdown-item">
-                          <input type="checkbox" class="form-check-input me-2" id="tag-todas-cadastro">
-                          Todas as Tags
-                        </label>
-                      </li>
-                      <li>
-                        <hr class="dropdown-divider">
-                      </li>
-                      {% for tag in tags %}
-                      <li>
-                        <label class="dropdown-item">
-                          <input type="checkbox" name="tag_id" value="{{ tag.id }}"
-                            class="form-check-input me-2 tag-checkbox-cadastro" {% if dados_corretos.get('tag_id') and
-                            tag.id|string in dados_corretos.get('tag_id') %}checked{% endif %}>
-                          <span class="badge badge-sm {{ tag.cor }} me-1"></span>
-                          {{ tag.nome }}
-                        </label>
-                      </li>
+
+            <div class="col-12">
+              <div class="row">
+
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label class="form-label">Categoria</label>
+                    <select name="categoria_id" class="form-select">
+                      <option value="">Nenhuma</option>
+                      {% for categoria in categorias %}
+                      <option value="{{ categoria.id }}" {% if
+                        dados_corretos.get('categoria_id')|string==categoria.id|string or (not
+                        dados_corretos.get('categoria_id') and atividade.categoria_id==categoria.id) %}selected{% endif
+                        %}>
+                        {{ categoria.nome }}
+                      </option>
                       {% endfor %}
-                    </ul>
+                    </select>
                   </div>
-                  {% if 'tag_id' in campos_erros %}
-                  <div class="invalid-feedback d-block">
-                    {{ campos_erros.get('tag_id') }}
+                </div>
+
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label class="form-label">Área</label>
+                    <select name="area_id" class="form-select">
+                      <option value="">Nenhuma</option>
+                      {% for area in areas %}
+                      <option value="{{ area.id }}" {% if dados_corretos.get('area_id')|string==area.id|string or (not
+                        dados_corretos.get('area_id') and atividade.area_id==area.id) %}selected{% endif %}>
+                        {{ area.nome }}
+                      </option>
+                      {% endfor %}
+                    </select>
                   </div>
-                  {% endif %}
+                </div>
+
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label class="form-label">Tags</label>
+                    <div class="dropdown">
+                      <button class="form-select text-start {% if 'tag_id' in campos_erros %}is-invalid{% endif %}"
+                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="tag-label-cadastro">Selecione...</span>
+                      </button>
+                      <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+                        <li>
+                          <label class="dropdown-item">
+                            <input type="checkbox" class="form-check-input me-2" id="tag-todas-cadastro">
+                            Todas as Tags
+                          </label>
+                        </li>
+                        <li>
+                          <hr class="dropdown-divider">
+                        </li>
+                        {% for tag in tags %}
+                        <li>
+                          <label class="dropdown-item">
+                            <input type="checkbox" name="tag_id" value="{{ tag.id }}"
+                              class="form-check-input me-2 tag-checkbox-cadastro" {% if dados_corretos.get('tag_id') and
+                              tag.id|string in dados_corretos.get('tag_id') %}checked{% endif %}>
+                            <span class="badge badge-sm {{ tag.cor }} me-1"></span>
+                            {{ tag.nome }}
+                          </label>
+                        </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                    {% if 'tag_id' in campos_erros %}
+                    <div class="invalid-feedback d-block">
+                      {{ campos_erros.get('tag_id') }}
+                    </div>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -262,12 +285,15 @@
                   <small class="form-hint">Estimativa de horas para completar</small>
                 </div>
               </div>
+
+
               <div class="col-md-3">
                 <div class="mb-3">
                   <label class="form-label">Prazo de Conclusão</label>
                   <input type="date" name="dataPrazoConclusao"
                     value="{{ dados_corretos.get('dataPrazoConclusao', '') }}"
-                    class="form-control {% if 'dataPrazoConclusao' in campos_erros %}is-invalid{% endif %}">
+                    class="form-control {% if 'dataPrazoConclusao' in campos_erros %}is-invalid{% endif %}" {% if
+                    current_user.role_id !=1 %}disabled{% endif %}>
                   <div class="invalid-feedback">
                     {{ campos_erros.get('dataPrazoConclusao') }}
                   </div>
@@ -286,6 +312,7 @@
                   {% endif %}
                 </div>
               </div>
+
               <div class="col-md-3">
                 <div class="mb-3">
                   <label class="form-label">Valor da Atividade</label>
