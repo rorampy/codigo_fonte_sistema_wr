@@ -13,25 +13,57 @@ DB_PATH = os.path.join(BASE_DIR, 'bd_tarefas.db')
 # instância
 huey = SqliteHuey(filename=DB_PATH)
 
-
-@huey.task(retries=3, retry_delay=30) # mantido 1 retrie considerando alguma falha de conexão
-def enviar_email_html(titulo, corpo, destinatario):
-    server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORTA, timeout=10)
-    
-    # se quiser ativar o debug do smtplib
-    # server.set_debuglevel(1)
-    server.starttls()
-    server.login(EMAIL_LOGIN, EMAIL_SENHA)
-    email_msg = MIMEMultipart()
-    email_msg['From'] = EMAIL_LOGIN
-    email_msg['To'] = destinatario
-    email_msg['Subject'] = titulo
-    email_msg.attach(MIMEText(corpo, 'html'))    # 'plain' = tipo texto | 'html' = tipo HTML
-    
-    server.sendmail(email_msg['From'], email_msg['To'], email_msg.as_string())
-    server.quit()
-    flask_logger.info(f'E-mail enviado com sucesso para o destinatario {destinatario}')
-    return True
+# Tarefa para enviar e-mail HTML - Altera dinamicamente o protocolo baseado na porta
+@huey.task(retries=3, retry_delay=30) 
+def enviar_email_html(titulo, corpo, destinatario): 
+    """
+    Envia e-mail HTML usando o protocolo correto baseado na porta configurada.
+    - Porta 465: SSL implícito (SMTP_SSL)
+    - Porta 587: STARTTLS (SMTP + starttls())
+    """
+    try:
+        flask_logger.info(f'[DEBUG] Iniciando envio de e-mail para {destinatario}')
+        flask_logger.info(f'[DEBUG] Configurações SMTP - Host: {EMAIL_HOST}, Porta: {EMAIL_PORTA}')
+        
+        # Seleciona protocolo baseado na porta
+        if EMAIL_PORTA == 465:
+            # SSL implícito
+            flask_logger.info(f'[DEBUG] Usando SMTP_SSL (porta 465)')
+            server = smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORTA, timeout=10)
+        else:
+            # STARTTLS (porta 587 ou outras)
+            flask_logger.info(f'[DEBUG] Usando SMTP + STARTTLS (porta {EMAIL_PORTA})')
+            server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORTA, timeout=10)
+            server.starttls()
+        
+        flask_logger.info(f'[DEBUG] Conexão SMTP estabelecida com sucesso')
+        
+        flask_logger.info(f'[DEBUG] Tentando fazer login...')
+        server.login(EMAIL_LOGIN, EMAIL_SENHA)
+        flask_logger.info(f'[DEBUG] Login realizado com sucesso')
+        
+        email_msg = MIMEMultipart()
+        email_msg['From'] = EMAIL_LOGIN
+        email_msg['To'] = destinatario
+        email_msg['Subject'] = titulo
+        email_msg.attach(MIMEText(corpo, 'html'))
+        
+        flask_logger.info(f'[DEBUG] Enviando e-mail...')
+        server.sendmail(email_msg['From'], email_msg['To'], email_msg.as_string())
+        server.quit()
+        
+        flask_logger.info(f'E-mail enviado com sucesso para o destinatario {destinatario}')
+        return True
+        
+    except smtplib.SMTPAuthenticationError as e:
+        flask_logger.error(f'[DEBUG] ERRO de autenticação SMTP: {str(e)}')
+        raise
+    except smtplib.SMTPException as e:
+        flask_logger.error(f'[DEBUG] ERRO SMTP: {str(e)}')
+        raise
+    except Exception as e:
+        flask_logger.error(f'[DEBUG] ERRO inesperado ao enviar e-mail: {type(e).__name__} - {str(e)}')
+        raise
 
 @huey.periodic_task(crontab(minute=0, hour=0)) # Executa todos os dias as 00:00
 def validar_vigencia_contratos():

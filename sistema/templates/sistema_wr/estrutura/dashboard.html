@@ -146,9 +146,6 @@
     line-height: 1.5;
   }
 
-  .welcome-subtitle br {
-    display: none;
-  }
 
   /* ==================== SEÇÃO MEU PAINEL ==================== */
   .metrics-section {
@@ -588,10 +585,6 @@
       font-size: 1.25rem;
     }
 
-    .welcome-subtitle br {
-      display: block;
-    }
-
     .metric-card {
       padding: 0.875rem;
     }
@@ -636,7 +629,7 @@
       <div class="welcome-header">
         <h3 class="welcome-title">Olá, {{ current_user.nome }} {{ current_user.sobrenome }}</h3>
         <p class="welcome-subtitle">
-          Bem-vindo ao Sistema WR.
+          Bem-vindo ao Sistema WR.</span>
           <br>
           Selecione uma opção abaixo para começar.
         </p>

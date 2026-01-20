@@ -188,7 +188,7 @@
             <div class="dropdown-menu-columns">
               <div class="dropdown-menu-column">
                 <a class="dropdown-item" href="{{ url_for('kanban_visualizar') }}">
-                  Visualizar Kankan
+                  Visualizar Kanban
                 </a>
                 <a class="dropdown-item" href="{{ url_for('solicitacoes_atividade_listar') }}">
                   Solicitações de Atividades
@@ -341,7 +341,10 @@
                       'editar_categoria',
                       'excluir_categoria',
                       'tags_listar',
-                      'changelog_listar'
+                      'changelog_listar',
+                      'email_atividades_gerenciar',
+                      'email_atividades_salvar',
+                      'email_atividades_preview'
                 ] %} 
                   active 
                 {% endif %}">
