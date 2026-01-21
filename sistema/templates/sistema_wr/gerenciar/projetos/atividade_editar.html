@@ -278,7 +278,7 @@
                   <label class="form-label">Horas Necessárias</label>
                   <input type="text" name="horasNecessarias" value="{{ dados_corretos.get('horasNecessarias', '0') }}"
                     class="form-control {% if 'horasNecessarias' in campos_erros %}is-invalid{% endif %} campo-float"
-                    placeholder="0">
+                    placeholder="0" {% if current_user.role_id !=1 %}readonly disabled{% endif %}>
                   <div class="invalid-feedback">
                     {{ campos_erros.get('horasNecessarias') }}
                   </div>
@@ -293,10 +293,11 @@
                   <input type="date" name="dataPrazoConclusao"
                     value="{{ dados_corretos.get('dataPrazoConclusao', '') }}"
                     class="form-control {% if 'dataPrazoConclusao' in campos_erros %}is-invalid{% endif %}" {% if
-                    current_user.role_id !=1 %}disabled{% endif %}>
+                    current_user.role_id !=1 %}readonly disabled{% endif %}>
                   <div class="invalid-feedback">
                     {{ campos_erros.get('dataPrazoConclusao') }}
                   </div>
+                  <small class="form-hint">Prazo estimado para concluir</small>
                   {% if atividade.esta_atrasada %}
                   <small class="form-hint text-danger">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="16" height="16"
