@@ -192,9 +192,10 @@
                         {{ solicitacao.titulo[:40] }}{% if solicitacao.titulo|length > 40 %}...{% endif %}
                       </div>
                       {% endif %}
+                      
                       {% if solicitacao.descricao %}
                       <div class="text-secondary small">
-                        {{ solicitacao.descricao[:45] }}{% if solicitacao.descricao|length > 25 %}...{% endif %}
+                        {{ solicitacao.descricao | striptags | truncate(45, True, '...') }}
                       </div>
                       {% endif %}
                     </td>

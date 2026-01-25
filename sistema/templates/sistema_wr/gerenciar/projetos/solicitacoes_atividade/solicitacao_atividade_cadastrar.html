@@ -139,8 +139,13 @@
                       </svg>
                     </a>
                   </label>
-                  <textarea class="form-control" name="descricao" rows="6"
-                    placeholder="Descreva detalhadamente a funcionalidade ou tarefa que você está solicitando:&#10;&#10;• Qual problema isso resolve?&#10;• Como deve funcionar?&#10;• Há algum requisito específico?&#10;• Existem exemplos ou referências?">{{ dados_corretos.descricao or '' }}</textarea>
+                  
+                  <!-- Textarea oculto para envio -->
+                  <textarea id="descricao" name="descricao" style="display:none;">{{ dados_corretos.descricao or '' }}</textarea>
+                  
+                  <!-- Editor Quill -->
+                  <div id="editor-descricao" style="height: 300px; background: white;"></div>
+                  
                   <small class="form-hint">
                     Quanto mais detalhes você fornecer, melhor será a análise da sua solicitação.
                   </small>
@@ -247,10 +252,113 @@
   {% include 'sistema_wr/estrutura/footer.html' %}
 </div>
 
+<!--Quill CSS-->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" rel="stylesheet">
+
+<!-- Quill JS -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    // ========================================
+    // Configurar highlight.js para Quill
+    // ========================================
+    hljs.configure({
+      languages: ['javascript', 'python', 'html', 'css', 'sql', 'php', 'java']
+    });
 
+    // ========================================
+    // Inicialização do Quill Editor para Descrição
+    // ========================================
+    var quillDescricao = new Quill('#editor-descricao', {
+      theme: 'snow',
+      placeholder: 'Descreva detalhadamente a funcionalidade ou tarefa que você está solicitando:\n\n• Qual problema isso resolve?\n• Como deve funcionar?\n• Há algum requisito específico?\n• Existem exemplos ou referências?',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          ['blockquote', 'code-block'],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          [{ 'indent': '-1' }, { 'indent': '+1' }],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'align': [] }],
+          ['link', 'image'],
+          ['clean']
+        ],
+        syntax: {
+          highlight: text => hljs.highlightAuto(text).value
+        }
+      }
+    });
+
+    // Carregar conteúdo inicial (se houver)
+    var textareaDescricao = document.getElementById('descricao');
+    var conteudoInicial = textareaDescricao ? textareaDescricao.value : '';
+
+    if (conteudoInicial && conteudoInicial.trim() !== '') {
+      quillDescricao.root.innerHTML = conteudoInicial;
+    }
+
+    // Sincronizar conteúdo do Quill com textarea em tempo real
+    quillDescricao.on('text-change', function() {
+      var conteudoHtml = quillDescricao.root.innerHTML;
+      
+      // Limpar se estiver vazio (apenas tags vazias)
+      if (conteudoHtml === '<p><br></p>' || conteudoHtml.trim() === '') {
+        conteudoHtml = '';
+      }
+      
+      document.getElementById('descricao').value = conteudoHtml;
+    });
+
+    // Também sincronizar no submit para garantir
+    var formCadastro = document.querySelector('form');
+    if (formCadastro) {
+      formCadastro.addEventListener('submit', function (e) {
+        var conteudoHtml = quillDescricao.root.innerHTML;
+        
+        // Limpar se estiver vazio (apenas tags vazias)
+        if (conteudoHtml === '<p><br></p>' || conteudoHtml.trim() === '') {
+          conteudoHtml = '';
+        }
+        
+        // Sincronizar com textarea
+        document.getElementById('descricao').value = conteudoHtml;
+        
+        // Debug: verificar se está sendo sincronizado
+        console.log('Descrição enviada:', document.getElementById('descricao').value);
+      });
+    }
+
+    // Handler para upload de imagem no Quill
+    quillDescricao.getModule('toolbar').addHandler('image', function () {
+      var input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', 'image/*');
+      input.click();
+
+      input.onchange = function () {
+        var file = input.files[0];
+        if (/^image\//.test(file.type)) {
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            var range = quillDescricao.getSelection();
+            quillDescricao.insertEmbed(range.index, 'image', e.target.result);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert('Por favor, selecione apenas imagens.');
+        }
+      };
+    });
+
+    // ========================================
     // Efeito shake e contador de caracteres para o Titulo
+    // ========================================
     const inputTitulo = document.getElementById('inputTitulo');
     const charCountTitulo = document.getElementById('charCountTitulo');
     const counterTitulo = inputTitulo?.closest('.mb-3')?.querySelector('.char-counter');
