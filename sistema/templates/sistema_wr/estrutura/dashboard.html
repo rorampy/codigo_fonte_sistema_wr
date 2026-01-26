@@ -121,8 +121,6 @@
 
   /* ==================== BOAS VINDAS - CLEAN & ELEGANT ==================== */
   .welcome-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1.25rem;
     border-bottom: 1px solid var(--sys-border-light);
     animation: fadeInUp var(--duration-slow) var(--ease-out-expo);
   }
@@ -626,7 +624,7 @@
     <div class="container-xl">
       {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
 
-      <div class="welcome-header">
+      <div class="welcome-header mb-3">
         <h3 class="welcome-title">Olá, {{ current_user.nome }} {{ current_user.sobrenome }}</h3>
         <p class="welcome-subtitle">
           Bem-vindo ao Sistema WR.</span>

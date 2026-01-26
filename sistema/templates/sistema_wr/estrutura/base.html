@@ -20,6 +20,9 @@
     
     <!-- Menu de Atalhos Flutuante -->
     <link href="{{ url_for('static', filename='css/menu_atalhos.css') }}" rel="stylesheet" />
+    
+    <!-- Sidebar Toggle -->
+    <link href="{{ url_for('static', filename='css/sidebar-toggle.css') }}" rel="stylesheet" />
 
     <!-- Tom Select CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -36,6 +39,18 @@
       	font-feature-settings: "cv03", "cv04", "cv11";
       }
     </style>
+
+    <!-- Restaura estado do sidebar ANTES de renderizar para evitar flash/animação -->
+    <script>
+      (function() {
+        try {
+          if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            // Adiciona classes ao HTML antes do body ser renderizado
+            document.documentElement.classList.add('sidebar-will-collapse');
+          }
+        } catch(e) {}
+      })();
+    </script>
 
   </head>
   <body class="layout-fluid">
@@ -103,6 +118,9 @@
     
     <!-- Menu de Atalhos Flutuante -->
     <script src="{{ url_for('static', filename='js/menu_atalhos.js') }}" defer></script>
+    
+    <!-- Sidebar Toggle -->
+    <script src="{{ url_for('static', filename='js/sidebar-toggle.js') }}"></script>
 
     <!-- Fecha os alertas automaticamente -->
     <script>
