@@ -176,40 +176,7 @@
     background: linear-gradient(90deg, var(--sys-border) 0%, transparent 100%);
   }
 
-  /* ==================== GRID DE MÉTRICAS ==================== */
-  .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 1rem;
-  }
-
-  @media (max-width: 1400px) {
-    .metrics-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .metrics-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .metrics-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
   /* ==================== CARD DE MÉTRICA - GLASSMORPHISM ==================== */
-  .metrics-grid>a,
-  .metrics-grid>div {
-    display: flex;
-  }
-
-  .metrics-grid>a {
-    text-decoration: none;
-  }
 
   .metric-card {
     background: rgba(255, 255, 255, 0.9);
@@ -235,33 +202,27 @@
     animation-fill-mode: both;
   }
 
-  .metrics-grid>*:nth-child(1) .metric-card,
-  .metrics-grid>a:nth-child(1) .metric-card {
+  .row>.col:nth-child(1) .metric-card {
     animation-delay: 50ms;
   }
 
-  .metrics-grid>*:nth-child(2) .metric-card,
-  .metrics-grid>a:nth-child(2) .metric-card {
+  .row>.col:nth-child(2) .metric-card {
     animation-delay: 100ms;
   }
 
-  .metrics-grid>*:nth-child(3) .metric-card,
-  .metrics-grid>a:nth-child(3) .metric-card {
+  .row>.col:nth-child(3) .metric-card {
     animation-delay: 150ms;
   }
 
-  .metrics-grid>*:nth-child(4) .metric-card,
-  .metrics-grid>a:nth-child(4) .metric-card {
+  .row>.col:nth-child(4) .metric-card {
     animation-delay: 200ms;
   }
 
-  .metrics-grid>*:nth-child(5) .metric-card,
-  .metrics-grid>a:nth-child(5) .metric-card {
+  .row>.col:nth-child(5) .metric-card {
     animation-delay: 250ms;
   }
 
-  .metrics-grid>*:nth-child(6) .metric-card,
-  .metrics-grid>a:nth-child(6) .metric-card {
+  .row>.col:nth-child(6) .metric-card {
     animation-delay: 300ms;
   }
 
@@ -641,161 +602,172 @@
           <div class="section-divider"></div>
         </div>
 
-        <div class="metrics-grid">
+        <div class="row g-3">
           <!-- Card: Minhas Atividades -->
-          <a href="{{ url_for('atividades_listar') }}?responsavel_id={{ current_user.id }}&situacao_id=1&situacao_id=2&situacao_id=6"
-            class="text-decoration-none">
-            <div class="metric-card clickable">
-              <div class="metric-icon primary">
+          <div class="col-12 col-sm-6 col-md-4 col-xl-3 col-xxl-2">
+            <a href="{{ url_for('atividades_listar') }}?responsavel_id={{ current_user.id }}&situacao_id=1&situacao_id=2&situacao_id=6"
+              class="text-decoration-none d-block h-100">
+              <div class="metric-card clickable">
+                <div class="metric-icon primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />
+                    <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />
+                    <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />
+                    <path d="M11 6l9 0" />
+                    <path d="M11 12l9 0" />
+                    <path d="M11 18l9 0" />
+                  </svg>
+                </div>
+                <div class="metric-content">
+                  <div class="metric-label">Minhas Atividades</div>
+                  <div class="metric-value">{{ metricas.minhas_atividades }}</div>
+                  <div class="metric-subtitle">Atribuídas a mim</div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Card: Prestes a Expirar -->
+          <div class="col-12 col-sm-6 col-md-4 col-xl-3 col-xxl-2">
+            <div class="metric-card">
+              <div class="metric-icon {% if metricas.atividades_expirando > 0 %}warning{% else %}success{% endif %}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />
-                  <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />
-                  <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />
-                  <path d="M11 6l9 0" />
-                  <path d="M11 12l9 0" />
-                  <path d="M11 18l9 0" />
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 3" />
                 </svg>
               </div>
               <div class="metric-content">
-                <div class="metric-label">Minhas Atividades</div>
-                <div class="metric-value">{{ metricas.minhas_atividades }}</div>
-                <div class="metric-subtitle">Atribuídas a mim</div>
+                <div class="metric-top">
+                  <span class="metric-label">Próximos 7 dias</span>
+                  {% if metricas.atividades_expirando > 0 %}
+                  <span class="badge badge-outline text-orange">⚠</span>
+                  {% endif %}
+                </div>
+                <div class="metric-value">{{ metricas.atividades_expirando }}</div>
+                <div class="metric-subtitle">{% if metricas.atividades_expirando == 1 %}atividade{% else %}atividades{%
+                  endif %} a vencer</div>
               </div>
-            </div>
-          </a>
-
-          <!-- Card: Prestes a Expirar -->
-          <div class="metric-card">
-            <div class="metric-icon {% if metricas.atividades_expirando > 0 %}warning{% else %}success{% endif %}">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3 3" />
-              </svg>
-            </div>
-            <div class="metric-content">
-              <div class="metric-top">
-                <span class="metric-label">Próximos 7 dias</span>
-                {% if metricas.atividades_expirando > 0 %}
-                <span class="badge badge-outline text-orange">⚠</span>
-                {% endif %}
-              </div>
-              <div class="metric-value">{{ metricas.atividades_expirando }}</div>
-              <div class="metric-subtitle">{% if metricas.atividades_expirando == 1 %}atividade{% else %}atividades{%
-                endif %} a vencer</div>
             </div>
           </div>
 
           <!-- Card: Atividades Atrasadas -->
-          {% if metricas.atividades_atrasadas > 0 %}
-          <a href="{{ url_for('atividade_visualizar', atividade_id=metricas.atividade_mais_atrasada.id) }}"
-            class="text-decoration-none">
-            <div class="metric-card clickable danger-border">
-              <div class="metric-icon danger">
+          <div class="col-12 col-sm-6 col-md-4 col-xl-3 col-xxl-2">
+            {% if metricas.atividades_atrasadas > 0 %}
+            <a href="{{ url_for('atividade_visualizar', atividade_id=metricas.atividade_mais_atrasada.id) }}"
+              class="text-decoration-none d-block h-100">
+              <div class="metric-card clickable danger-border">
+                <div class="metric-icon danger">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 9v4" />
+                    <path d="M12 17h.01" />
+                    <circle cx="12" cy="12" r="9" />
+                  </svg>
+                </div>
+                <div class="metric-content">
+                  <div class="metric-top">
+                    <span class="metric-label">Atrasadas</span>
+                    <span class="badge badge-outline text-red">{{ metricas.atividade_mais_atrasada.dias_atraso }}d</span>
+                  </div>
+                  <div class="metric-value">{{ metricas.atividades_atrasadas }}</div>
+                  <div class="metric-subtitle">{{ metricas.atividade_mais_atrasada.titulo|truncate(20) }}</div>
+                </div>
+              </div>
+            </a>
+            {% else %}
+            <div class="metric-card">
+              <div class="metric-icon success">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 9v4" />
-                  <path d="M12 17h.01" />
-                  <circle cx="12" cy="12" r="9" />
+                  <path d="M5 12l5 5l10 -10" />
                 </svg>
               </div>
               <div class="metric-content">
                 <div class="metric-top">
                   <span class="metric-label">Atrasadas</span>
-                  <span class="badge badge-outline text-red">{{ metricas.atividade_mais_atrasada.dias_atraso }}d</span>
+                  <span class="badge badge-outline text-green">Em dia</span>
                 </div>
-                <div class="metric-value">{{ metricas.atividades_atrasadas }}</div>
-                <div class="metric-subtitle">{{ metricas.atividade_mais_atrasada.titulo|truncate(20) }}</div>
+                <div class="metric-value">0</div>
+                <div class="metric-subtitle">Nenhuma atrasada</div>
               </div>
             </div>
-          </a>
-          {% else %}
-          <div class="metric-card">
-            <div class="metric-icon success">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12l5 5l10 -10" />
-              </svg>
-            </div>
-            <div class="metric-content">
-              <div class="metric-top">
-                <span class="metric-label">Atrasadas</span>
-                <span class="badge badge-outline text-green">Em dia</span>
-              </div>
-              <div class="metric-value">0</div>
-              <div class="metric-subtitle">Nenhuma atrasada</div>
-            </div>
+            {% endif %}
           </div>
-          {% endif %}
-
 
           <!-- Card: Solicitações em Análise -->
-          <a href="{{ url_for('solicitacoes_atividade_listar') }}?situacao_id=7" class="text-decoration-none">
-            <div class="metric-card clickable">
-              <div class="metric-icon info">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                  <path d="M12 11v6" />
-                  <path d="M9.5 13.5l2.5 -2.5l2.5 2.5" />
-                </svg>
+          <div class="col-12 col-sm-6 col-md-4 col-xl-3 col-xxl-2">
+            <a href="{{ url_for('solicitacoes_atividade_listar') }}?situacao_id=7" class="text-decoration-none d-block h-100">
+              <div class="metric-card clickable">
+                <div class="metric-icon info">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                    <path d="M12 11v6" />
+                    <path d="M9.5 13.5l2.5 -2.5l2.5 2.5" />
+                  </svg>
+                </div>
+                <div class="metric-content">
+                  <div class="metric-label">Solicitações T.I</div>
+                  <div class="metric-value">{{ metricas.solicitacoes_analise }}</div>
+                  <div class="metric-subtitle">Em análise</div>
+                </div>
               </div>
-              <div class="metric-content">
-                <div class="metric-label">Solicitações T.I</div>
-                <div class="metric-value">{{ metricas.solicitacoes_analise }}</div>
-                <div class="metric-subtitle">Em análise</div>
-              </div>
-            </div>
-          </a>
+            </a>
+          </div>
 
           <!-- Card: Horas Trabalhadas Hoje -->
-          <a href="{{ url_for('lancamento_horas_listar') }}?usuario_id={{ current_user.id }}"
-            class="text-decoration-none">
-            <div class="metric-card clickable">
-              <div
-                class="metric-icon {% if metricas.horas_hoje >= 8 %}success{% elif metricas.horas_hoje >= 4 %}info{% else %}warning{% endif %}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-              </div>
-              <div class="metric-content">
-                <div class="metric-top">
-                  <span class="metric-label">Horas Lançadas Hoje</span>
+          <div class="col-12 col-sm-6 col-md-4 col-xl-3 col-xxl-2">
+            <a href="{{ url_for('lancamento_horas_listar') }}?usuario_id={{ current_user.id }}"
+              class="text-decoration-none d-block h-100">
+              <div class="metric-card clickable">
+                <div
+                  class="metric-icon {% if metricas.horas_hoje >= 8 %}success{% elif metricas.horas_hoje >= 4 %}info{% else %}warning{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
                 </div>
-                <div class="metric-value">{{ metricas.horas_hoje }}h</div>
-                <div class="metric-subtitle">
-                  {% if metricas.horas_hoje == 0 %}
-                  Nenhum lançamento hoje
-                  {% elif metricas.horas_hoje < 8 %} Faltam {{ 8 - metricas.horas_hoje }}h para meta {% else %} {{
-                    metricas.horas_hoje - 8 }}h acima da meta {% endif %} </div>
+                <div class="metric-content">
+                  <div class="metric-top">
+                    <span class="metric-label">Horas Lançadas Hoje</span>
+                  </div>
+                  <div class="metric-value">{{ metricas.horas_hoje }}h</div>
+                  <div class="metric-subtitle">
+                    {% if metricas.horas_hoje == 0 %}
+                    Nenhum lançamento hoje
+                    {% elif metricas.horas_hoje < 8 %} Faltam {{ 8 - metricas.horas_hoje }}h para meta {% else %} {{
+                      metricas.horas_hoje - 8 }}h acima da meta {% endif %} </div>
+                  </div>
                 </div>
-              </div>
-          </a>
+            </a>
+          </div>
 
           <!-- Card: Horas no Mês -->
-          <a href="{{ url_for('lancamento_horas_listar') }}?usuario_id={{ current_user.id }}"
-            class="text-decoration-none">
-            <div class="metric-card clickable">
-              <div class="metric-icon success">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
-                  <path d="M12 7v5l3 3" />
-                  <path d="M19 22v-6" />
-                  <path d="M22 19l-3 3l-3 -3" />
-                </svg>
+          <div class="col-12 col-sm-6 col-md-4 col-xl-3 col-xxl-2">
+            <a href="{{ url_for('lancamento_horas_listar') }}?usuario_id={{ current_user.id }}"
+              class="text-decoration-none d-block h-100">
+              <div class="metric-card clickable">
+                <div class="metric-icon success">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
+                    <path d="M12 7v5l3 3" />
+                    <path d="M19 22v-6" />
+                    <path d="M22 19l-3 3l-3 -3" />
+                  </svg>
+                </div>
+                <div class="metric-content">
+                  <div class="metric-label">Horas Trabalhadas</div>
+                  <div class="metric-value">{{ metricas.horas_mes }}h</div>
+                  <div class="metric-subtitle">Este mês</div>
+                </div>
               </div>
-              <div class="metric-content">
-                <div class="metric-label">Horas Trabalhadas</div>
-                <div class="metric-value">{{ metricas.horas_mes }}h</div>
-                <div class="metric-subtitle">Este mês</div>
-              </div>
-            </div>
-          </a>
+            </a>
+          </div>
         </div>
       </div>
       {% endif %}
