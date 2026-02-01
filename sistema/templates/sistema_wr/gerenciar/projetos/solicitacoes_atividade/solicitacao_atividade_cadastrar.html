@@ -139,13 +139,14 @@
                       </svg>
                     </a>
                   </label>
-                  
+
                   <!-- Textarea oculto para envio -->
-                  <textarea id="descricao" name="descricao" style="display:none;">{{ dados_corretos.descricao or '' }}</textarea>
-                  
+                  <textarea id="descricao" name="descricao"
+                    style="display:none;">{{ dados_corretos.descricao or '' }}</textarea>
+
                   <!-- Editor Quill -->
                   <div id="editor-descricao" style="height: 300px; background: white;"></div>
-                  
+
                   <small class="form-hint">
                     Quanto mais detalhes você fornecer, melhor será a análise da sua solicitação.
                   </small>
@@ -304,14 +305,14 @@
     }
 
     // Sincronizar conteúdo do Quill com textarea em tempo real
-    quillDescricao.on('text-change', function() {
+    quillDescricao.on('text-change', function () {
       var conteudoHtml = quillDescricao.root.innerHTML;
-      
+
       // Limpar se estiver vazio (apenas tags vazias)
       if (conteudoHtml === '<p><br></p>' || conteudoHtml.trim() === '') {
         conteudoHtml = '';
       }
-      
+
       document.getElementById('descricao').value = conteudoHtml;
     });
 
@@ -320,41 +321,41 @@
     if (formCadastro) {
       formCadastro.addEventListener('submit', function (e) {
         var conteudoHtml = quillDescricao.root.innerHTML;
-        
+
         // Limpar se estiver vazio (apenas tags vazias)
         if (conteudoHtml === '<p><br></p>' || conteudoHtml.trim() === '') {
           conteudoHtml = '';
         }
-        
+
         // Sincronizar com textarea
         document.getElementById('descricao').value = conteudoHtml;
-        
+
         // Debug: verificar se está sendo sincronizado
         console.log('Descrição enviada:', document.getElementById('descricao').value);
       });
     }
 
-    // Handler para upload de imagem no Quill
-    quillDescricao.getModule('toolbar').addHandler('image', function () {
-      var input = document.createElement('input');
-      input.setAttribute('type', 'file');
-      input.setAttribute('accept', 'image/*');
-      input.click();
+    // // Handler para upload de imagem no Quill
+    // quillDescricao.getModule('toolbar').addHandler('image', function () {
+    //   var input = document.createElement('input');
+    //   input.setAttribute('type', 'file');
+    //   input.setAttribute('accept', 'image/*');
+    //   input.click();
 
-      input.onchange = function () {
-        var file = input.files[0];
-        if (/^image\//.test(file.type)) {
-          var reader = new FileReader();
-          reader.onload = function (e) {
-            var range = quillDescricao.getSelection();
-            quillDescricao.insertEmbed(range.index, 'image', e.target.result);
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert('Por favor, selecione apenas imagens.');
-        }
-      };
-    });
+    //   input.onchange = function () {
+    //     var file = input.files[0];
+    //     if (/^image\//.test(file.type)) {
+    //       var reader = new FileReader();
+    //       reader.onload = function (e) {
+    //         var range = quillDescricao.getSelection();
+    //         quillDescricao.insertEmbed(range.index, 'image', e.target.result);
+    //       };
+    //       reader.readAsDataURL(file);
+    //     } else {
+    //       alert('Por favor, selecione apenas imagens.');
+    //     }
+    //   };
+    // });
 
     // ========================================
     // Efeito shake e contador de caracteres para o Titulo

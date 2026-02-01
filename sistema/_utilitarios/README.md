@@ -2,6 +2,12 @@ Kit de ferramentas pessoal. Algumas ferramentas dependem de Módulos de terceiro
 
 # Changelog
 
+## Versão 1.2.0 (01/02/2026)
+
+### Adicionado
+
+- Add função html_contem_imagem na ValidaForms para detectar imagens em campos quill (ex: descriçao) (<img>, <svg>, data:image/*) e bloquear o envio.
+
 ## Versão 1.1.9 (23/07/2024)
 
 ### Adicionado

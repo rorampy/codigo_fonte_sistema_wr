@@ -285,6 +285,12 @@ def solicitacao_atividade_cadastrar(projeto_id=None):
         categoria_id = request.form.get("categoriaId", "").strip() or None
         area_id = request.form.get("areaId", "").strip() or None
 
+        validar_descricao = ValidaForms.html_contem_imagem(descricao)
+        if validar_descricao:
+            validacao_campos_erros["descricao"] = 'Imagens não são permitidas na descrição. Use "Anexos (Opcional)".'
+            gravar_banco = False
+            flash(("Remova imagens da descrição e envie pelo campo de anexos.", "warning"))
+
 
         if len(titulo) > 100:
             validacao_campos_erros["titulo"] = "Título deve ter no máximo 100 caracteres"

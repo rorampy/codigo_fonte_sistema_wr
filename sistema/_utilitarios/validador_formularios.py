@@ -273,4 +273,13 @@ class ValidaForms:
         # Formata a data no novo formato
         resultado['validado'] = f'{dia:02d}/{mes:02d}/{ano:04d}'
         return resultado
-            
+    
+    def html_contem_imagem(html: str) -> bool:
+
+        _IMG_TAG_RE = re.compile(r"<\s*img\b", re.IGNORECASE)
+        _SVG_TAG_RE = re.compile(r"<\s*svg\b", re.IGNORECASE)
+        _DATA_IMAGE_RE = re.compile(r"data\s*:\s*image\b", re.IGNORECASE)
+
+        if not html:
+            return False
+        return bool(_IMG_TAG_RE.search(html) or _SVG_TAG_RE.search(html) or _DATA_IMAGE_RE.search(html))
