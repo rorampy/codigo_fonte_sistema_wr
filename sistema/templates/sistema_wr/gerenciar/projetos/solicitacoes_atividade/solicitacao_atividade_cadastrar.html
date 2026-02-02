@@ -296,6 +296,33 @@
       }
     });
 
+    // =========================================================
+    // BLOQUEIO: colar imagens (Ctrl+V) e colar HTML com <img>
+    // =========================================================
+    function showToastOrAlert(msg) {
+      // Se você já tem algum toast/flash do Tabler, você pode trocar aqui.
+      // Por enquanto, algo simples:
+      alert(msg);
+    }
+
+    quillDescricao.root.addEventListener('paste', function (e) {
+      const cd = e.clipboardData || window.clipboardData;
+      if (!cd) return;
+
+      // 1) Bloquear imagem vinda como arquivo no clipboard
+      const items = cd.items ? Array.from(cd.items) : [];
+      const hasImageFile = items.some(it => it.kind === 'file' && it.type && it.type.startsWith('image/'));
+
+      // 2) Bloquear HTML colado que contenha <img> (ex: data:image/png;base64,...)
+      const html = cd.getData && cd.getData('text/html');
+      const hasImgTag = html && /<img[\s\S]*?>/i.test(html);
+
+      if (hasImageFile || hasImgTag) {
+        e.preventDefault();
+        showToastOrAlert('Colar imagens não é permitido neste campo. Envie a imagem em "Anexos" (Opcional).');
+      }
+    });
+
     // Carregar conteúdo inicial (se houver)
     var textareaDescricao = document.getElementById('descricao');
     var conteudoInicial = textareaDescricao ? textareaDescricao.value : '';
