@@ -64,7 +64,7 @@ def kanban_visualizar(projeto_id=None):
         query = query.filter(AtividadeModel.projeto_id == filtro_projeto)
 
     if filtro_responsavel:
-        query = query.filter(AtividadeModel.usuario_execucao_id == filtro_responsavel)
+        query = query.filter(AtividadeModel.desenvolvedor_id == filtro_responsavel)
 
     if filtro_situacao and modo_visualizacao == 'prioridade':
         query = query.filter(AtividadeModel.situacao_id == filtro_situacao)
