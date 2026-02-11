@@ -284,6 +284,7 @@ from sistema.models_views.sistema_wr.contrato import contrato_produto
 # Configurações
 from sistema.models_views.sistema_wr.configuracoes.gerais.modelo_contrato import modelo_contrato_model
 from sistema.models_views.sistema_wr.configuracoes.gerais.modelo_contrato import modelo_contrato_view
+from sistema.models_views.sistema_wr.configuracoes.gerais.mapeamento_roles import mapeamento_roles_view
 from sistema.models_views.sistema_wr.configuracoes.gerais.variaveis_contrato import variavel_modelo_contrato_model
 
 # Configurações - Email Atividades

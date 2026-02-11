@@ -1,0 +1,53 @@
+[
+  {
+    "id": "20260211124138297859",
+    "usuario": "João Vitor",
+    "usuario_id": 10,
+    "acao": "reverteu",
+    "chave": "changelog_cadastrar",
+    "conteudo": "Restaurou rota \"changelog_cadastrar\" com roles: ['root']",
+    "data_hora": "11/02/2026 12:41:38",
+    "revertido": false
+  },
+  {
+    "id": "20260211124123391528",
+    "usuario": "João Vitor",
+    "usuario_id": 10,
+    "acao": "removeu",
+    "chave": "changelog_cadastrar",
+    "conteudo": "['root']",
+    "data_hora": "11/02/2026 12:41:23",
+    "revertido": true,
+    "estado_anterior": [
+      "root"
+    ],
+    "revertido_por": "João Vitor",
+    "revertido_em": "11/02/2026 12:41:38"
+  },
+  {
+    "id": "20260211124108847687",
+    "usuario": "João Vitor",
+    "usuario_id": 10,
+    "acao": "adicionou",
+    "chave": "changelog_cadastrar",
+    "conteudo": "['root']",
+    "data_hora": "11/02/2026 12:41:08",
+    "revertido": false,
+    "estado_novo": [
+      "root"
+    ]
+  },
+  {
+    "id": "20260211124101380698",
+    "usuario": "João Vitor",
+    "usuario_id": 10,
+    "acao": "removeu",
+    "chave": "changelog_cadastrar",
+    "conteudo": "['root']",
+    "data_hora": "11/02/2026 12:41:01",
+    "revertido": false,
+    "estado_anterior": [
+      "root"
+    ]
+  }
+]

@@ -1,0 +1,1171 @@
+{% extends 'sistema_wr/estrutura/base.html' %}
+{% block conteudo %}
+{% include 'sistema_wr/estrutura/header.html' %}
+
+<style>
+    .rota-nome {
+        font-family: 'Courier New', monospace;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #1e293b;
+    }
+
+    .rota-descricao {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 2px;
+        font-style: italic;
+    }
+
+    .table-roles td {
+        vertical-align: middle;
+    }
+
+    .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .checkbox-grid label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 0.82rem;
+    }
+
+    .checkbox-grid label:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+    }
+
+    .checkbox-grid input:checked+span {
+        font-weight: 600;
+        color: #2563eb;
+    }
+
+    #tabelaMapeamento tr {
+        transition: opacity 0.15s;
+    }
+
+    #tabelaMapeamento tr.oculto {
+        display: none;
+    }
+
+    /* Histórico (Auditoria) */
+    #modalHistorico .modal-dialog {
+        max-width: 1120px;
+    }
+
+    #modalHistorico .modal-content {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: 0 24px 68px -42px rgba(15, 23, 42, 0.55);
+    }
+
+    #modalHistorico .modal-header {
+        padding: 1rem 1.15rem 0.9rem;
+        border-bottom: 1px solid #e5e7eb;
+        background: #ffffff;
+    }
+
+    #modalHistorico .modal-footer {
+        padding: 0.6rem 1rem;
+        border-top: 1px solid #e2e8f0;
+        background: #ffffff;
+    }
+
+    #modalHistorico .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 0;
+        background: #f8fafc;
+    }
+
+    .hist-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.72rem;
+    }
+
+    .hist-title-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: #e0e7ff;
+        border: 1px solid #c7d2fe;
+        color: #3730a3;
+        flex-shrink: 0;
+    }
+
+    .hist-subtitle {
+        font-size: 0.76rem;
+        color: #64748b;
+        margin-top: 0.12rem;
+    }
+
+    .hist-toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 4;
+        padding: 0.7rem 0.95rem 0.65rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(6px);
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+    }
+
+    .hist-toolbar-row {
+        display: grid;
+        grid-template-columns: minmax(260px, 1fr) auto;
+        align-items: center;
+        gap: 0.65rem;
+    }
+
+    .hist-search-wrap {
+        position: relative;
+    }
+
+    .hist-search-wrap .icon {
+        position: absolute;
+        left: 0.6rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        width: 15px;
+        height: 15px;
+        pointer-events: none;
+    }
+
+    #searchHistorico {
+        height: 34px;
+        padding-left: 2rem;
+        border-radius: 10px;
+        border-color: #d5dde8;
+        background: #f8fafc;
+    }
+
+    #searchHistorico:focus {
+        border-color: #94a3b8;
+        background: #ffffff;
+        box-shadow: 0 0 0 0.15rem rgba(59, 130, 246, 0.15);
+    }
+
+    .hist-filtros {
+        display: flex;
+        gap: 0.45rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: thin;
+    }
+
+    .hist-filtros .btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        font-size: 0.74rem;
+        font-weight: 600;
+        padding: 0.28rem 0.68rem;
+        border-radius: 10px;
+        border: 1px solid #d1d9e4;
+        background: #ffffff;
+        color: #334155;
+    }
+
+    .hist-filtros .btn:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+        color: #0f172a;
+    }
+
+    .hist-filtros .btn.active {
+        color: #ffffff;
+        background: #0f172a;
+        border-color: #0f172a;
+        box-shadow: none;
+    }
+
+    .hist-filtros .btn[data-filtro="adicionou"].active {
+        background: #047857;
+        border-color: #047857;
+    }
+
+    .hist-filtros .btn[data-filtro="editou"].active {
+        background: #b45309;
+        border-color: #b45309;
+    }
+
+    .hist-filtros .btn[data-filtro="removeu"].active {
+        background: #b91c1c;
+        border-color: #b91c1c;
+    }
+
+    .hist-filtros .btn[data-filtro="reverteu"].active {
+        background: #4338ca;
+        border-color: #4338ca;
+    }
+
+    .hist-stats {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: thin;
+    }
+
+    .hist-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 0.17rem 0.54rem;
+        font-size: 0.72rem;
+        color: #475569;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    .hist-stat strong {
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    .hist-stats .stat-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .hist-stats .stat-dot.add {
+        background: #059669;
+    }
+
+    .hist-stats .stat-dot.edit {
+        background: #d97706;
+    }
+
+    .hist-stats .stat-dot.rem {
+        background: #dc2626;
+    }
+
+    .hist-stats .stat-dot.rev {
+        background: #6366f1;
+    }
+
+    .hist-list {
+        padding: 0.9rem;
+    }
+
+    .hist-item {
+        position: relative;
+        margin-bottom: 0.7rem;
+        padding: 0.82rem 0.96rem 0.78rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #ffffff;
+        font-size: 0.83rem;
+        box-shadow: 0 14px 30px -30px rgba(15, 23, 42, 0.65);
+        transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+    }
+
+    .hist-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 3px;
+        border-radius: 14px 0 0 14px;
+        background: #94a3b8;
+    }
+
+    .hist-item[data-acao="adicionou"]::before {
+        background: #059669;
+    }
+
+    .hist-item[data-acao="editou"]::before {
+        background: #d97706;
+    }
+
+    .hist-item[data-acao="removeu"]::before {
+        background: #dc2626;
+    }
+
+    .hist-item[data-acao="reverteu"]::before {
+        background: #6366f1;
+    }
+
+    .hist-item:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 18px 34px -30px rgba(15, 23, 42, 0.75);
+        transform: translateY(-1px);
+    }
+
+    .hist-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .hist-item-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .hist-main-line {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.36rem;
+        color: #0f172a;
+    }
+
+    .hist-main-line .hist-user {
+        font-weight: 700;
+    }
+
+    .hist-main-line code {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        background: #eef2f7;
+        color: #1e293b;
+        padding: 2px 6px;
+        border-radius: 6px;
+    }
+
+    .hist-acao-adicionou,
+    .hist-acao-editou,
+    .hist-acao-removeu,
+    .hist-acao-reverteu {
+        display: inline-flex;
+        align-items: center;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 0.09rem 0.5rem;
+        font-size: 0.66rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border: 1px solid transparent;
+    }
+
+    .hist-acao-adicionou {
+        color: #047857;
+        background: #ecfdf5;
+        border-color: #a7f3d0;
+    }
+
+    .hist-acao-editou {
+        color: #b45309;
+        background: #fff7ed;
+        border-color: #fdba74;
+    }
+
+    .hist-acao-removeu {
+        color: #b91c1c;
+        background: #fef2f2;
+        border-color: #fca5a5;
+    }
+
+    .hist-acao-reverteu {
+        color: #4338ca;
+        background: #eef2ff;
+        border-color: #c7d2fe;
+    }
+
+    .hist-time {
+        font-size: 0.7rem;
+        color: #64748b;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 0.18rem 0.52rem;
+        border-radius: 999px;
+        white-space: nowrap;
+    }
+
+    .hist-content {
+        margin-top: 0.58rem;
+        padding: 0.52rem 0.62rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        font-size: 0.76rem;
+    }
+
+    .hist-content code {
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #0f172a;
+    }
+
+    .hist-meta-row {
+        margin-top: 0.46rem;
+        font-size: 0.75rem;
+        color: #475569;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.35rem;
+    }
+
+    .hist-meta-row em {
+        color: #334155;
+    }
+
+    .hist-revertido-info {
+        color: #64748b;
+    }
+
+    .hist-item.revertido {
+        border-color: #fde68a;
+        background: linear-gradient(90deg, rgba(255, 247, 237, 0.95) 0%, #ffffff 32%);
+    }
+
+    .hist-item.revertido::before {
+        background: #f59e0b;
+    }
+
+    .hist-item.revertido .hist-revertido-tag {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.65rem;
+        background: #fff7ed;
+        border: 1px solid #fdba74;
+        color: #9a3412;
+        padding: 1px 7px;
+        border-radius: 999px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .hist-item-actions {
+        margin-top: 0.62rem;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .hist-item .btn-reverter {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        border-radius: 10px;
+        padding: 0.28rem 0.72rem;
+        font-size: 0.74rem;
+        font-weight: 600;
+    }
+
+    .hist-empty {
+        min-height: 260px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        color: #64748b;
+        text-align: center;
+        font-size: 0.8rem;
+    }
+
+    .hist-empty .icon {
+        width: 30px;
+        height: 30px;
+        color: #94a3b8;
+    }
+
+    @media (max-width: 991px) {
+        #modalHistorico .modal-dialog {
+            max-width: 96vw;
+        }
+
+        .hist-toolbar-row {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .hist-item {
+            padding: 0.78rem 0.78rem 0.74rem 0.92rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #modalHistorico .modal-header {
+            padding: 0.9rem 0.9rem 0.78rem;
+        }
+
+        .hist-toolbar {
+            padding: 0.62rem 0.72rem;
+        }
+
+        .hist-list {
+            padding: 0.72rem;
+        }
+
+        .hist-item-head {
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .hist-time {
+            align-self: flex-start;
+        }
+
+        .hist-item .btn-reverter {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">CONFIGURAÇÕES</div>
+                    <h2 class="page-title">Mapeamento de Roles</h2>
+                </div>
+                <div class="col-12 col-md-auto ms-auto d-print-none">
+                    <div class="d-flex gap-2">
+                        <input type="search" id="searchRota" class="form-control d-inline-block w-9"
+                            placeholder="Pesquisar rota..." autocomplete="off" />
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal"
+                            data-bs-target="#modalHistorico" title="Histórico de Alterações">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 8l0 4l2 2" />
+                                <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                            </svg>
+                            Histórico
+                        </button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdicionar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            Novo Acesso
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+
+            {% include 'sistema_wr/estrutura/mensagens_flash.html' %}
+
+            <!-- KPIs -->
+            <div class="row row-deck row-cards mb-3">
+                <div class="col-6 col-sm-4 col-lg-2">
+                    <div class="card">
+                        <div class="card-body p-2 text-center">
+                            <div class="text-secondary text-uppercase fw-bold"
+                                style="font-size: 0.65rem; letter-spacing: 0.05em;">Rotas</div>
+                            <div class="h1 mb-0 mt-1">{{ mapeamento|length }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-lg-2">
+                    <div class="card">
+                        <div class="card-body p-2 text-center">
+                            <div class="text-secondary text-uppercase fw-bold"
+                                style="font-size: 0.65rem; letter-spacing: 0.05em;">Roles</div>
+                            <div class="h1 mb-0 mt-1">{{ roles_sistema|length }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-lg-2">
+                    <div class="card">
+                        <div class="card-body p-2 text-center">
+                            <div class="text-secondary text-uppercase fw-bold"
+                                style="font-size: 0.65rem; letter-spacing: 0.05em;">Alterações</div>
+                            <div class="h1 mb-0 mt-1">{{ historico|length }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de mapeamento -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Rotas e Permissões</h3>
+                        <div class="card-actions">
+                            <span class="text-secondary" style="font-size: 0.8rem;">
+                                Exibindo <strong id="contadorVisivel">{{ mapeamento|length }}</strong> de {{
+                                mapeamento|length }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-vcenter table-mobile-md card-table table-roles">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px">#</th>
+                                    <th>Rota</th>
+                                    <th>Roles Permitidas</th>
+                                    <th class="w-1 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaMapeamento">
+                                {% set cores = ['blue', 'green', 'red', 'yellow', 'purple', 'cyan', 'orange'] %}
+                                {% for chave, roles in mapeamento.items() %}
+                                <tr data-rota="{{ chave }}">
+                                    <td class="text-secondary" data-label="#">{{ loop.index }}</td>
+                                    <td data-label="Rota">
+                                        <span class="rota-nome">{{ chave }}</span>
+                                        {% if descricoes.get(chave) %}
+                                        <div class="rota-descricao">{{ descricoes[chave] }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td data-label="Roles">
+                                        {% for role in roles %}
+                                        <span
+                                            class="badge badge-outline text-{{ cores[loop.index0 % cores|length] }} me-1">{{
+                                            role }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-list flex-nowrap justify-content-center">
+                                            <a href="#" class="btn btn-icon btn-editar" title="Editar"
+                                                data-chave="{{ chave }}" data-roles="{{ roles|join(',') }}"
+                                                data-descricao="{{ descricoes.get(chave, '') }}" data-bs-toggle="modal"
+                                                data-bs-target="#modalEditar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                    stroke="currentColor" fill="none" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path
+                                                        d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                                                    <path
+                                                        d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                                    <path d="M16 5l3 3" />
+                                                </svg>
+                                            </a>
+                                            <a href="#" class="btn btn-icon text-danger btn-excluir" title="Excluir"
+                                                data-chave="{{ chave }}" data-bs-toggle="modal"
+                                                data-bs-target="#modalExcluir">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                    stroke="currentColor" fill="none" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M4 7l16 0" />
+                                                    <path d="M10 11l0 6" />
+                                                    <path d="M14 11l0 6" />
+                                                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========== MODAL ADICIONAR ========== -->
+    <div class="modal modal-blur fade" id="modalAdicionar" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <form action="{{ url_for('map_roles_adicionar') }}" method="POST">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Adicionar Novo Acesso</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label required">Nome da Rota</label>
+                                <input type="text" name="chave_rota" class="form-control"
+                                    placeholder="ex: minha_nova_rota" required pattern="[a-z0-9_]+"
+                                    title="Use apenas letras minúsculas, números e underscores">
+                                <small class="form-hint">Letras minúsculas, números e underscores (_)</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Descrição da Rota</label>
+                                <input type="text" name="descricao" class="form-control"
+                                    placeholder="Para que serve essa rota?" maxlength="200">
+                                <small class="form-hint">Breve descrição do que essa rota faz</small>
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label required">Roles com Acesso</label>
+                            <div class="checkbox-grid">
+                                {% for role in roles_sistema %}
+                                <label>
+                                    <input type="checkbox" name="roles" value="{{ role.nome }}"
+                                        class="form-check-input">
+                                    <span>{{ role.nome }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link link-secondary me-auto"
+                            data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M5 12l5 5l10 -10" />
+                            </svg>
+                            Salvar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== MODAL EDITAR ========== -->
+    <div class="modal modal-blur fade" id="modalEditar" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <form action="{{ url_for('map_roles_editar') }}" method="POST">
+                <input type="hidden" name="chave_original" id="editChaveOriginal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar Acesso</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label required">Nome da Rota</label>
+                                <input type="text" name="chave_rota" id="editChaveRota" class="form-control" required
+                                    pattern="[a-z0-9_]+" title="Use apenas letras minúsculas, números e underscores">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Descrição da Rota</label>
+                                <input type="text" name="descricao" id="editDescricao" class="form-control"
+                                    placeholder="Para que serve essa rota?" maxlength="200">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Roles com Acesso</label>
+                            <div class="checkbox-grid" id="editRolesGrid">
+                                {% for role in roles_sistema %}
+                                <label>
+                                    <input type="checkbox" name="roles" value="{{ role.nome }}"
+                                        class="form-check-input">
+                                    <span>{{ role.nome }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Justificativa da Edição</label>
+                            <textarea name="justificativa" class="form-control" rows="2"
+                                placeholder="Por que está editando?" maxlength="500"></textarea>
+                            <small class="form-hint">Opcional — será registrada no histórico</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link link-secondary me-auto"
+                            data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M5 12l5 5l10 -10" />
+                            </svg>
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== MODAL EXCLUIR ========== -->
+    <div class="modal modal-blur fade" id="modalExcluir" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <form action="{{ url_for('map_roles_excluir') }}" method="POST">
+                <input type="hidden" name="chave_rota" id="excluirChaveRota">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="modal-title">Confirma a exclusão?</div>
+                        <div class="mt-2">
+                            Você está prestes a remover a rota <strong id="excluirRotaNome"></strong> do mapeamento.
+                            Caso necessário, será possível reverter pelo histórico.
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Justificativa</label>
+                            <textarea name="justificativa" class="form-control" rows="2"
+                                placeholder="Por que está removendo?" maxlength="500"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link link-secondary me-auto"
+                            data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Sim, confirmo a Exclusão</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== MODAL HISTÓRICO (Auditoria) ========== -->
+    <div class="modal modal-blur fade" id="modalHistorico" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="hist-title-wrap">
+                        <span class="hist-title-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 8l0 4l2 2" />
+                                <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                            </svg>
+                        </span>
+                        <div>
+                            <h5 class="modal-title">Auditoria &amp; Histórico</h5>
+                            <div class="hist-subtitle">Linha do tempo completa das alterações de mapeamento</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Barra de ferramentas de auditoria -->
+                <div class="hist-toolbar">
+                    <div class="hist-toolbar-row">
+                        <div class="hist-search-wrap">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                <path d="M21 21l-6 -6" />
+                            </svg>
+                            <input type="search" id="searchHistorico" class="form-control form-control-sm"
+                                placeholder="Buscar por rota, usuário ou conteúdo..." autocomplete="off">
+                        </div>
+                        <div class="hist-stats">
+                            {% set n_add = historico|selectattr('acao', 'equalto', 'adicionou')|list|length %}
+                            {% set n_edit = historico|selectattr('acao', 'equalto', 'editou')|list|length %}
+                            {% set n_rem = historico|selectattr('acao', 'equalto', 'removeu')|list|length %}
+                            {% set n_rev = historico|selectattr('acao', 'equalto', 'reverteu')|list|length %}
+                            <span class="hist-stat"><span class="stat-dot add"></span> Adições <strong>{{ n_add
+                                    }}</strong></span>
+                            <span class="hist-stat"><span class="stat-dot edit"></span> Edições <strong>{{ n_edit
+                                    }}</strong></span>
+                            <span class="hist-stat"><span class="stat-dot rem"></span> Remoções <strong>{{ n_rem
+                                    }}</strong></span>
+                            <span class="hist-stat"><span class="stat-dot rev"></span> Reversões <strong>{{ n_rev
+                                    }}</strong></span>
+                        </div>
+                    </div>
+                    <div class="hist-filtros" role="group" aria-label="Filtrar ações do histórico">
+                        <button type="button" class="btn btn-sm active" data-filtro="todos">Todos</button>
+                        <button type="button" class="btn btn-sm" data-filtro="adicionou">Adições</button>
+                        <button type="button" class="btn btn-sm" data-filtro="editou">Edições</button>
+                        <button type="button" class="btn btn-sm" data-filtro="removeu">Remoções</button>
+                        <button type="button" class="btn btn-sm" data-filtro="reverteu">Reversões</button>
+                    </div>
+                </div>
+
+                <div class="modal-body" id="historicoBody">
+                    <div class="hist-list">
+                        {% if historico %}
+                        {% for item in historico %}
+                        <div class="hist-item {% if item.revertido is defined and item.revertido %}revertido{% endif %}"
+                            data-acao="{{ item.acao }}" data-chave="{{ item.chave }}"
+                            data-usuario="{{ item.usuario|lower }}">
+                            <div class="hist-item-head">
+                                <div class="hist-main-line">
+                                    <span class="hist-user">{{ item.usuario }}</span>
+                                    <span class="hist-acao-{{ item.acao }}">{{ item.acao }}</span>
+                                    <span class="text-secondary">na rota</span>
+                                    <code>{{ item.chave }}</code>
+                                    {% if item.chave_anterior is defined and item.chave_anterior %}
+                                    <span class="text-secondary">antes:</span>
+                                    <code>{{ item.chave_anterior }}</code>
+                                    {% endif %}
+                                    {% if item.revertido is defined and item.revertido %}
+                                    <span class="hist-revertido-tag">revertido</span>
+                                    {% endif %}
+                                </div>
+                                <small class="hist-time">{{ item.data_hora }}</small>
+                            </div>
+                            <div class="hist-content">
+                                <code>{{ item.conteudo }}</code>
+                            </div>
+                            {% if item.justificativa is defined and item.justificativa %}
+                            <div class="hist-meta-row">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="14" height="14"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M8 9h8" />
+                                    <path d="M8 13h6" />
+                                    <path
+                                        d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
+                                </svg>
+                                <em>{{ item.justificativa }}</em>
+                            </div>
+                            {% endif %}
+                            {% if item.revertido_por is defined and item.revertido_por %}
+                            <div class="hist-meta-row hist-revertido-info">
+                                Revertido por <strong>{{ item.revertido_por }}</strong> em {{ item.revertido_em }}
+                            </div>
+                            {% endif %}
+
+                            {# Botão de reverter (apenas para ações não revertidas e não-reversões) #}
+                            {% if item.id is defined and item.acao != 'reverteu' and (item.revertido is not defined or not
+                            item.revertido) %}
+                            <div class="hist-item-actions">
+                                <button type="button" class="btn btn-sm btn-outline-warning btn-reverter"
+                                    data-hist-id="{{ item.id }}" data-hist-acao="{{ item.acao }}"
+                                    data-hist-chave="{{ item.chave }}" data-hist-conteudo="{{ item.conteudo }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M9 14l-4 -4l4 -4" />
+                                        <path d="M5 10h11a4 4 0 1 1 0 8h-1" />
+                                    </svg>
+                                    Reverter
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="hist-empty">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 8l0 4l2 2" />
+                                <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                            </svg>
+                            <div class="fw-semibold text-dark">Nenhuma alteração registrada ainda.</div>
+                            <div>As próximas alterações de mapeamento aparecerão aqui.</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="text-secondary me-auto" style="font-size: 0.75rem;" id="histContador">
+                        Exibindo {{ historico|length }} registro(s)
+                    </span>
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL CONFIRMAR REVERSÃO (dupla confirmação) ========== -->
+    <div class="modal fade" id="modalConfirmarReversao" tabindex="-1" role="dialog" aria-hidden="true"
+        data-bs-backdrop="static">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <form action="{{ url_for('map_roles_reverter') }}" method="POST">
+                <input type="hidden" name="hist_id" id="reverterHistId">
+                <div class="modal-content border-warning">
+                    <div class="modal-body text-center">
+                        <div class="mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-warning" width="40"
+                                height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 9v4" />
+                                <path d="M12 16v.01" />
+                                <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z" />
+                            </svg>
+                        </div>
+                        <h3>Confirma a reversão?</h3>
+                        <div class="text-secondary mt-2">
+                            Você vai reverter a ação <strong id="reverterAcaoLabel"></strong> na rota
+                            <code id="reverterChaveLabel"></code>.
+                        </div>
+                        <div class="text-secondary mt-1" style="font-size: 0.78rem;">
+                            <code id="reverterConteudoLabel"></code>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link link-secondary me-auto" id="btnVoltarHistorico">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M9 14l-4 -4l4 -4" />
+                                <path d="M5 10h11a4 4 0 1 1 0 8h-1" />
+                            </svg>
+                            Reverter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% include 'sistema_wr/estrutura/footer.html' %}
+</div>
+
+<script>
+    // ========== Busca na tabela ==========
+    const searchInput = document.getElementById('searchRota');
+    const tabela = document.getElementById('tabelaMapeamento');
+    const contador = document.getElementById('contadorVisivel');
+    const linhas = tabela.querySelectorAll('tr');
+
+    searchInput.addEventListener('input', function () {
+        const termo = this.value.toLowerCase().trim();
+        let visiveis = 0;
+        linhas.forEach(tr => {
+            const rota = tr.getAttribute('data-rota') || '';
+            if (rota.toLowerCase().includes(termo)) {
+                tr.classList.remove('oculto');
+                visiveis++;
+            } else {
+                tr.classList.add('oculto');
+            }
+        });
+        contador.textContent = visiveis;
+    });
+
+    // ========== Modal Editar ==========
+    document.querySelectorAll('.btn-editar').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const chave = this.getAttribute('data-chave');
+            const roles = this.getAttribute('data-roles').split(',');
+            const descricao = this.getAttribute('data-descricao') || '';
+            document.getElementById('editChaveOriginal').value = chave;
+            document.getElementById('editChaveRota').value = chave;
+            document.getElementById('editDescricao').value = descricao;
+            document.querySelector('#modalEditar textarea[name="justificativa"]').value = '';
+            document.querySelectorAll('#editRolesGrid input[type="checkbox"]').forEach(cb => {
+                cb.checked = roles.includes(cb.value);
+            });
+        });
+    });
+
+    // ========== Modal Excluir ==========
+    document.querySelectorAll('.btn-excluir').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const chave = this.getAttribute('data-chave');
+            document.getElementById('excluirChaveRota').value = chave;
+            document.getElementById('excluirRotaNome').textContent = chave;
+            document.querySelector('#modalExcluir textarea[name="justificativa"]').value = '';
+        });
+    });
+
+    // ========== Histórico: Busca + Filtros ==========
+    const searchHist = document.getElementById('searchHistorico');
+    const histBody = document.getElementById('historicoBody');
+    const histItems = histBody.querySelectorAll('.hist-item');
+    const histContador = document.getElementById('histContador');
+    let filtroAtivo = 'todos';
+
+    function filtrarHistorico() {
+        const termo = searchHist.value.toLowerCase().trim();
+        let visiveis = 0;
+
+        histItems.forEach(item => {
+            const acao = item.getAttribute('data-acao');
+            const chave = item.getAttribute('data-chave') || '';
+            const usuario = item.getAttribute('data-usuario') || '';
+            const texto = item.textContent.toLowerCase();
+
+            const passaFiltro = filtroAtivo === 'todos' || acao === filtroAtivo;
+            const passaBusca = !termo || chave.includes(termo) || usuario.includes(termo) || texto.includes(termo);
+
+            if (passaFiltro && passaBusca) {
+                item.style.display = '';
+                visiveis++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        histContador.textContent = `Exibindo ${visiveis} registro(s)`;
+    }
+
+    searchHist.addEventListener('input', filtrarHistorico);
+
+    document.querySelectorAll('.hist-filtros .btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.hist-filtros .btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filtroAtivo = this.getAttribute('data-filtro');
+            filtrarHistorico();
+        });
+    });
+
+    // ========== Reversão: dupla confirmação ==========
+    const modalHistoricoEl = document.getElementById('modalHistorico');
+    const modalConfirmarEl = document.getElementById('modalConfirmarReversao');
+
+    function getModalHistorico() {
+        return bootstrap.Modal.getOrCreateInstance(modalHistoricoEl);
+    }
+    function getModalConfirmar() {
+        return bootstrap.Modal.getOrCreateInstance(modalConfirmarEl);
+    }
+
+    document.querySelectorAll('.btn-reverter').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const histId = this.getAttribute('data-hist-id');
+            const acao = this.getAttribute('data-hist-acao');
+            const chave = this.getAttribute('data-hist-chave');
+            const conteudo = this.getAttribute('data-hist-conteudo');
+
+            document.getElementById('reverterHistId').value = histId;
+            document.getElementById('reverterAcaoLabel').textContent = acao;
+            document.getElementById('reverterChaveLabel').textContent = chave;
+            document.getElementById('reverterConteudoLabel').textContent = conteudo;
+
+            // Fechar histórico e abrir confirmação
+            getModalHistorico().hide();
+            setTimeout(() => getModalConfirmar().show(), 300);
+        });
+    });
+
+    // Cancelar reversão: voltar ao histórico
+    document.getElementById('btnVoltarHistorico').addEventListener('click', function () {
+        getModalConfirmar().hide();
+        setTimeout(() => getModalHistorico().show(), 300);
+    });
+</script>
+
+{% endblock conteudo %}
