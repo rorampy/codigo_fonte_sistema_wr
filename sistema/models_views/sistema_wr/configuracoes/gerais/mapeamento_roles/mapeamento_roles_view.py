@@ -4,7 +4,7 @@ from datetime import datetime
 
 import mapeamento_roles as _mr_modulo
 from sistema import app, requires_roles
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, send_file
 from flask_login import login_required, current_user
 from logs_sistema import flask_logger
 from sistema.models_views.sistema_wr.autenticacao.role_model import RoleModel
@@ -145,6 +145,31 @@ def map_roles_listar():
         historico=historico[:100],
         descricoes=descricoes,
         roles_sistema=roles_sistema
+    )
+
+
+@app.route('/configuracoes/mapeamento-roles/download')
+@login_required
+@requires_roles
+def map_roles_download():
+    """Permite download do arquivo mapeamento_roles.py"""
+    if not os.path.isfile(MAPEAMENTO_ROLES_PATH):
+        flask_logger.error(
+            f'Usuario ID={current_user.id} tentou baixar mapeamento_roles.py mas arquivo não existe'
+        )
+        flash(('Arquivo não encontrado!', 'danger'))
+        return redirect(url_for('map_roles_listar'))
+    
+    flask_logger.info(
+        f'Usuario ID={current_user.id} ({current_user.nome} {current_user.sobrenome}) '
+        f'exportou o arquivo mapeamento_roles.py'
+    )
+    
+    return send_file(
+        MAPEAMENTO_ROLES_PATH,
+        as_attachment=True,
+        download_name='mapeamento_roles.py',
+        mimetype='text/x-python'
     )
 
 
