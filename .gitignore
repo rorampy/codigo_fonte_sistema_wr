@@ -8,6 +8,10 @@ venv/
 logs_sistema/*
 !logs_sistema/__init__.py
 
+# histórico de mapeamento de roles
+map_roles_hist/map_roles_hist.json
+map_roles_hist/map_roles_desc.json
+
 # pycharm
 .idea/
 
